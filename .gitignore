@@ -17,6 +17,7 @@ _build
 .env
 .vs
 .git
+.github
 
 dump.rdb
 
