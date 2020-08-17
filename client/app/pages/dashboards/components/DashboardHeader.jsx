@@ -97,7 +97,7 @@ function RefreshButton({ dashboardOptions }) {
         }>
         <Button className="icon-button hidden-xs" type={buttonType(refreshRate)}>
           <i className="fa fa-angle-down" />
-          <span className="sr-only">Split button!</span>
+          <span className="sr-only">{__("Split button!")}</span>
         </Button>
       </Dropdown>
     </Button.Group>

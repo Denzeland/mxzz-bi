@@ -78,7 +78,7 @@ class ShareDashboardDialog extends React.Component {
         delete dashboard.public_url;
       })
       .catch(() => {
-        notification.error("Failed to turn off sharing for this dashboard");
+        notification.error(__("Failed to turn off sharing for this dashboard"));
       })
       .finally(() => {
         this.setState({ saving: false });
@@ -102,12 +102,12 @@ class ShareDashboardDialog extends React.Component {
           {!this.props.hasOnlySafeQueries && (
             <Form.Item>
               <Alert
-                message="For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type."
+                message={__("For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type.")}
                 type="error"
               />
             </Form.Item>
           )}
-          <Form.Item label="Allow public access" {...this.formItemProps}>
+          <Form.Item label={__("Allow public access")} {...this.formItemProps}>
             <Switch
               checked={dashboard.publicAccessEnabled}
               onChange={this.onChange}
@@ -117,7 +117,7 @@ class ShareDashboardDialog extends React.Component {
             />
           </Form.Item>
           {dashboard.public_url && (
-            <Form.Item label="Secret address" {...this.formItemProps}>
+            <Form.Item label={__("Secret address")} {...this.formItemProps}>
               <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
             </Form.Item>
           )}
