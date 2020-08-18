@@ -15,7 +15,7 @@ export default function useDeleteVisualization(query, onChange) {
           onChangeRef.current(extend(query.clone(), { visualizations: filteredVisualizations }));
         })
         .catch(() => {
-          notification.error("Error deleting visualization.", "Maybe it's used in a dashboard?");
+          notification.error(__("Error deleting visualization."), __("Maybe it's used in a dashboard?"));
         }),
     [query]
   );

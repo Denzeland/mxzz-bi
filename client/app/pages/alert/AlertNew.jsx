@@ -48,7 +48,7 @@ export default class AlertNew extends React.Component {
               </HorizontalFormItem>
               {queryResult && options && (
                 <>
-                  <HorizontalFormItem label="Trigger when" className="alert-criteria">
+                  <HorizontalFormItem label={__("Trigger when")} className="alert-criteria">
                     <Criteria
                       columnNames={queryResult.getColumnNames()}
                       resultValues={queryResult.getData()}
@@ -60,7 +60,7 @@ export default class AlertNew extends React.Component {
                   <HorizontalFormItem label={__("When triggered, send notification")}>
                     <Rearm value={pendingRearm || 0} onChange={onRearmChange} editMode />
                   </HorizontalFormItem>
-                  <HorizontalFormItem label="Template">
+                  <HorizontalFormItem label={__("Template")}>
                     <NotificationTemplate
                       alert={alert}
                       query={query}

@@ -20,9 +20,9 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
 
   const confirmDelete = useCallback(() => {
     Modal.confirm({
-      title: "Delete Alert",
-      content: "Are you sure you want to delete this alert?",
-      okText: "Delete",
+      title: __("Delete Alert"),
+      content: __("Are you sure you want to delete this alert?"),
+      okText: __("Delete"),
       okType: "danger",
       onOk: () => {
         setLoading(true);
@@ -44,13 +44,13 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, muted }) {
         <Menu>
           <Menu.Item>
             {muted ? (
-              <a onClick={() => execute(unmute)}>Unmute Notifications</a>
+              <a onClick={() => execute(unmute)}>{__("Unmute Notifications")}</a>
             ) : (
-              <a onClick={() => execute(mute)}>Mute Notifications</a>
+                <a onClick={() => execute(mute)}>{__("Mute Notifications")}</a>
             )}
           </Menu.Item>
           <Menu.Item>
-            <a onClick={confirmDelete}>Delete Alert</a>
+            <a onClick={confirmDelete}>{__("Delete Alert")}</a>
           </Menu.Item>
         </Menu>
       }>

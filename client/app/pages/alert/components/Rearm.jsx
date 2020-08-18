@@ -73,7 +73,7 @@ RearmByDuration.propTypes = {
 };
 
 RearmByDuration.defaultProps = {
-  onChange: () => {},
+  onChange: () => { },
 };
 
 function RearmEditor({ value, onChange }) {
@@ -92,13 +92,13 @@ function RearmEditor({ value, onChange }) {
         dropdownMatchSelectWidth={false}
         onChange={_onChange}>
         <Select.Option value={0} label="Just once">
-          Just once <em>until back to normal</em>
+          {__("Just once")} <em>{__("until back to normal")}</em>
         </Select.Option>
         <Select.Option value={1} label="Each time alert is evaluated">
-          Each time alert is evaluated <em>until back to normal</em>
+          {__("Each time alert is evaluated")} <em>{__("until back to normal")}</em>
         </Select.Option>
         <Select.Option value={2} label="At most every">
-          At most every ... <em>when alert is evaluated</em>
+          {__("At most every ...")} <em>{__("when alert is evaluated")}</em>
         </Select.Option>
       </Select>
       {selected === 2 && value && <RearmByDuration value={value} onChange={onChange} editMode />}
@@ -115,20 +115,20 @@ function RearmViewer({ value }) {
   let phrase = "";
   switch (value) {
     case 0:
-      phrase = "just once, until back to normal";
+      phrase = __("just once, until back to normal");
       break;
     case 1:
-      phrase = "each time alert is evaluated, until back to normal";
+      phrase = __("each time alert is evaluated, until back to normal");
       break;
     default:
       phrase = (
         <>
-          at most every <RearmByDuration value={value} editMode={false} />, when alert is evaluated
+          {__("at most every")} <RearmByDuration value={value} editMode={false} />, {__("when alert is evaluated")}
         </>
       );
   }
 
-  return <span>Notifications are sent {phrase}.</span>;
+  return <span>{__("Notifications are sent")} {phrase}.</span>;
 }
 
 RearmViewer.propTypes = {

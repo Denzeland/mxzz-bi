@@ -5,7 +5,7 @@ export default function usePermissionsEditorDialog(query) {
   return useCallback(() => {
     PermissionsEditorDialog.showModal({
       aclUrl: `api/queries/${query.id}/acl`,
-      context: "query",
+      context: __("query"),
       author: query.user,
     });
   }, [query.id, query.user]);

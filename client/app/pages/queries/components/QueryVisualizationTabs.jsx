@@ -143,7 +143,7 @@ export default function QueryVisualizationTabs({
             />
           }>
           {queryResult ? (
-            <VisualizationRenderer visualization={visualization} queryResult={queryResult} context="query" />
+            <VisualizationRenderer visualization={visualization} queryResult={queryResult} context={__("query")} />
           ) : (
             <EmptyState
               title={__("Query Has no Result")}

@@ -35,7 +35,7 @@ function getSchema(dataSource, refresh = undefined) {
       return has(data, "schema") ? data.schema : Promise.reject();
     })
     .catch(() => {
-      notification.error("Schema refresh failed.", "Please try again later.");
+      notification.error(__("Schema refresh failed."), __("Please try again later."));
       return Promise.resolve([]);
     });
 }

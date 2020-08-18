@@ -115,7 +115,7 @@ class GroupDataSources extends React.Component {
         this.props.controller.update();
       })
       .catch(() => {
-        notification.error("Failed to remove data source from group.");
+        notification.error(__("Failed to remove data source from group."));
       });
   };
 
@@ -128,7 +128,7 @@ class GroupDataSources extends React.Component {
         this.forceUpdate();
       })
       .catch(() => {
-        notification.error("Failed change data source permissions.");
+        notification.error(__("Failed change data source permissions."));
       });
   };
 

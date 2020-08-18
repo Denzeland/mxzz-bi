@@ -6,7 +6,7 @@ import EmptyState from "@/components/empty-state/EmptyState";
 
 export default function QueriesListEmptyState({ page, searchTerm, selectedTags }) {
   if (searchTerm !== "") {
-    return <BigMessage message="Sorry, we couldn't find anything." icon="fa-search" />;
+    return <BigMessage message={__("Sorry, we couldn't find anything.")} icon="fa-search" />;
   }
   if (selectedTags.length > 0) {
     return <NoTaggedObjectsFound objectType="queries" tags={selectedTags} />;

@@ -29,7 +29,7 @@ class OutdatedQueries extends React.Component {
 
   listColumns = [
     {
-      title: "ID",
+      title: __("ID"),
       field: "id",
       width: "1%",
       align: "right",

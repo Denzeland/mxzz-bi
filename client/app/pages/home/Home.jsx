@@ -23,13 +23,12 @@ function DeprecatedEmbedFeatureAlert() {
       type="warning"
       message={
         <>
-          You have enabled <code>ALLOW_PARAMETERS_IN_EMBEDS</code>. This setting is now deprecated and should be turned
-          off. Parameters in embeds are supported by default.{" "}
+          {__("You have enabled")} <code>ALLOW_PARAMETERS_IN_EMBEDS</code>. {__("This setting is now deprecated and should be turned off. Parameters in embeds are supported by default.")}{" "}
           <a
             href="https://discuss.redash.io/t/support-for-parameters-in-embedded-visualizations/3337"
             target="_blank"
             rel="noopener noreferrer">
-            Read more
+            {__("Read more")}
           </a>
           .
         </>
@@ -51,10 +50,9 @@ function EmailNotVerifiedAlert() {
       type="warning"
       message={
         <>
-          We have sent an email with a confirmation link to your email address. Please follow the link to verify your
-          email address.{" "}
+          {__("We have sent an email with a confirmation link to your email address. Please follow the link to verify your email address.")}{" "}
           <a className="clickable" onClick={verifyEmail}>
-            Resend email
+            {__("Resend email")}
           </a>
           .
         </>
@@ -89,7 +87,7 @@ function FavoriteList({ title, resource, itemUrl, emptyState }) {
                 <i className="fa fa-star" aria-hidden="true" />
               </span>
               {item.name}
-              {item.is_draft && <span className="label label-default m-l-5">Unpublished</span>}
+              {item.is_draft && <span className="label label-default m-l-5">{__("Unpublished")}</span>}
             </a>
           ))}
         </div>

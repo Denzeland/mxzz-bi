@@ -14,21 +14,21 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
   switch (status) {
     case "waiting":
       if (!isCancelling) {
-        message = <React.Fragment>Query in queue&hellip;</React.Fragment>;
+        message = <React.Fragment>{__("Query in queue&hellip;")}</React.Fragment>;
       }
       break;
     case "processing":
       if (!isCancelling) {
-        message = <React.Fragment>Executing query&hellip;</React.Fragment>;
+        message = <React.Fragment>{__("Executing query&hellip;")}</React.Fragment>;
       }
       break;
     case "loading-result":
-      message = <React.Fragment>Loading results&hellip;</React.Fragment>;
+      message = <React.Fragment>{__("Loading results&hellip;")}</React.Fragment>;
       break;
     case "failed":
       message = (
         <React.Fragment>
-          Error running query: <strong>{error}</strong>
+          {__("Error running query:")} <strong>{error}</strong>
         </React.Fragment>
       );
       break;
@@ -47,7 +47,7 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
           <div>
             {isCancelButtonAvailable && (
               <Button className="m-l-10" type="primary" size="small" disabled={isCancelling} onClick={onCancel}>
-                Cancel
+                {__("Cancel")}
               </Button>
             )}
           </div>

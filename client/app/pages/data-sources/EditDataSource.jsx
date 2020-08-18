@@ -116,7 +116,7 @@ class EditDataSource extends React.Component {
         <div className="text-right m-r-10">
           {HELP_TRIGGER_TYPES[helpTriggerType] && (
             <HelpTrigger className="f-13" type={helpTriggerType}>
-              Setup Instructions <i className="fa fa-question-circle" />
+              {__("Setup Instructions")} <i className="fa fa-question-circle" />
             </HelpTrigger>
           )}
         </div>

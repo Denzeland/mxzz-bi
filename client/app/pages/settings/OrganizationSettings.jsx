@@ -80,7 +80,7 @@ class OrganizationSettings extends React.Component {
     return (
       <React.Fragment>
         <h4>Google Login</h4>
-        <Form.Item label="Allowed Google Apps Domains">
+        <Form.Item label={__("Allowed Google Apps Domains")}>
           <Select
             mode="tags"
             value={formValues.auth_google_apps_domains}
@@ -90,9 +90,8 @@ class OrganizationSettings extends React.Component {
             <Alert
               message={
                 <p>
-                  Any user registered with a <strong>{join(formValues.auth_google_apps_domains, ", ")}</strong> Google
-                  Apps account will be able to login. If they don{"'"}t have an existing user, a new user will be
-                  created and join the <strong>Default</strong> group.
+                  {__("Any user registered with a")} <strong>{join(formValues.auth_google_apps_domains, ", ")}</strong>{__("Google Apps account will be able to login. If they don't have an existing user, a new user will be created and join the")}
+                  <strong>{__("Default")}</strong> {__("group.")}
                 </p>
               }
               className="m-t-15"

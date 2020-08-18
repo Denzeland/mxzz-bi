@@ -44,11 +44,11 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
     }
 
     if (isNaN(alertOptions.value)) {
-      return "Value column type doesn't match threshold type.";
+      return __("Value column type doesn't match threshold type.");
     }
 
     if (isNaN(columnValue)) {
-      return "Value column isn't supported by condition type.";
+      return __("Value column isn't supported by condition type.");
     }
 
     return null;
@@ -56,14 +56,14 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
 
   const columnHint = (
     <small className="alert-criteria-hint">
-      Top row value is <code className="p-0">{toString(columnValue) || "unknown"}</code>
+      {__("Top row value is")} <code className="p-0">{toString(columnValue) || "unknown"}</code>
     </small>
   );
 
   return (
     <div data-test="Criteria">
       <div className="input-title">
-        <span>Value column</span>
+        <span>{__("Value column")}</span>
         {editMode ? (
           <Select
             value={alertOptions.column}
@@ -79,7 +79,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="input-title">
-        <span>Condition</span>
+        <span>{__("Condition")}</span>
         {editMode ? (
           <Select
             value={alertOptions.op}
@@ -117,7 +117,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="input-title">
-        <span>Threshold</span>
+        <span>{__("Threshold")}</span>
         {editMode ? (
           <Input style={{ width: 90 }} value={alertOptions.value} onChange={e => onChange({ value: e.target.value })} />
         ) : (

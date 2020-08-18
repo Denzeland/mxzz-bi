@@ -64,10 +64,10 @@ export default class AlertView extends React.Component {
     return (
       <>
         <Title name={name} alert={alert}>
-          <Tooltip title={canEdit ? "" : "You do not have sufficient permissions to edit this alert"}>
+          <Tooltip title={canEdit ? "" : __("You do not have sufficient permissions to edit this alert")}>
             <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
               <i className="fa fa-edit m-r-5" />
-              Edit
+              {__("Edit")}
             </Button>
             {menuButton}
           </Tooltip>
@@ -78,19 +78,19 @@ export default class AlertView extends React.Component {
               <HorizontalFormItem>
                 <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
               </HorizontalFormItem>
-              <HorizontalFormItem label="Query">
+              <HorizontalFormItem label={__("Query")}>
                 <Query query={query} queryResult={queryResult} />
               </HorizontalFormItem>
               {queryResult && options && (
                 <>
-                  <HorizontalFormItem label="Trigger when" className="alert-criteria">
+                  <HorizontalFormItem label={__("Trigger when")} className="alert-criteria">
                     <Criteria
                       columnNames={queryResult.getColumnNames()}
                       resultValues={queryResult.getData()}
                       alertOptions={options}
                     />
                   </HorizontalFormItem>
-                  <HorizontalFormItem label="Notifications" className="form-item-line-height-normal">
+                  <HorizontalFormItem label={__("Notifications")} className="form-item-line-height-normal">
                     <Rearm value={rearm || 0} />
                     <br />
                     Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification template.
@@ -105,16 +105,16 @@ export default class AlertView extends React.Component {
                 className="m-b-20"
                 message={
                   <>
-                    <i className="fa fa-bell-slash-o" /> Notifications are muted
+                    <i className="fa fa-bell-slash-o" /> {__("Notifications are muted")}
                   </>
                 }
                 description={
                   <>
-                    Notifications for this alert will not be sent.
+                    {__("Notifications for this alert will not be sent.")}
                     <br />
                     {canEdit && (
                       <>
-                        To restore notifications click
+                        {__("To restore notifications click")}
                         <Button
                           size="small"
                           type="primary"
@@ -131,7 +131,7 @@ export default class AlertView extends React.Component {
               />
             )}
             <h4>
-              Destinations{" "}
+              {__("Destinations")}{" "}
               <Tooltip title="Open Alert Destinations page in a new tab.">
                 <a href="destinations" target="_blank">
                   <i className="fa fa-external-link f-13" />

@@ -54,7 +54,7 @@ class EditDestination extends React.Component {
     const doDelete = () => {
       Destination.delete(destination)
         .then(() => {
-          notification.success("Alert destination deleted successfully.");
+          notification.success(__("Alert destination deleted successfully."));
           navigateTo("destinations");
         })
         .catch(() => {
@@ -63,9 +63,9 @@ class EditDestination extends React.Component {
     };
 
     Modal.confirm({
-      title: "Delete Alert Destination",
-      content: "Are you sure you want to delete this alert destination?",
-      okText: "Delete",
+      title: __("Delete Alert Destination"),
+      content: __("Are you sure you want to delete this alert destination?"),
+      okText: __("Delete"),
       okType: "danger",
       onOk: doDelete,
       onCancel: callback,
@@ -107,6 +107,6 @@ const EditDestinationPage = wrapSettingsTab(null, EditDestination);
 
 export default routeWithUserSession({
   path: "/destinations/:destinationId([0-9]+)",
-  title: "Alert Destinations",
+  title: __("Alert Destinations"),
   render: pageProps => <EditDestinationPage {...pageProps} />,
 });
