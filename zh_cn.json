@@ -478,6 +478,6 @@
   "Guide: Sharing and Embedding Dashboards": "指南：共享和嵌入仪表板",
   "Guide: Authentication Options": "指南：身份验证选项",
   "Help: Anonymous Usage Data Sharing": "帮助：匿名使用数据共享",
-  "Guide: Help Setting up Amazon Athena": "指南：帮助建立亚马逊雅典娜（Amazon Athena）"
-
+  "Guide: Help Setting up Amazon Athena": "指南：帮助建立亚马逊雅典娜（Amazon Athena）",
+  "Guide: Help Setting up BigQuery": "指南：帮助建立BigQuery"
 }

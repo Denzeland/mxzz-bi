@@ -22,7 +22,7 @@ export const TYPES = {
   AUTHENTICATION_OPTIONS: ["/user-guide/users/authentication-options", __("Guide: Authentication Options")],
   USAGE_DATA_SHARING: ["/open-source/admin-guide/usage-data", __("Help: Anonymous Usage Data Sharing")],
   DS_ATHENA: ["/data-sources/amazon-athena-setup", __("Guide: Help Setting up Amazon Athena")],
-  DS_BIGQUERY: ["/data-sources/bigquery-setup", "Guide: Help Setting up BigQuery"],
+  DS_BIGQUERY: ["/data-sources/bigquery-setup", __("Guide: Help Setting up BigQuery")],
   DS_URL: ["/data-sources/querying-urls", "Guide: Help Setting up URL"],
   DS_MONGODB: ["/data-sources/mongodb-setup", "Guide: Help Setting up MongoDB"],
   DS_GOOGLE_SPREADSHEETS: ["/data-sources/querying-a-google-spreadsheet", "Guide: Help Setting up Google Spreadsheets"],
