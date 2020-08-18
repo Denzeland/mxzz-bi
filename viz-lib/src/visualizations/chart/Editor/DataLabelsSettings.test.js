@@ -23,8 +23,10 @@ function mount(options, done) {
   );
 }
 
+// 2020-8-18 寒芜 修改chart图 显示数据标签选项
 describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
-  test("Sets Show Data Labels option", done => {
+  //test("Sets Show Data Labels option", done => {
+  test("显示数据标签选项", done => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -39,7 +41,8 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
       .simulate("change", { target: { checked: true } });
   });
 
-  test("Changes number format", done => {
+  //test("Changes number format", done => {
+  test("改变数字格式", done => {
     const el = mount(
       {
         globalSeriesType: "column",

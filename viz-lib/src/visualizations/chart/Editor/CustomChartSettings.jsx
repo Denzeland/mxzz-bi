@@ -15,7 +15,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
     <React.Fragment>
       <Section>
         <TextArea
-          label="Custom code"
+          label={__("Custom code")}
           data-test="Chart.Custom.Code"
           rows="10"
           defaultValue={isNil(options.customCode) ? defaultCustomCode : options.customCode}
