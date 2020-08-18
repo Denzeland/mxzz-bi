@@ -45,12 +45,12 @@ export default function ColorPicker({
   const actions = [];
   if (!interactive) {
     actions.push(
-      <Tooltip key="cancel" title="Cancel">
+      <Tooltip key="cancel" title={__("Cancel")}>
         <Icon type="close" onClick={handleCancel} />
       </Tooltip>
     );
     actions.push(
-      <Tooltip key="apply" title="Apply">
+      <Tooltip key="apply" title={__("Apply")}>
         <Icon type="check" onClick={handleApply} />
       </Tooltip>
     );
