@@ -122,7 +122,8 @@ function DashboardMoreOptionsButton({ dashboardOptions }) {
   const archive = () => {
     Modal.confirm({
       title: __("Archive Dashboard"),
-      content: `Are you sure you want to archive the "${dashboard.name}" dashboard?`,
+      //content: `Are you sure you want to archive the "${dashboard.name}" dashboard?`,
+      content: __("Are you sure you want to archive the '") + dashboard.name + __("'dashboard?"),
       okText: __("Archive"),
       okType: "danger",
       onOk: archiveDashboard,
@@ -245,10 +246,10 @@ function DashboardEditControl({ dashboardOptions }) {
           {__("Retry")}
         </Button>
       ) : (
-        <Button loading={doneBtnClickedWhileSaving} type="primary" onClick={() => setEditingLayout(false)}>
-          {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" />} {__("Done Editing")}
-        </Button>
-      )}
+          <Button loading={doneBtnClickedWhileSaving} type="primary" onClick={() => setEditingLayout(false)}>
+            {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" />} {__("Done Editing")}
+          </Button>
+        )}
     </div>
   );
 }

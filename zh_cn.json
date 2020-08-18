@@ -479,5 +479,26 @@
   "Guide: Authentication Options": "指南：身份验证选项",
   "Help: Anonymous Usage Data Sharing": "帮助：匿名使用数据共享",
   "Guide: Help Setting up Amazon Athena": "指南：帮助建立亚马逊雅典娜（Amazon Athena）",
-  "Guide: Help Setting up BigQuery": "指南：帮助建立BigQuery"
+  "Guide: Help Setting up BigQuery": "指南：帮助建立BigQuery",
+  "Guide: Help Setting up URL": "指南：帮助设置URL",
+  "Guide: Help Setting up MongoDB": "指南：帮助设置MongoDB",
+  "Guide: Help Setting up Google Spreadsheets": "指南：帮助设置谷歌电子表格",
+  "Guide: Help Setting up Google Analytics": "指南：帮助设置谷歌Analytics",
+  "Guide: Help Setting up Axibase Time Series": "指南：帮助设置Axibase时间序列",
+  "Guide: Help Setting up Query Results": "指南：帮助设置查询结果",
+  "Guide: Setting Up a New Alert": "指南：设置一个新的警报",
+  "Guide: Mail Configuration": "指南：邮件配置",
+  "Guide: Custom Alerts Notifications": "指南：自定义警报通知",
+  "Guide: Favorites": "指南：收藏夹",
+  "Guide: Managing Query Permissions": "指南：管理查询权限",
+  "Are you sure you want to archive the '": "您确定要归档“",
+  "'dashboard?": "”仪表板吗？",
+  "dashboard": "仪表板",
+  "Dashboard update failed": "仪表板更新失败",
+  "Permission Denied.": "没有权限",
+  "It seems like the dashboard has been modified by another user. ": "仪表板似乎被另一个用户修改了。",
+  "Please copy/backup your changes and reload this page.": "请复制/备份您的更改并重新加载此页面。",
+  "edit": "编辑",
+  "Error saving changes.": "保存更改错误。"
+
 }

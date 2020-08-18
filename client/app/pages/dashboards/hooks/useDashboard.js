@@ -54,7 +54,7 @@ function useDashboard(dashboardData) {
     const aclUrl = `api/dashboards/${dashboard.id}/acl`;
     PermissionsEditorDialog.showModal({
       aclUrl,
-      context: "dashboard",
+      context: __("dashboard"),
       author: dashboard.user,
     });
   }, [dashboard]);
@@ -74,11 +74,11 @@ function useDashboard(dashboardData) {
         .catch(error => {
           const status = get(error, "response.status");
           if (status === 403) {
-            notification.error("Dashboard update failed", "Permission Denied.");
+            notification.error(__("Dashboard update failed"), __("Permission Denied."));
           } else if (status === 409) {
             notification.error(
-              "It seems like the dashboard has been modified by another user. ",
-              "Please copy/backup your changes and reload this page.",
+              __("It seems like the dashboard has been modified by another user. "),
+              __("Please copy/backup your changes and reload this page."),
               { duration: null }
             );
           }

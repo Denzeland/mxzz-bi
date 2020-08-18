@@ -18,7 +18,7 @@ function getChangedPositions(widgets, nextPositions = {}) {
 }
 
 export default function useEditModeHandler(canEditDashboard, widgets) {
-  const [editingLayout, setEditingLayout] = useState(canEditDashboard && has(location.search, "edit"));
+  const [editingLayout, setEditingLayout] = useState(canEditDashboard && has(location.search, __("edit")));
   const [dashboardStatus, setDashboardStatus] = useState(DashboardStatusEnum.SAVED);
   const [recentPositions, setRecentPositions] = useState([]);
   const [doneBtnClickedWhileSaving, setDoneBtnClickedWhileSaving] = useState(false);
@@ -61,7 +61,7 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
         .then(() => setDashboardStatus(DashboardStatusEnum.SAVED))
         .catch(() => {
           setDashboardStatus(DashboardStatusEnum.SAVING_FAILED);
-          notification.error("Error saving changes.");
+          notification.error(__("Error saving changes."));
         });
     },
     [canEditDashboard, widgets]
