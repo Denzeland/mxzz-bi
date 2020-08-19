@@ -197,7 +197,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }) {
             data-test="Chart.ShowPoints"
             defaultChecked={options.showpoints}
             onChange={event => onOptionsChange({ showpoints: event.target.checked })}>
-            Show All Points
+            显示所有点
           </Checkbox>
         </Section>
       )}
