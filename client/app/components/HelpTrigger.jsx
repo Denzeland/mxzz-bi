@@ -10,7 +10,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 
 import "./HelpTrigger.less";
 
-const DOMAIN = "https://redash.io";
+const DOMAIN = "http://127.0.0.1:8000";
 const HELP_PATH = "/help";
 const IFRAME_TIMEOUT = 20000;
 const IFRAME_URL_UPDATE_MESSAGE = "iframe_url";
