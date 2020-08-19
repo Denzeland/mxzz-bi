@@ -1,4 +1,4 @@
-import { isString, map, uniq, flatten, filter, sortBy, keys } from "lodash";
+ï»¿import { isString, map, uniq, flatten, filter, sortBy, keys } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { Section, Select } from "@/components/visualizations/editor";
@@ -24,7 +24,7 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
         mode={multiple ? "multiple" : "default"}
         allowClear
         showSearch
-        placeholder={multiple ? "Ñ¡ÔñÁÐ..." : "Ñ¡ÔñÁÐ..."}
+        placeholder={multiple ? "é€‰æ‹©åˆ—..." : "é€‰æ‹©åˆ—..."}
         value={value || undefined}
         onChange={column => onChange(column || null, type)}>
         {map(options, c => (

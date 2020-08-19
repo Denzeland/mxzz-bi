@@ -1,4 +1,4 @@
-import { isNil, trimStart } from "lodash";
+﻿import { isNil, trimStart } from "lodash";
 import React from "react";
 import { Section, Switch, TextArea } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
@@ -28,7 +28,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
           data-test="Chart.Custom.EnableConsoleLogs"
           defaultChecked={options.enableConsoleLogs}
           onChange={enableConsoleLogs => onOptionsChange({ enableConsoleLogs })}>
-          Show errors in the console
+          在控制台中显示错误
         </Switch>
       </Section>
 
@@ -38,7 +38,7 @@ export default function CustomChartSettings({ options, onOptionsChange }) {
           data-test="Chart.Custom.AutoUpdate"
           defaultChecked={options.autoRedraw}
           onChange={autoRedraw => onOptionsChange({ autoRedraw })}>
-          Auto update graph
+          自动更新图表
         </Switch>
       </Section>
     </React.Fragment>

@@ -1,4 +1,4 @@
-import { each, map } from "lodash";
+﻿import { each, map } from "lodash";
 import React, { useMemo, useCallback } from "react";
 import Table from "antd/lib/table";
 import ColorPicker from "@/components/ColorPicker";
@@ -49,11 +49,11 @@ export default function PieColorsSettings({ options, data, onOptionsChange }) {
 
   const columns = [
     {
-      title: "Values",
+      title: "值",
       dataIndex: "key",
     },
     {
-      title: "Color",
+      title: "颜色",
       dataIndex: "color",
       width: "1%",
       render: (unused, item) => (

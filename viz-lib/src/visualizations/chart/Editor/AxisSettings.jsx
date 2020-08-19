@@ -1,4 +1,4 @@
-import { isString, isObject, isFinite, isNumber, merge } from "lodash";
+ï»¿import { isString, isObject, isFinite, isNumber, merge } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
@@ -65,7 +65,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
             <Grid.Col span={12}>
               <InputNumber
                 label={__("Min Value")}
-                placeholder="ÇëÊäÈë..."
+                placeholder="è¯·è¾“å…¥..."
                 data-test={`Chart.${id}.RangeMin`}
                 defaultValue={toNumber(options.rangeMin)}
                 onChange={value => handleMinMaxChange({ rangeMin: toNumber(value) })}
@@ -74,7 +74,7 @@ export default function AxisSettings({ id, options, features, onChange }) {
             <Grid.Col span={12}>
               <InputNumber
                 label={__("Max Value")}
-                placeholder="ÇëÊäÈë..."
+                placeholder="è¯·è¾“å…¥..."
                 data-test={`Chart.${id}.RangeMax`}
                 defaultValue={toNumber(options.rangeMax)}
                 onChange={value => handleMinMaxChange({ rangeMax: toNumber(value) })}

@@ -1,4 +1,4 @@
-import { map } from "lodash";
+﻿import { map } from "lodash";
 import React, { useMemo, useCallback } from "react";
 import Table from "antd/lib/table";
 import ColorPicker from "@/components/ColorPicker";
@@ -39,11 +39,13 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
 
   const columns = [
     {
-      title: "Series",
+      //title: "Series",
+      title: "系列图表",
       dataIndex: "key",
     },
     {
-      title: "Color",
+      //title: "Color",
+      title: "颜色",
       dataIndex: "color",
       width: "1%",
       render: (unused, item) => (

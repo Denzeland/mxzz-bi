@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+﻿/* eslint-disable react/prop-types */
 import React from "react";
 import createTabbedEditor from "@/components/visualizations/editor/createTabbedEditor";
 
@@ -18,7 +18,7 @@ const isPieChart = options => options.globalSeriesType === "pie";
 export default createTabbedEditor([
   {
     key: "General",
-    title: "General",
+    title: "常规",
     component: props => (
       <React.Fragment>
         <GeneralSettings {...props} />
@@ -28,31 +28,31 @@ export default createTabbedEditor([
   },
   {
     key: "XAxis",
-    title: "X Axis",
+    title: "X轴",
     component: XAxisSettings,
     isAvailable: options => !isCustomChart(options) && !isPieChart(options),
   },
   {
     key: "YAxis",
-    title: "Y Axis",
+    title: "Y轴",
     component: YAxisSettings,
     isAvailable: options => !isCustomChart(options) && !isPieChart(options),
   },
   {
     key: "Series",
-    title: "Series",
+    title: "图表系列",
     component: SeriesSettings,
     isAvailable: options => !isCustomChart(options),
   },
   {
     key: "Colors",
-    title: "Colors",
+    title: "颜色",
     component: ColorsSettings,
     isAvailable: options => !isCustomChart(options),
   },
   {
     key: "DataLabels",
-    title: "Data Labels",
+    title: "数据标签",
     component: DataLabelsSettings,
     isAvailable: options => !isCustomChart(options),
   },

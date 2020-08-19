@@ -1,4 +1,4 @@
-import React from "react";
+ï»¿import React from "react";
 import enzyme from "enzyme";
 
 import getOptions from "../getOptions";
@@ -23,10 +23,10 @@ function mount(options, done) {
   );
 }
 
-// 2020-8-18 º®Îß ÐÞ¸ÄchartÍ¼ ÏÔÊ¾Êý¾Ý±êÇ©Ñ¡Ïî
+// 2020-8-18 å¯’èŠœ ä¿®æ”¹chartå›¾ æ˜¾ç¤ºæ•°æ®æ ‡ç­¾é€‰é¡¹
 describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
   //test("Sets Show Data Labels option", done => {
-  test("ÏÔÊ¾Êý¾Ý±êÇ©Ñ¡Ïî", done => {
+  test("æ˜¾ç¤ºæ•°æ®æ ‡ç­¾é€‰é¡¹", done => {
     const el = mount(
       {
         globalSeriesType: "column",
@@ -42,7 +42,7 @@ describe("Visualizations -> Chart -> Editor -> Data Labels Settings", () => {
   });
 
   //test("Changes number format", done => {
-  test("¸Ä±äÊý×Ö¸ñÊ½", done => {
+  test("æ”¹å˜æ•°å­—æ ¼å¼", done => {
     const el = mount(
       {
         globalSeriesType: "column",
