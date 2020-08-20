@@ -60,7 +60,7 @@ function TextboxDialog({ dialog, isNew, ...props }) {
         <small>
           {__("Supports basic")}{" "}
           <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
-            <Tooltip title="在新窗口中打开减价指南">减价</Tooltip>
+            <Tooltip title="在新窗口中打开Markdown指南">Markdown</Tooltip>
           </a>
           .
         </small>
