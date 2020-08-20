@@ -96,6 +96,7 @@ class Widget extends React.Component {
       content: __("Are you sure you want to remove this widget from the dashboard?"),
       okText: __("Delete"),
       okType: "danger",
+      cancelText: "取消",
       onOk: () => widget.delete().then(onDelete),
       maskClosable: true,
       autoFocusButton: null,
