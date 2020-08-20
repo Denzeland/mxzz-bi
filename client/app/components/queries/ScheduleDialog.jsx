@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import DatePicker from "antd/lib/date-picker";
@@ -199,13 +199,13 @@ class ScheduleDialog extends React.Component {
     } = this.state;
 
     return (
-      <Modal {...dialog.props} title="Refresh Schedule" className="schedule" onOk={() => this.save()}>
+      <Modal {...dialog.props} title="刷新时间表" className="schedule" onOk={() => this.save()}>
         <div className="schedule-component">
-          <h5>Refresh every</h5>
+          <h5>每次刷新</h5>
           <div data-testid="interval">
             <Select className="input" value={seconds} onChange={this.setInterval} dropdownMatchSelectWidth={false}>
               <Option value={null} key="never">
-                Never
+                从不
               </Option>
               {Object.keys(this.intervals).map(int => (
                 <OptGroup label={capitalize(pluralize(int))} key={int}>
@@ -221,7 +221,7 @@ class ScheduleDialog extends React.Component {
         </div>
         {[IntervalEnum.DAYS, IntervalEnum.WEEKS].indexOf(interval) !== -1 ? (
           <div className="schedule-component">
-            <h5>On time</h5>
+            <h5>准时</h5>
             <div data-testid="time">
               <TimeEditor
                 defaultValue={
@@ -238,7 +238,7 @@ class ScheduleDialog extends React.Component {
         ) : null}
         {IntervalEnum.WEEKS === interval ? (
           <div className="schedule-component">
-            <h5>On day</h5>
+            <h5>在一天</h5>
             <div data-testid="weekday">
               <Radio.Group size="medium" defaultValue={this.state.dayOfWeek} onChange={this.setWeekday}>
                 {WEEKDAYS_SHORT.map(day => (
@@ -252,7 +252,7 @@ class ScheduleDialog extends React.Component {
         ) : null}
         {interval !== IntervalEnum.NEVER ? (
           <div className="schedule-component">
-            <h5>Ends</h5>
+            <h5>结束</h5>
             <div className="ends" data-testid="ends">
               <Radio.Group size="medium" value={!!until} onChange={this.setUntilToggle}>
                 <Radio value={false}>Never</Radio>

@@ -1,4 +1,4 @@
-import { filter, find, isEmpty, size } from "lodash";
+﻿import { filter, find, isEmpty, size } from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
@@ -86,7 +86,7 @@ function SelectItemsDialog({
   const save = useCallback(() => {
     dialog.close(selectedItems).catch(error => {
       if (error) {
-        notification.error("Failed to save some of selected items.");
+        notification.error("未能保存某些选定项.");
       }
     });
   }, [dialog, selectedItems]);
@@ -178,9 +178,9 @@ SelectItemsDialog.propTypes = {
 };
 
 SelectItemsDialog.defaultProps = {
-  dialogTitle: "Add Items",
-  inputPlaceholder: "Search...",
-  selectedItemsTitle: "Selected items",
+  dialogTitle: "添加项",
+  inputPlaceholder: "查找...",
+  selectedItemsTitle: "选择项",
   itemKey: item => item.id,
   renderItem: () => "",
   renderStagedItem: null, // hidden by default

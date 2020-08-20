@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+﻿import React, { useRef } from "react";
 import PropTypes from "prop-types";
 import { isFunction, get, findIndex } from "lodash";
 import Dropdown from "antd/lib/dropdown";
@@ -29,7 +29,7 @@ function DynamicButton({ options, selectedDynamicValue, onSelect, enabled }) {
       {enabled && (
         <Menu.Item>
           <Icon type="arrow-left" />
-          <Text type="secondary">Back to Static Value</Text>
+          <Text type="secondary">回到静态值</Text>
         </Menu.Item>
       )}
     </Menu>

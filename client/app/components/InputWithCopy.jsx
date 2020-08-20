@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import Input from "antd/lib/input";
 import Icon from "antd/lib/icon";
 import Tooltip from "antd/lib/tooltip";
@@ -41,7 +41,7 @@ export default class InputWithCopy extends React.Component {
 
   render() {
     const copyButton = (
-      <Tooltip title={this.state.copied || "Copy"}>
+      <Tooltip title={this.state.copied || "复制"}>
         <Icon type="copy" style={{ cursor: "pointer" }} onClick={this.copy} />
       </Tooltip>
     );

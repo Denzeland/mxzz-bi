@@ -1,4 +1,4 @@
-import { isArray, indexOf, get, map, includes, every, some, toNumber } from "lodash";
+﻿import { isArray, indexOf, get, map, includes, every, some, toNumber } from "lodash";
 import moment from "moment";
 import React from "react";
 import PropTypes from "prop-types";
@@ -88,7 +88,7 @@ function Filters({ filters, onChange }) {
                 className="col-sm-6 p-l-0 filter-container"
                 data-test={`FilterName-${filter.name}`}>
                 <label>{filter.friendlyName}</label>
-                {options.length === 0 && <Select className="w-100" disabled value="No values" />}
+                {options.length === 0 && <Select className="w-100" disabled value="没有值" />}
                 {options.length > 0 && (
                   <Select
                     labelInValue

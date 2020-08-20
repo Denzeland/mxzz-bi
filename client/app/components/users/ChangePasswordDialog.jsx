@@ -1,4 +1,4 @@
-import { isFunction, get } from "lodash";
+﻿import { isFunction, get } from "lodash";
 import React from "react";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
@@ -25,9 +25,9 @@ class ChangePasswordDialog extends React.Component {
   }
 
   fieldError = (name, value) => {
-    if (value.length === 0) return "This field is required.";
-    if (name !== "currentPassword" && value.length < 6) return "This field is too short.";
-    if (name === "repeatPassword" && value !== this.state.newPassword.value) return "Passwords don't match";
+    if (value.length === 0) return "此字段是必需的.";
+    if (name !== "currentPassword" && value.length < 6) return "这个字段太短了.";
+    if (name === "repeatPassword" && value !== this.state.newPassword.value) return "密码不匹配";
     return null;
   };
 
@@ -69,7 +69,7 @@ class ChangePasswordDialog extends React.Component {
 
           User.save(userData)
             .then(() => {
-              notification.success("Saved.");
+              notification.success("保存.");
               this.props.dialog.close({ success: true });
             })
             .catch(error => {

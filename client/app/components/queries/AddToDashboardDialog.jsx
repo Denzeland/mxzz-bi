@@ -1,4 +1,4 @@
-import { isString } from "lodash";
+﻿import { isString } from "lodash";
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
@@ -49,7 +49,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
           .toString(36)
           .substr(2, 10)}`;
         notification.success(
-          "Widget added to dashboard",
+          "添加到仪表板的小部件",
           <React.Fragment>
             <a href={`dashboard/${dashboard.slug}`} onClick={() => notification.close(key)}>
               {dashboard.name}
@@ -60,7 +60,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
         );
       })
       .catch(() => {
-        notification.error("Widget not added.");
+        notification.error("部件不添加.");
       })
       .finally(() => {
         setSaveInProgress(false);
@@ -72,11 +72,11 @@ function AddToDashboardDialog({ dialog, visualization }) {
   return (
     <Modal
       {...dialog.props}
-      title="Add to Dashboard"
+      title="添加仪表板"
       okButtonProps={{ disabled: !selectedDashboard || saveInProgress, loading: saveInProgress }}
       cancelButtonProps={{ disabled: saveInProgress }}
       onOk={addWidgetToDashboard}>
-      <label htmlFor="add-to-dashboard-dialog-dashboard">Choose the dashboard to add this query to:</label>
+      <label htmlFor="add-to-dashboard-dialog-dashboard">选择仪表板将此查询添加到:</label>
 
       {!selectedDashboard && (
         <Input
@@ -84,7 +84,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
           className="w-100"
           autoComplete="off"
           autoFocus
-          placeholder="Search a dashboard by name"
+          placeholder="根据名称搜索仪表板"
           value={searchTerm}
           onChange={event => setSearchTerm(event.target.value)}
           suffix={

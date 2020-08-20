@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Divider from "antd/lib/divider";
@@ -33,20 +33,20 @@ export default function DetailsPageSidebar({
       {canAddMembers && (
         <Button className="w-100 m-t-5" type="primary" onClick={onAddMembersClick}>
           <i className="fa fa-plus m-r-5" />
-          Add Members
+          添加成员
         </Button>
       )}
       {canAddDataSources && (
         <Button className="w-100 m-t-5" type="primary" onClick={onAddDataSourcesClick}>
           <i className="fa fa-plus m-r-5" />
-          Add Data Sources
+          添加数据来源
         </Button>
       )}
       {canRemove && (
         <React.Fragment>
           <Divider dashed className="m-t-10 m-b-10" />
           <DeleteGroupButton className="w-100" group={group} onClick={onGroupDeleted}>
-            Delete Group
+            删除组
           </DeleteGroupButton>
         </React.Fragment>
       )}

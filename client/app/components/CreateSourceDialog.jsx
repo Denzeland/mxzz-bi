@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import PropTypes from "prop-types";
 import { isEmpty, toUpper, includes } from "lodash";
 import Button from "antd/lib/button";
@@ -62,7 +62,7 @@ class CreateSourceDialog extends React.Component {
       this.props
         .onCreate(selectedType, values)
         .then(data => {
-          successCallback("Saved.");
+          successCallback("保存.");
           this.props.dialog.close({ success: true, data });
         })
         .catch(error => {
@@ -81,7 +81,7 @@ class CreateSourceDialog extends React.Component {
     return (
       <div className="m-t-10">
         <Search
-          placeholder="Search..."
+          placeholder="查询..."
           onChange={e => this.setState({ searchText: e.target.value })}
           autoFocus
           data-test="SearchSource"

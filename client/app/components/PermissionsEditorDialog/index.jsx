@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+﻿import React, { useState, useEffect, useCallback } from "react";
 import { axios } from "@/services/axios";
 import PropTypes from "prop-types";
 import { each, debounce, get, find } from "lodash";
@@ -40,7 +40,7 @@ function useGrantees(url) {
     (userId, accessType = "modify") =>
       axios
         .post(url, { access_type: accessType, user_id: userId })
-        .catch(() => notification.error("Could not grant permission to the user")),
+        .catch(() => notification.error("无法向用户授予权限")),
     [url]
   );
 
@@ -48,7 +48,7 @@ function useGrantees(url) {
     (userId, accessType = "modify") =>
       axios
         .delete(url, { data: { access_type: accessType, user_id: userId } })
-        .catch(() => notification.error("Could not remove permission from the user")),
+        .catch(() => notification.error("无法删除用户的权限")),
     [url]
   );
 
@@ -99,7 +99,7 @@ function UserSelect({ onSelect, shouldShowUser }) {
   return (
     <Select
       className="w-100 m-b-10"
-      placeholder="Add users..."
+      placeholder="添加用户..."
       showSearch
       onSearch={setSearchTerm}
       suffixIcon={loadingUsers ? <i className="fa fa-spinner fa-pulse" /> : <i className="fa fa-search" />}
@@ -131,7 +131,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
     setLoadingGrantees(true);
     loadGrantees()
       .then(setGrantees)
-      .catch(() => notification.error("Failed to load grantees list"))
+      .catch(() => notification.error("无法加载被授予者列表"))
       .finally(() => setLoadingGrantees(false));
   }, [loadGrantees]);
 
@@ -168,7 +168,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
                 {user.id === author.id ? (
                   <Tag className="m-0">Author</Tag>
                 ) : (
-                  <Tooltip title="Remove user permissions">
+                  <Tooltip title="删除用户权限">
                     <i
                       className="fa fa-remove clickable"
                       onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}

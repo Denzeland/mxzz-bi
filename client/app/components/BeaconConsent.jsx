@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import Card from "antd/lib/card";
 import Button from "antd/lib/button";
 import Typography from "antd/lib/typography";
@@ -22,10 +22,10 @@ function BeaconConsent() {
   };
 
   const confirmConsent = confirm => {
-    let message = "🙏 Thank you.";
+    let message = "🙏 谢谢你.";
 
     if (!confirm) {
-      message = "Settings Saved.";
+      message = "设置保存.";
     }
 
     OrgSettings.save({ beacon_consent: confirm }, message)

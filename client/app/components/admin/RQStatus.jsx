@@ -1,4 +1,4 @@
-import { map } from "lodash";
+﻿import { map } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
@@ -34,21 +34,21 @@ CounterCard.defaultProps = {
 // Tables
 
 const queryJobsColumns = [
-  { title: "Queue", dataIndex: "origin" },
-  { title: "Query ID", dataIndex: "meta.query_id" },
-  { title: "Org ID", dataIndex: "meta.org_id" },
-  { title: "Data Source ID", dataIndex: "meta.data_source_id" },
-  { title: "User ID", dataIndex: "meta.user_id" },
-  Columns.custom(scheduled => scheduled.toString(), { title: "Scheduled", dataIndex: "meta.scheduled" }),
-  Columns.timeAgo({ title: "Start Time", dataIndex: "started_at" }),
-  Columns.timeAgo({ title: "Enqueue Time", dataIndex: "enqueued_at" }),
+  { title: "队列", dataIndex: "origin" },
+  { title: "查询ID", dataIndex: "meta.query_id" },
+  { title: "组织机构ID", dataIndex: "meta.org_id" },
+  { title: "数据源ID", dataIndex: "meta.data_source_id" },
+  { title: "用户ID", dataIndex: "meta.user_id" },
+  Columns.custom(scheduled => scheduled.toString(), { title: "计划", dataIndex: "meta.scheduled" }),
+  Columns.timeAgo({ title: "开始时间", dataIndex: "started_at" }),
+  Columns.timeAgo({ title: "排队的时间", dataIndex: "enqueued_at" }),
 ];
 
 const otherJobsColumns = [
-  { title: "Queue", dataIndex: "origin" },
-  { title: "Job Name", dataIndex: "name" },
-  Columns.timeAgo({ title: "Start Time", dataIndex: "started_at" }),
-  Columns.timeAgo({ title: "Enqueue Time", dataIndex: "enqueued_at" }),
+  { title: "队列", dataIndex: "origin" },
+  { title: "任务名称", dataIndex: "name" },
+  Columns.timeAgo({ title: "开始时间", dataIndex: "started_at" }),
+  Columns.timeAgo({ title: "排队的时间", dataIndex: "enqueued_at" }),
 ];
 
 const workersColumns = [
@@ -59,7 +59,7 @@ const workersColumns = [
         {value}
       </span>
     ),
-    { title: "State", dataIndex: "state" }
+    { title: "状态", dataIndex: "state" }
   ),
 ]
   .concat(
@@ -69,8 +69,8 @@ const workersColumns = [
     }))
   )
   .concat([
-    Columns.dateTime({ title: "Birth Date", dataIndex: "birth_date" }),
-    Columns.duration({ title: "Total Working Time", dataIndex: "total_working_time" }),
+    Columns.dateTime({ title: "出生日期", dataIndex: "birth_date" }),
+    Columns.duration({ title: "总工作时间", dataIndex: "total_working_time" }),
   ]);
 
 const queuesColumns = map(["Name", "Started", "Queued"], c => ({ title: c, dataIndex: c.toLowerCase() }));

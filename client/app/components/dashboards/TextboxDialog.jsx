@@ -1,4 +1,4 @@
-import { toString } from "lodash";
+﻿import { toString } from "lodash";
 import { markdown } from "markdown";
 import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
@@ -60,7 +60,7 @@ function TextboxDialog({ dialog, isNew, ...props }) {
         <small>
           {__("Supports basic")}{" "}
           <a target="_blank" rel="noopener noreferrer" href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
-            <Tooltip title="Markdown guide opens in new window">Markdown</Tooltip>
+            <Tooltip title="在新窗口中打开减价指南">减价</Tooltip>
           </a>
           .
         </small>

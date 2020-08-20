@@ -1,4 +1,4 @@
-import { isFunction, isString, filter, map } from "lodash";
+﻿import { isFunction, isString, filter, map } from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import Input from "antd/lib/input";
@@ -42,7 +42,7 @@ SearchInput.propTypes = {
 };
 
 SearchInput.defaultProps = {
-  placeholder: "Search...",
+  placeholder: "查找...",
   showIcon: false,
 };
 

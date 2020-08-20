@@ -1,4 +1,4 @@
-import { find } from "lodash";
+﻿import { find } from "lodash";
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
@@ -50,7 +50,7 @@ export default function QuerySelector(props) {
       query = find(searchResults, { id: queryId });
       if (!query) {
         // shouldn't happen
-        notification.error("Something went wrong...", "Couldn't select query");
+        notification.error("情况不妙...", "不能选择查询");
       }
     }
 

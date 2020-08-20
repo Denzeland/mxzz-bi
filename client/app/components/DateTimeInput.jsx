@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import PropTypes from "prop-types";
 import DatePicker from "antd/lib/date-picker";
 import { clientConfig } from "@/services/auth";
@@ -20,7 +20,7 @@ const DateTimeInput = React.forwardRef(({ defaultValue, value, withSeconds, onSe
       showTime
       {...additionalAttributes}
       format={format}
-      placeholder="Select Date and Time"
+      placeholder="选择日期时间"
       onChange={onSelect}
       {...props}
     />

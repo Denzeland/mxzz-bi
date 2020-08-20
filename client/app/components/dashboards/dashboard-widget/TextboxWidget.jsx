@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { markdown } from "markdown";
 import Menu from "antd/lib/menu";
@@ -22,7 +22,7 @@ function TextboxWidget(props) {
 
   const TextboxMenuOptions = [
     <Menu.Item key="edit" onClick={editTextBox}>
-      Edit
+      编辑
     </Menu.Item>,
   ];
 

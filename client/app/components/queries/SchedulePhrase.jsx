@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import PropTypes from "prop-types";
 import Tooltip from "antd/lib/tooltip";
 import { localizeTime, durationHumanize } from "@/lib/utils";
@@ -23,7 +23,7 @@ export default class SchedulePhrase extends React.Component {
   get content() {
     const { interval: seconds } = this.props.schedule || SchedulePhrase.defaultProps.schedule;
     if (!seconds) {
-      return ["Never"];
+      return ["从不"];
     }
     const humanized = durationHumanize(seconds, {
       omitSingleValueNumber: true,
@@ -44,7 +44,7 @@ export default class SchedulePhrase extends React.Component {
 
   render() {
     if (this.props.isNew) {
-      return "Never";
+      return "从不";
     }
 
     const [short, full] = this.content;

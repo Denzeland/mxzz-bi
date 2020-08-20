@@ -1,4 +1,4 @@
-import { isString } from "lodash";
+﻿import { isString } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
@@ -9,14 +9,14 @@ import Group from "@/services/group";
 
 function deleteGroup(event, group, onGroupDeleted) {
   Modal.confirm({
-    title: "Delete Group",
-    content: "Are you sure you want to delete this group?",
-    okText: "Yes",
+    title: "删除组",
+    content: "您确定要删除此组吗?",
+    okText: "是",
     okType: "danger",
-    cancelText: "No",
+    cancelText: "否",
     onOk: () => {
       Group.delete(group).then(() => {
-        notification.success("Group deleted successfully.");
+        notification.success("组删除成功.");
         onGroupDeleted();
       });
     },

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { each, includes, isUndefined, isEmpty, isNil, map } from "lodash";
 
 function orderedInputs(properties, order, targetOptions) {
@@ -16,7 +16,7 @@ function orderedInputs(properties, order, targetOptions) {
     };
 
     if (input.type === "select") {
-      input.placeholder = "Select an option";
+      input.placeholder = "选择一个选项";
       input.options = properties[key].options;
     }
 

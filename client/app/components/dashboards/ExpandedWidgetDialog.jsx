@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
@@ -20,7 +20,7 @@ function ExpandedWidgetDialog({ dialog, widget }) {
       <VisualizationRenderer
         visualization={widget.visualization}
         queryResult={widget.getQueryResult()}
-        context="widget"
+        context="小部件"
       />
     </Modal>
   );
