@@ -199,9 +199,9 @@ class ScheduleDialog extends React.Component {
     } = this.state;
 
     return (
-      <Modal {...dialog.props} title="刷新时间表" className="schedule" onOk={() => this.save()}>
+      <Modal {...dialog.props} title="刷新调度计划" className="schedule" onOk={() => this.save()}>
         <div className="schedule-component">
-          <h5>每次刷新</h5>
+          <h5>刷新间隔</h5>
           <div data-testid="interval">
             <Select className="input" value={seconds} onChange={this.setInterval} dropdownMatchSelectWidth={false}>
               <Option value={null} key="never">
@@ -255,8 +255,8 @@ class ScheduleDialog extends React.Component {
             <h5>结束</h5>
             <div className="ends" data-testid="ends">
               <Radio.Group size="medium" value={!!until} onChange={this.setUntilToggle}>
-                <Radio value={false}>Never</Radio>
-                <Radio value>On</Radio>
+                <Radio value={false}>从不</Radio>
+                <Radio value>结束时间</Radio>
               </Radio.Group>
               {until ? (
                 <DatePicker

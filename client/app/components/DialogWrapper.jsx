@@ -2,6 +2,8 @@ import { isFunction } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import ReactDOM from "react-dom";
+import zhCN from 'antd/es/locale/zh_CN';
+import { ConfigProvider } from 'antd';
 
 /**
   Wrapper for dialogs based on Ant's <Modal> component.
@@ -132,7 +134,9 @@ function openDialog(DialogComponent, props) {
   document.body.appendChild(container);
 
   function render() {
-    ReactDOM.render(<DialogComponent {...props} dialog={dialog} />, container);
+    ReactDOM.render(<ConfigProvider locale={zhCN}>
+      <DialogComponent {...props} dialog={dialog} />
+    </ConfigProvider>, container);
   }
 
   function destroyDialog() {
