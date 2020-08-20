@@ -158,7 +158,7 @@ export function PageSizeSelect({ options, value, onChange, ...props }) {
       <Select className="w-100" defaultValue={value} onChange={onChange}>
         {map(options, option => (
           <Select.Option key={option} value={option}>
-            {option} results
+           每页 {option} 条记录
           </Select.Option>
         ))}
       </Select>
