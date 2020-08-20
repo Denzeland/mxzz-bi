@@ -1,4 +1,4 @@
-import { maxBy } from "lodash";
+﻿import { maxBy } from "lodash";
 import React, { useMemo } from "react";
 import Table from "antd/lib/table";
 import Tooltip from "antd/lib/tooltip";
@@ -64,14 +64,14 @@ export default function Renderer({ data, options }) {
         ),
       },
       {
-        title: "% Max",
+        title: "最大值（%）",
         dataIndex: "pctMax",
         width: "15%",
         align: "center",
         render: value => formatPercentValue(value),
       },
       {
-        title: "% Previous",
+        title: "以前的（%）",
         dataIndex: "pctPrevious",
         width: "15%",
         align: "center",

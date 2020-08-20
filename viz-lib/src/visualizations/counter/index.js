@@ -1,4 +1,4 @@
-import Renderer from "./Renderer";
+﻿import Renderer from "./Renderer";
 import Editor from "./Editor";
 
 const DEFAULT_OPTIONS = {
@@ -14,7 +14,7 @@ const DEFAULT_OPTIONS = {
 
 export default {
   type: "COUNTER",
-  name: "Counter",
+  name: "计数器",
   getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
   Renderer,
   Editor,

@@ -1,10 +1,10 @@
-import DetailsRenderer from "./DetailsRenderer";
+﻿import DetailsRenderer from "./DetailsRenderer";
 
 const DEFAULT_OPTIONS = {};
 
 export default {
   type: "DETAILS",
-  name: "Details View",
+  name: "详情视图",
   getOptions: options => ({ ...DEFAULT_OPTIONS, ...options }),
   Renderer: DetailsRenderer,
   defaultColumns: 2,

@@ -1,8 +1,8 @@
-import { isFinite, map, merge, includes } from "lodash";
+﻿import { isFinite, map, merge, includes } from "lodash";
 
 const DEFAULT_OPTIONS = {
-  stepCol: { colName: null, displayAs: "Steps" },
-  valueCol: { colName: null, displayAs: "Value" },
+  stepCol: { colName: null, displayAs: "层级" },
+  valueCol: { colName: null, displayAs: "值" },
   autoSort: true,
   sortKeyCol: { colName: null, reverse: false },
   itemsLimit: 100,

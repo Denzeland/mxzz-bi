@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, InputNumber, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
@@ -13,7 +13,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           layout="horizontal"
           label={
             <React.Fragment>
-              Number Values Format
+              数值格式
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
@@ -28,7 +28,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           layout="horizontal"
           label={
             <React.Fragment>
-              Percent Values Format
+              百分比值的格式
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
@@ -41,7 +41,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Items Count Limit"
+          label="项数限制"
           data-test="Funnel.ItemsLimit"
           min={2}
           defaultValue={options.itemsLimit}
@@ -52,7 +52,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Min Percent Value"
+          label="最小百分比值"
           data-test="Funnel.PercentRangeMin"
           min={0}
           defaultValue={options.percentValuesRange.min}
@@ -63,7 +63,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Max Percent Value"
+          label="最大百分比值"
           data-test="Funnel.PercentRangeMax"
           min={0}
           defaultValue={options.percentValuesRange.max}
