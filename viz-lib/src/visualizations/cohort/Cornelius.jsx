@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * React port of Cornelius library (based on v0.1 released under the MIT license)
  * Original library: http://restorando.github.io/cornelius
  */
@@ -38,8 +38,8 @@ const defaultOptions = {
   maxColumns: Infinity,
 
   title: null,
-  timeColumnTitle: "Time",
-  peopleColumnTitle: "People",
+  timeColumnTitle: "请输入...",
+  peopleColumnTitle: "请输入...",
   stageColumnTitle: "{{ @ }}",
   numberFormat: "0,0[.]00",
   percentFormat: "0.00%",

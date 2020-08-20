@@ -1,4 +1,4 @@
-import { merge } from "lodash";
+﻿import { merge } from "lodash";
 import ColorPalette from "@/visualizations/ColorPalette";
 
 const DEFAULT_OPTIONS = {
@@ -12,8 +12,8 @@ const DEFAULT_OPTIONS = {
   showTooltips: true,
   percentValues: true,
 
-  timeColumnTitle: "Time",
-  peopleColumnTitle: "Users",
+  timeColumnTitle: "请输入...",
+  peopleColumnTitle: "请输入...",
   stageColumnTitle: "{{ @ }}",
 
   numberFormat: "0,0[.]00",

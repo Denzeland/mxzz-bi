@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, Checkbox, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
@@ -11,7 +11,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
       <Section>
         <Input
           layout="horizontal"
-          label="Time Column Title"
+          label="时间标题"
           defaultValue={options.timeColumnTitle}
           onChange={e => debouncedOnOptionsChange({ timeColumnTitle: e.target.value })}
         />
@@ -19,7 +19,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
       <Section>
         <Input
           layout="horizontal"
-          label="People Column Title"
+          label="统计值标题"
           defaultValue={options.peopleColumnTitle}
           onChange={e => debouncedOnOptionsChange({ peopleColumnTitle: e.target.value })}
         />
@@ -29,10 +29,10 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           layout="horizontal"
           label={
             <React.Fragment>
-              Stage Column Title
+              层级标题格式
               <ContextHelp placement="topRight" arrowPointAtCenter>
                 <div>
-                  Use <code>{"{{ @ }}"}</code> to insert a stage number
+                  用 <code>{"{{ @ }}"}</code> 插入一个阶段编号
                 </div>
               </ContextHelp>
             </React.Fragment>
@@ -47,7 +47,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           layout="horizontal"
           label={
             <React.Fragment>
-              Number Values Format
+              数值格式
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
@@ -60,7 +60,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
           layout="horizontal"
           label={
             <React.Fragment>
-              Percent Values Format
+              百分比值的格式
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
@@ -72,7 +72,7 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
       <Section>
         <Input
           layout="horizontal"
-          label="No Value Placeholder"
+          label="没有值占位符"
           defaultValue={options.noValuePlaceholder}
           onChange={e => debouncedOnOptionsChange({ noValuePlaceholder: e.target.value })}
         />
@@ -82,14 +82,14 @@ export default function AppearanceSettings({ options, onOptionsChange }) {
         <Checkbox
           defaultChecked={options.showTooltips}
           onChange={event => onOptionsChange({ showTooltips: event.target.checked })}>
-          Show Tooltips
+          显示工具提示
         </Checkbox>
       </Section>
       <Section>
         <Checkbox
           defaultChecked={options.percentValues}
           onChange={event => onOptionsChange({ percentValues: event.target.checked })}>
-          Normalize Values to Percentage
+          将值标准化到百分比
         </Checkbox>
       </Section>
     </React.Fragment>
