@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, ContextHelp } from "@/components/visualizations/editor";
@@ -12,7 +12,7 @@ function Editor({ column, onChange }) {
       <Input
         label={
           <React.Fragment>
-            Date/Time format
+            日期/时间格式
             <ContextHelp.DateTimeFormatSpecs />
           </React.Fragment>
         }

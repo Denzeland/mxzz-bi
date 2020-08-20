@@ -1,4 +1,4 @@
-import { isNil, map } from "lodash";
+﻿import { isNil, map } from "lodash";
 import React, { useMemo } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Select, Checkbox, Input, ColorPicker, ContextHelp } from "@/components/visualizations/editor";
@@ -87,7 +87,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
     <React.Fragment>
       <Section>
         <Select
-          label="Map Tiles"
+          label="地图类型"
           data-test="Map.Editor.Tiles"
           value={options.mapTileUrl}
           onChange={mapTileUrl => onOptionsChange({ mapTileUrl })}>
@@ -99,14 +99,14 @@ export default function StyleSettings({ options, onOptionsChange }) {
         </Select>
       </Section>
 
-      <Section.Title>Markers</Section.Title>
+      <Section.Title>标记</Section.Title>
 
       <Section>
         <Checkbox
           data-test="Map.Editor.ClusterMarkers"
           defaultChecked={options.clusterMarkers}
           onChange={event => onOptionsChange({ clusterMarkers: event.target.checked })}>
-          Cluster Markers
+          集群标记
         </Checkbox>
       </Section>
 
@@ -116,13 +116,13 @@ export default function StyleSettings({ options, onOptionsChange }) {
           disabled={!isCustomMarkersStyleAllowed}
           defaultChecked={options.customizeMarkers}
           onChange={event => onOptionsChange({ customizeMarkers: event.target.checked })}>
-          Override default style
+          覆盖默认风格
         </Checkbox>
         {!isCustomMarkersStyleAllowed && (
           <ContextHelp placement="topLeft" arrowPointAtCenter>
-            Custom marker styles are not available
+            不能使用自定义标记样式
             <br />
-            when <b>Group By</b> column selected.
+            当 <b>分组</b> 列被选择.
           </ContextHelp>
         )}
       </Section>
@@ -132,27 +132,27 @@ export default function StyleSettings({ options, onOptionsChange }) {
           <Section>
             <Select
               layout="horizontal"
-              label="Shape"
+              label="模型"
               data-test="Map.Editor.MarkerShape"
               value={options.iconShape}
               onChange={iconShape => onOptionsChange({ iconShape })}>
               <Select.Option key="marker" data-test="Map.Editor.MarkerShape.marker">
-                Marker + Icon
+                标记 + 图标
               </Select.Option>
               <Select.Option key="doughnut" data-test="Map.Editor.MarkerShape.doughnut">
-                Circle
+                圆形
               </Select.Option>
               <Select.Option key="circle-dot" data-test="Map.Editor.MarkerShape.circle-dot">
-                Circle Dot
+                圆点
               </Select.Option>
               <Select.Option key="circle" data-test="Map.Editor.MarkerShape.circle">
-                Circle + Icon
+                圆形 + 图标
               </Select.Option>
               <Select.Option key="rectangle-dot" data-test="Map.Editor.MarkerShape.rectangle-dot">
-                Square Dot
+                方形网点
               </Select.Option>
               <Select.Option key="rectangle" data-test="Map.Editor.MarkerShape.rectangle">
-                Square + Icon
+                方形 + 图标
               </Select.Option>
             </Select>
           </Section>
@@ -163,18 +163,18 @@ export default function StyleSettings({ options, onOptionsChange }) {
                 layout="horizontal"
                 label={
                   <React.Fragment>
-                    Icon
+                    图标
                     <ContextHelp placement="topLeft" arrowPointAtCenter>
                       <div style={{ marginBottom: 5 }}>
-                        Enter an icon name from{" "}
+                        输入图标名称{" "}
                         <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank" rel="noopener noreferrer">
                           Font-Awesome 4.7
                         </a>
                       </div>
                       <div style={{ marginBottom: 5 }}>
-                        Examples: <code>check</code>, <code>times-circle</code>, <code>flag</code>
+                        例子: <code>检查</code>, <code>时间圈</code>, <code>标志</code>
                       </div>
-                      <div>Leave blank to remove.</div>
+                      <div>留空以删除.</div>
                     </ContextHelp>
                   </React.Fragment>
                 }
@@ -189,7 +189,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
             <Section>
               <ColorPicker
                 layout="horizontal"
-                label="Icon Color"
+                label="图标颜色"
                 interactive
                 presetColors={CustomColorPalette}
                 placement="topRight"
@@ -205,7 +205,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
             <Section>
               <ColorPicker
                 layout="horizontal"
-                label="Background Color"
+                label="背景色"
                 interactive
                 presetColors={CustomColorPalette}
                 placement="topRight"
@@ -221,7 +221,7 @@ export default function StyleSettings({ options, onOptionsChange }) {
             <Section>
               <ColorPicker
                 layout="horizontal"
-                label="Border Color"
+                label="边框颜色"
                 interactive
                 presetColors={CustomColorPalette}
                 placement="topRight"

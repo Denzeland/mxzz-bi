@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, Checkbox, TextArea, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
@@ -33,7 +33,7 @@ export default function FormatSettings({ options, onOptionsChange }) {
 
       <Section>
         <Input
-          label={<React.Fragment>Tooltip template {templateFormatHint}</React.Fragment>}
+          label={<React.Fragment>工具提示模板 {templateFormatHint}</React.Fragment>}
           data-test="Map.Editor.TooltipTemplate"
           disabled={!options.tooltip.enabled}
           placeholder={__("Default template")}
@@ -53,7 +53,7 @@ export default function FormatSettings({ options, onOptionsChange }) {
 
       <Section>
         <TextArea
-          label={<React.Fragment>Popup template {templateFormatHint}</React.Fragment>}
+          label={<React.Fragment>弹出模板 {templateFormatHint}</React.Fragment>}
           data-test="Map.Editor.PopupTemplate"
           disabled={!options.popup.enabled}
           rows={4}
