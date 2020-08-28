@@ -22,71 +22,33 @@ import logoUrl from "@/assets/images/mxbi.png";
 
 import FavoritesDropdown from "./FavoritesDropdown";
 import "./index.less";
+import { Layout, Typography } from 'antd';
+const { Header } = Layout;
 
 function onSearch(q) {
   navigateTo(`queries?q=${encodeURIComponent(q)}`);
 }
 
-function DesktopNavbar() {
-  const showCreateDashboardDialog = useCallback(() => {
-    CreateDashboardDialog.showModal();
-  }, []);
+function DesktopNavbar({ siderCollapsed, toggleCollapsed }) {
+  // const showCreateDashboardDialog = useCallback(() => {
+  //   CreateDashboardDialog.showModal();
+  // }, []);
 
   return (
+    // <div className="app-header" data-platform="desktop">
     <div className="app-header" data-platform="desktop">
-      <div>
-        <Menu mode="horizontal" selectable={false}>
-          {currentUser.hasPermission("list_dashboards") && (
-            <Menu.Item key="dashboards" className="dropdown-menu-item">
-              <Button href="dashboards">{__("Dashboards")}</Button>
-              <FavoritesDropdown fetch={Dashboard.favorites} urlTemplate="dashboard/${slug}" />
-            </Menu.Item>
-          )}
-          {currentUser.hasPermission("view_query") && (
-            <Menu.Item key="queries" className="dropdown-menu-item">
-              <Button href="queries">{__("Queries")}</Button>
-              <FavoritesDropdown fetch={Query.favorites} urlTemplate="queries/${id}" />
-            </Menu.Item>
-          )}
-          {currentUser.hasPermission("list_alerts") && (
-            <Menu.Item key="alerts">
-              <Button href="alerts">{__("Alerts")}</Button>
-            </Menu.Item>
-          )}
-        </Menu>
-        {currentUser.canCreate() && (
-          <Dropdown
-            trigger={["click"]}
-            overlay={
-              <Menu>
-                {currentUser.hasPermission("create_query") && (
-                  <Menu.Item key="new-query">
-                    <a href="queries/new">{__("New Query")}</a>
-                  </Menu.Item>
-                )}
-                {currentUser.hasPermission("create_dashboard") && (
-                  <Menu.Item key="new-dashboard">
-                    <a onMouseUp={showCreateDashboardDialog}>{__("New Dashboard")}</a>
-                  </Menu.Item>
-                )}
-                {currentUser.hasPermission("list_alerts") && (
-                  <Menu.Item key="new-alert">
-                    <a href="alerts/new">{__("New Alert")}</a>
-                  </Menu.Item>
-                )}
-              </Menu>
-            }>
-            <Button type="primary" data-test="CreateButton">
-            {__("Create")} <Icon type="down" />
-            </Button>
-          </Dropdown>
-        )}
-      </div>
-      <div className="header-logo">
-        <a href="./">
+      <Button onClick={toggleCollapsed} className="toggleCollapsed-btn">
+        <Icon
+          className="trigger"
+          type={siderCollapsed ? 'menu-unfold' : 'menu-fold'}
+        />
+      </Button>
+      {/* <div className="header-logo">
+        <a href="./" className="brand-logo">
           <img src={logoUrl} alt="Redash" />
         </a>
-      </div>
+      </div> */}
+      <Typography.Title level={2}>木星商业智能分析平台</Typography.Title>
       <div>
         <Input.Search
           className="searchbar"
@@ -151,11 +113,11 @@ function DesktopNavbar() {
                   )}
                   <Menu.Divider />
                   <Menu.Item key="logout" onClick={() => Auth.logout()}>
-                  {__("Log out")}
+                    {__("Log out")}
                   </Menu.Item>
                   <Menu.Divider />
                   <Menu.Item key="version" disabled>
-                  {__("Version")}: {clientConfig.version}
+                    {__("Version")}: {clientConfig.version}
                     {frontendVersion !== clientConfig.version && ` (${frontendVersion.substring(0, 8)})`}
                     {clientConfig.newVersionAvailable && currentUser.hasPermission("super_admin") && (
                       <Tooltip title="Update Available" placement="rightTop">
@@ -183,6 +145,7 @@ function DesktopNavbar() {
         </Menu>
       </div>
     </div>
+    // </div>
   );
 }
 
@@ -240,7 +203,7 @@ function MobileNavbar() {
                 </a>
               </Menu.Item>
               <Menu.Item key="logout" onClick={() => Auth.logout()}>
-              {__("Log out")}
+                {__("Log out")}
               </Menu.Item>
             </Menu>
           }>
@@ -253,11 +216,13 @@ function MobileNavbar() {
   );
 }
 
-export default function ApplicationHeader() {
+export default function ApplicationHeader({ siderCollapsed, toggleCollapsed }) {
   return (
-    <nav className="app-header-wrapper">
-      <DesktopNavbar />
-      <MobileNavbar />
-    </nav>
+    <Header className="mxbi-header" style={{paddingLeft: siderCollapsed? '95px': '215px'}}>
+      <nav className="app-header-wrapper">
+        <DesktopNavbar siderCollapsed={siderCollapsed} toggleCollapsed={toggleCollapsed} />
+        <MobileNavbar />
+      </nav>
+    </Header>
   );
 }

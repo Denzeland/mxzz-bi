@@ -36,7 +36,6 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
 
   // fetch items on click
   const onVisibleChange = visible => visible && fetchItems();
-
   const menu = (
     <Menu className="favorites-dropdown">
       {noItems ? (
@@ -68,7 +67,7 @@ export default function FavoritesDropdown({ fetch, urlTemplate }) {
       placement="bottomLeft"
       onVisibleChange={onVisibleChange}
       overlay={menu}>
-      {loading ? <Icon type="loading" spin /> : <Icon type="down" />}
+      {loading ? <Icon type="loading" spin /> : <Icon type="star" className="sider-favoriteIcon"/>}
     </Dropdown>
   );
 }

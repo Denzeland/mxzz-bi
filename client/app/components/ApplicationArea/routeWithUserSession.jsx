@@ -5,6 +5,9 @@ import { Auth } from "@/services/auth";
 import organizationStatus from "@/services/organizationStatus";
 import ApplicationHeader from "./ApplicationHeader";
 import ErrorMessage from "./ErrorMessage";
+import DesktopSider from "./sider"
+import { Layout } from 'antd';
+const { Content } = Layout;
 
 // This wrapper modifies `route.render` function and instead of passing `currentRoute` passes an object
 // that contains:
@@ -14,6 +17,10 @@ import ErrorMessage from "./ErrorMessage";
 
 function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
   const [isAuthenticated, setIsAuthenticated] = useState(!!Auth.isAuthenticated());
+  const [collapsed, setCollapsed] = useState(false);
+  function toggleCollapsed() {
+    setCollapsed(!collapsed);
+  }
 
   useEffect(() => {
     let isCancelled = false;
@@ -47,18 +54,23 @@ function UserSessionWrapper({ bodyClass, currentRoute, renderChildren }) {
   }
 
   return (
-    <React.Fragment>
-      <ApplicationHeader />
-      <React.Fragment key={currentRoute.key}>
-        <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>
-          <ErrorBoundaryContext.Consumer>
-            {({ handleError }) =>
-              renderChildren({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError })
-            }
-          </ErrorBoundaryContext.Consumer>
-        </ErrorBoundary>
-      </React.Fragment>
-    </React.Fragment>
+    <Layout>
+      <DesktopSider collapsed={collapsed} />
+      <Layout>
+        <ApplicationHeader siderCollapsed={collapsed} toggleCollapsed={toggleCollapsed} />
+        <Content className="mxbi-content" style={{paddingLeft: collapsed? '95px': '215px'}}>
+          <React.Fragment key={currentRoute.key}>
+            <ErrorBoundary renderError={error => <ErrorMessage error={error} />}>
+              <ErrorBoundaryContext.Consumer>
+                {({ handleError }) =>
+                  renderChildren({ ...currentRoute.routeParams, pageTitle: currentRoute.title, onError: handleError })
+                }
+              </ErrorBoundaryContext.Consumer>
+            </ErrorBoundary>
+          </React.Fragment>
+        </Content>
+      </Layout>
+    </Layout>
   );
 }
 

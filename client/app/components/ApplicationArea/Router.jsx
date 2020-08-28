@@ -48,6 +48,7 @@ export default function Router({ routes, onRouteChange }) {
     });
 
     function resolve(action) {
+      console.log('执行resolve', action);
       if (!isAbandoned) {
         if (errorHandlerRef.current) {
           errorHandlerRef.current.reset();
