@@ -48,7 +48,7 @@ function DesktopNavbar({ siderCollapsed, toggleCollapsed }) {
           <img src={logoUrl} alt="Redash" />
         </a>
       </div> */}
-      <Typography.Title level={2}>木星商业智能分析平台</Typography.Title>
+      <Typography.Title level={2} className="site-title">木星商业智能分析平台</Typography.Title>
       <div>
         <Input.Search
           className="searchbar"

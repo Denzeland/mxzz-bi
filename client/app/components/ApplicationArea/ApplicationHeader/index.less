@@ -9,6 +9,9 @@ header.mxbi-header {
 
 .mxbi-content {
   margin-top: 80px;
+  @media @mobileBreakpoint {
+    padding-left: 0 !important;
+  }
 }
 
 .mxbi-content>div {
@@ -48,6 +51,9 @@ header.mxbi-header {
       font-weight: 900;
     }
   }
+  @media @mobileBreakpoint {
+    display: none;
+  }
 }
 
 a.side-href {
@@ -64,6 +70,12 @@ a.side-href {
 
   &:hover {
     color: #fff;
+  }
+}
+
+.site-title {
+  @media (max-width: 1024px) {
+    display: none !important;
   }
 }
 
