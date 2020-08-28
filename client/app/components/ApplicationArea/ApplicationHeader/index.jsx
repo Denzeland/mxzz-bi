@@ -49,7 +49,7 @@ function DesktopNavbar({ siderCollapsed, toggleCollapsed }) {
         </a>
       </div> */}
       <Typography.Title level={2} className="site-title">木星商业智能分析平台</Typography.Title>
-      <div>
+      <div className="divborder">
         <Input.Search
           className="searchbar"
           placeholder={__("Search queries...")}

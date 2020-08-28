@@ -1,7 +1,8 @@
 @mobileBreakpoint: ~"(max-width: 767px)";
 
 header.mxbi-header {
-  background: #ffffff;
+  /*background: #ffffff;*/
+  background: #fff;
   position: fixed;
   width: 100%;
   z-index: 100;
@@ -96,9 +97,9 @@ nav .app-header {
   display: flex;
   justify-content: space-between;
   // margin-bottom: 10px;
-  background: white;
-  box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);
-
+  /*background: white;*/
+  background: #fff;
+  /*box-shadow: 0 4px 9px -3px rgba(102, 136, 153, 0.15);*/
   .darker {
     color: #333 !important;
 
@@ -107,7 +108,7 @@ nav .app-header {
     }
   }
 
-  &>* {
+  & > * {
     display: flex;
     align-items: center;
   }
@@ -178,7 +179,6 @@ nav .app-header {
       position: relative;
       z-index: 1;
     }
-
     // this is a trick to get the dropdown menu to be placed at the bottom left
     // of the menu item and not the dropdown trigger
     .ant-dropdown-trigger {
@@ -273,6 +273,7 @@ nav .app-header {
 @media @mobileBreakpoint {
   .app-header-wrapper {
     margin-top: 59px !important; // compensate for app header fixed position
+    /*background-color:transparent;*/
   }
 }
 
@@ -294,4 +295,8 @@ nav .app-header {
 
 .ant-dropdown-menu.favorites-dropdown {
   margin-left: -10px;
+}
+
+.divborder{
+    border:none;
 }
