@@ -1,4 +1,6 @@
 .venv
+.bienv
+bienv/
 venv/
 .cache
 .coverage.*
