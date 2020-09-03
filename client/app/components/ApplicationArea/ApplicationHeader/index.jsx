@@ -182,6 +182,14 @@ function MobileNavbar() {
                   <a href="alerts">{__("Alerts")}</a>
                 </Menu.Item>
               )}
+
+              {currentUser.hasPermission("list_alerts") && (
+                <Menu.Item key="alerts">
+                  <a href="alerts">{__("Alerts")}</a>
+                </Menu.Item>
+              )}
+
+
               <Menu.Item key="profile">
                 <a href="users/me">{__("Edit Profile")}</a>
               </Menu.Item>
