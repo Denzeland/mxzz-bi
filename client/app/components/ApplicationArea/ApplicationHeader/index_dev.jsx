@@ -1,4 +1,4 @@
-/* eslint-disable no-template-curly-in-string */
+﻿/* eslint-disable no-template-curly-in-string */
 
 import React, { useCallback, useRef } from "react";
 
@@ -72,6 +72,11 @@ function DesktopNavbar() {
                 {currentUser.hasPermission("list_alerts") && (
                   <Menu.Item key="new-alert">
                     <a href="alerts/new">{__("New Alert")}</a>
+                  </Menu.Item>
+                )}
+                {currentUser.hasPermission("test_alert") && (
+                  <Menu.Item key="new-alert">
+                    <a href="alerts/new">测试</a>
                   </Menu.Item>
                 )}
               </Menu>
