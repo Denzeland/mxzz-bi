@@ -174,7 +174,9 @@ class User(
             return self._profile_image_url
 
         email_md5 = hashlib.md5(self.email.lower().encode()).hexdigest()
-        return "https://www.gravatar.com/avatar/{}?s=40&d=identicon".format(email_md5)
+        # return "https://www.gravatar.com/avatar/{}?s=40&d=identicon".format(email_md5)
+        # 这里的用户头像连接后面可以换成实际部署的地址
+        return "https://mxbiavatar.herokuapp.com/{}".format(email_md5)
 
     @property
     def permissions(self):

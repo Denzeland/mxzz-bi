@@ -136,9 +136,8 @@ function DesktopNavbar({ siderCollapsed, toggleCollapsed }) {
                 </Menu>
               }>
               <Button data-test="ProfileDropdown" className="profile-dropdown">
-                {/* <img src={currentUser.profile_image_url} alt={currentUser.name} /> */}
-                {/* 这里的用户头像连接后面可以换成实际部署的地址 */}
-                <img src={'https://mxbiavatar.herokuapp.com/' + currentUser.name} alt={currentUser.name} />
+                <img src={currentUser.profile_image_url} alt={currentUser.name} />
+                {/* <img src={'https://mxbiavatar.herokuapp.com/' + currentUser.name} alt={currentUser.name} /> */}
                 <span>{currentUser.name}</span>
                 <Icon type="down" />
               </Button>
