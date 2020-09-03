@@ -137,6 +137,7 @@ function DesktopNavbar({ siderCollapsed, toggleCollapsed }) {
               }>
               <Button data-test="ProfileDropdown" className="profile-dropdown">
                 <img src={currentUser.profile_image_url} alt={currentUser.name} />
+                {/* <img src={'https://mxbiavatar.herokuapp.com/' + currentUser.name} alt={currentUser.name} /> */}
                 <span>{currentUser.name}</span>
                 <Icon type="down" />
               </Button>
