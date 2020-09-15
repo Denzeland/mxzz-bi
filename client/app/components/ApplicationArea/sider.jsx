@@ -72,6 +72,14 @@ export default function DesktopSider({ collapsed }) {
             )}
           </SubMenu>
         )}
+        {currentUser.hasPermission("view_query") && (
+          <Menu.Item key="dataset" className="dropdown-menu-item">
+            <Icon type="search" />
+            <span>
+              <a href="dataset/new" className="side-href">数据集</a>
+            </span>
+          </Menu.Item>
+        )}
       </Menu>
     </Sider>
   )

@@ -118,7 +118,7 @@ class DataSourcesList extends React.Component {
         )}
       </div>
     ) : (
-      <CardsList items={items} />
+      <CardsList items={items} showSearch={true}/>
     );
   }
 

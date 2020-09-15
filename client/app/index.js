@@ -6,6 +6,9 @@ import "@/config";
 
 import offlineListener from "@/services/offline-listener";
 
-ReactDOM.render(<ApplicationArea />, document.getElementById("application-root"), () => {
+import zhCN from 'antd/es/locale/zh_CN';
+import { ConfigProvider } from 'antd';
+
+ReactDOM.render(<ConfigProvider locale={zhCN}><ApplicationArea /></ConfigProvider>, document.getElementById("application-root"), () => {
   offlineListener.init();
 });

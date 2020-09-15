@@ -51,6 +51,7 @@ function chooseDataSourceId(dataSourceIds, availableDataSources) {
 }
 
 function QuerySource(props) {
+  console.log('加载打印query', props.query);
   const { query, setQuery, isDirty, saveQuery } = useQuery(props.query);
   const { dataSourcesLoaded, dataSources, dataSource } = useQueryDataSources(query);
   const [schema, refreshSchema] = useDataSourceSchema(dataSource);
@@ -59,6 +60,7 @@ function QuerySource(props) {
   const [selectedVisualization, setSelectedVisualization] = useVisualizationTabHandler(query.visualizations);
   const isMobile = !useMedia({ minWidth: 768 });
 
+  console.log('schema', schema);
   useUnsavedChangesAlert(isDirty);
 
   const {

@@ -88,6 +88,7 @@ class QueriesList extends React.Component {
   ];
 
   componentDidMount() {
+    console.log('列表state', this.props.controller);
     this.unlistenLocationChanges = location.listen((unused, action) => {
       const searchTerm = location.search.q || "";
       if (action === "PUSH" && searchTerm !== this.props.controller.searchTerm) {
