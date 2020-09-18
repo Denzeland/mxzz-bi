@@ -33,7 +33,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
   }
 
   const [{ isDragging }, drag] = useDrag({
-    item: {type: 'dataset', data: item },
+    item: {type: 'dataset', ...item },
     collect: monitor => ({
       isDragging: !!monitor.isDragging(),
     }),

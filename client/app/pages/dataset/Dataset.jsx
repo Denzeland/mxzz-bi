@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import { Steps, Button, message, Row, Col, Card, Typography, Input, Radio, Form, Tooltip, Icon, DatePicker, TimePicker, Select } from 'antd';
+import { Steps, Button, Modal, Row, Col, Card, Typography, Input, Radio, Form, Tooltip, Icon, DatePicker, Divider, Select } from 'antd';
 import { isEmpty, reject, includes, intersection, isArray, capitalize, map, find, extend, join, cloneDeep } from "lodash";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
@@ -9,7 +9,7 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import moment from "moment";
-import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from "@/lib/utils";
+import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime, dealEllipsis } from "@/lib/utils";
 import { clientConfig } from "@/services/auth";
 import { TimeEditor } from "@/components/queries/ScheduleDialog";
 import useQuery from "@/pages/queries/hooks/useQuery";
@@ -498,11 +498,15 @@ function DatasetEdit(props) {
         nodes: [],
         edges: []
     });
-
     const graphRef = React.useRef(null);
-
     const [graph, setGraph] = useState(null);
-    // let graph = null;
+    const [showJoinDataModal, setShowJoinDataModal] = useState(false);
+    const dataSetJoin = [{
+        leftTable: '左表名',
+        rightTable: '右表名',
+        relation: '关系',
+        condition: [['left_table_field', 'right_table_field']]
+    }];
 
     useEffect(() => {
         if (!graph) {
@@ -515,12 +519,27 @@ function DatasetEdit(props) {
                 },
                 defaultNode: {
                     type: 'modelRect',
-                    size: [80, 40],
+                    size: [100, 40],
+                    preRect: {
+                        width: 2
+                    },
+                    logoIcon: {
+                        show: false,
+                    },
                     style: {
                         fill: '#f0f5ff',
                         stroke: '#adc6ff',
-                        lineWidth: 2
-                    }
+                        lineWidth: 2,
+                        cursor: 'pointer'
+                    },
+                    labelCfg: {
+                        offset: 8,
+                        style: {
+                            fill: '#9254de',
+                            fontSize: 14,
+                            textAlign: 'left'
+                        },
+                    },
                 },
                 defaultEdge: {
                     type: 'polyline',
@@ -534,49 +553,45 @@ function DatasetEdit(props) {
                     rankdir: 'LR'
                 }
             });
-            if (joinData.nodes.length > 0) {
-                graphObj.data(cloneDeep(joinData));
-                graphObj.render();
-            }
+            graphObj.data(cloneDeep(joinData));
+            graphObj.render();
             setGraph(graphObj);
         }
         console.log('执行副作用');
     }, []);
 
-    // useEffect(() => {
-    //     if (graph) {
-    //         graph.read(cloneDeep(joinData));
-    //     }
-    // }, [joinData]);
+    useEffect(() => {
+        if (graph) {
+            console.log('副作用joinData', joinData, graph);
+            graph.changeData(cloneDeep(joinData), false);
+        }
+    }, [joinData]);
 
     const [{ isOver }, dropRef] = useDrop({
         accept: 'dataset',
         drop: (item, monitor) => {
-            console.log('上次数据', joinData);
             let nodes = joinData.nodes;
-            let node = { id: nodes.length, data: item, label: item.data.name };
-            nodes.push(node);
-            // graph.addItem('node', cloneDeep(node));
+            nodes.push({ id: 'node' + nodes.length, data: item, label: dealEllipsis(item.name) });
             if (nodes.length > 1) {
-                let edge = {
+                joinData.edges.push({
                     source: nodes[nodes.length - 2].id,
                     target: nodes[nodes.length - 1].id
-                };
-                joinData.edges.push(edge);
-                // graph.addItem('edge', cloneDeep(edge));
+                });
             }
-            console.log('本次数据', joinData);
-            graph.clear();
-            graph.read(cloneDeep(joinData));
-            // graph.changeData(cloneDeep(joinData), false);
-            // graph.render();
+            console.log('本次数据', graph, joinData);
             setJoinData(joinData);
+            if (nodes.length > 0) {
+                setShowJoinDataModal(true);
+            }
         },
         collect: monitor => ({
             isOver: !!monitor.isOver(),
         }),
     });
 
+    function handleChange(e) {
+        console.log('下拉框change', e);
+    }
     return (
         <div className={cx("query-page-wrapper dataset-edit", { "query-fixed-layout": !isMobile })}>
             <main className="query-fullscreen edit-drag-drop">
@@ -602,11 +617,70 @@ function DatasetEdit(props) {
                     </nav>
                 </Resizable>
                 <div className={cx("content", { "drop-hover": isOver })} ref={dropRef}>
-                    <div ref={graphRef}>
-                        {joinData.nodes.length == 0 && <Typography.Title level={4}>把左侧数据集拖入此区域</Typography.Title>}
+                    {joinData.nodes.length == 0 && <Typography.Title level={4}>把左侧数据集拖入此区域</Typography.Title>}
+                    <div ref={graphRef} style={{ display: joinData.nodes.length == 0 ? 'none' : 'block' }}>
                     </div>
                 </div>
             </main>
+            <Modal
+                title="配置数据集关系"
+                visible={showJoinDataModal}
+                onOk={() => setShowJoinDataModal(false)}
+                onCancel={() => setShowJoinDataModal(false)}
+            >
+                <Divider>配置关联的数据集</Divider>
+                <Row>
+                    <Col span={8}>
+                        <Select defaultValue={joinData.nodes[joinData.nodes.length-2].data.name} style={{ width: 120 }} onChange={handleChange}>
+                            {
+                                joinData.nodes.map((node, index) => {
+                                    if(index == joinData.nodes.length-1) {
+                                        return (<Option value={node.data.name} disabled>node.data.name</Option>)
+                                    } else {
+                                        return (<Option value={node.data.name}>node.data.name</Option>)
+                                    }
+                                })
+                            }
+                        </Select>
+                    </Col>
+                    <Col span={6} offset={2}>
+                        <Select defaultValue="leftJoin" style={{ width: 120 }} onChange={handleChange}>
+                            <Option value="leftJoin">左连接</Option>
+                            <Option value="rightJoin">右连接</Option>
+                            <Option value="fullJoin">全连接</Option>
+                        </Select>
+                    </Col>
+                    <Col span={6} offset={2}>
+                        <Typography.Text strong>joinData.nodes[joinData.nodes.length-1].data.name</Typography.Text>
+                    </Col>
+                </Row>
+                <Divider>配置关联关系</Divider>
+                <Row>
+                    <Col span={8}>
+                        <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
+                            <Option value="jack">Jack</Option>
+                            <Option value="lucy">Lucy</Option>
+                            <Option value="disabled" disabled>
+                                Disabled
+                            </Option>
+                            <Option value="Yiminghe">yiminghe</Option>
+                        </Select>
+                    </Col>
+                    <Col span={6} offset={2}>
+                        <span>=</span>
+                    </Col>
+                    <Col span={6} offset={2}>
+                        <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
+                            <Option value="jack">Jack</Option>
+                            <Option value="lucy">Lucy</Option>
+                            <Option value="disabled" disabled>
+                                Disabled
+                            </Option>
+                            <Option value="Yiminghe">yiminghe</Option>
+                        </Select>
+                    </Col>
+                </Row>
+            </Modal>
         </div>
     )
 }
