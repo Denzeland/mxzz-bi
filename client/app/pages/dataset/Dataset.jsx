@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import { Steps, Button, Modal, Row, Col, Card, Typography, Input, Radio, Form, Tooltip, Icon, DatePicker, Divider, Select } from 'antd';
-import { isEmpty, reject, includes, intersection, isArray, capitalize, map, find, extend, join, cloneDeep } from "lodash";
+import { Steps, Button, Modal, Row, Col, Card, Typography, Input, Radio, Form, Tooltip, Icon, DatePicker, Divider, Select, message } from 'antd';
+import { isEmpty, reject, includes, intersection, isArray, capitalize, map, find, extend, join, cloneDeep, uniqueId } from "lodash";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
 import { policy } from "@/services/policy";
@@ -479,6 +479,190 @@ function DatasetSetting({ onError, onSettingFinished }) {
     );
 }
 
+function DataSetJoinForm({ form, joinData }) {
+    const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
+    const [currentLeftTableValue, setCurrentLeftTableValue] = useState(joinData.nodes[joinData.nodes.length - 2].id);
+
+    function handleLeftTableChange(value) {
+        console.log('左表选择', value);
+        setCurrentLeftTableValue(value);
+    }
+
+    getFieldDecorator('keys', { initialValue: [] });
+    getFieldDecorator('relationCondition', { initialValue: [[undefined, undefined]] });
+
+    function addCondition() {
+        const keys = getFieldValue('keys');
+        let relationCondition = getFieldValue('relationCondition');
+        console.log('增加条件', relationCondition);
+        const nextKeys = keys.concat(uniqueId());
+        relationCondition.push([undefined, undefined]);
+        setFieldsValue({
+            keys: nextKeys,
+            relationCondition,
+        });
+    }
+
+    function removeCondition(k, index) {
+        const keys = getFieldValue('keys');
+        let relationCondition = getFieldValue('relationCondition');
+        relationCondition.splice(index, 1);
+        setFieldsValue({
+            keys: keys.filter(key => key !== k),
+            relationCondition,
+        });
+    }
+
+    function updateRelationCondition(type, value, index) {
+        let relationCondition = getFieldValue('relationCondition');
+        console.log('更新条件', relationCondition);
+        switch (type) {
+            case 'left':
+                relationCondition[index][0] = value;
+                break;
+            case 'right':
+                relationCondition[index][1] = value;
+                break;
+        }
+        setFieldsValue({
+            relationCondition,
+        });
+    }
+
+    return (
+        <Form>
+            <Divider>配置关联的数据集</Divider>
+            <Row>
+                <Col span={8}>
+                    <Form.Item>
+                        {getFieldDecorator('leftTable', {
+                            rules: [{ required: true, message: 'leftTable is required!' }],
+                            initialValue: joinData.nodes[joinData.nodes.length - 2].id
+                        })(
+                            <Select onChange={handleLeftTableChange}>
+                                {
+                                    joinData.nodes.map((node, index) => {
+                                        if (index == joinData.nodes.length - 1) {
+                                            return (<Option value={node.id} disabled key={node.id}>{node.data.name}</Option>)
+                                        } else {
+                                            return (<Option value={node.id} key={node.id}>{node.data.name}</Option>)
+                                        }
+                                    })
+                                }
+                            </Select>
+                        )}
+                    </Form.Item>
+                </Col>
+                <Col span={6} offset={2}>
+                    <Form.Item>
+                        {getFieldDecorator('relation', {
+                            initialValue: "innerJoin"
+                        })(
+                            <Select>
+                                <Option value="innerJoin" key="innerJoin">内连接</Option>
+                                <Option value="leftJoin" key="leftJoin">左连接</Option>
+                                <Option value="rightJoin" key="rightJoin">右连接</Option>
+                            </Select>
+                        )}
+                    </Form.Item>
+                </Col>
+                <Col span={6} offset={2}>
+                    <Typography.Text strong>{joinData.nodes[joinData.nodes.length - 1].data.name}</Typography.Text>
+                </Col>
+            </Row>
+            <Divider>配置关联关系</Divider>
+            <Row>
+                <Col span={8}>
+                    <Form.Item>
+                        {getFieldDecorator('leftTableRelationField', {
+                            // initialValue: find(joinData.nodes, { id: currentLeftTableValue }).data.columns[0]
+                        })(
+                            <Select placeholder="左表关联字段" onChange={(value) => updateRelationCondition('left', value, 0)}>
+                                {find(joinData.nodes, { id: currentLeftTableValue }).data.columns.map((column) => {
+                                    return (
+                                        <Option value={column} key={column}>{column}</Option>
+                                    )
+                                })}
+                            </Select>
+                        )}
+                    </Form.Item>
+                </Col>
+                <Col span={2} offset={2}>
+                    <span>=</span>
+                </Col>
+                <Col span={8}>
+                    <Form.Item>
+                        {getFieldDecorator('rightTableRelationField', {
+                            // initialValue: joinData.nodes[joinData.nodes.length - 1].data.columns[0]
+                        })(
+                            <Select placeholder="右表关联字段" onChange={(value) => updateRelationCondition('right', value, 0)}>
+                                {joinData.nodes[joinData.nodes.length - 1].data.columns.map((column) => {
+                                    return (
+                                        <Option value={column} key={column}>{column}</Option>
+                                    )
+                                })}
+                            </Select>
+                        )}
+                    </Form.Item>
+                </Col>
+            </Row>
+            {getFieldValue('keys').map((k, index) => {
+                return (
+                    <Row key={index}>
+                        <Col span={8}>
+                            <Form.Item>
+                                {getFieldDecorator(`leftTableRelationField_${k}`, {
+                                    // initialValue: find(joinData.nodes, { id: currentLeftTableValue }).data.columns[0]
+                                })(
+                                    <Select placeholder="左表关联字段" onChange={(value) => updateRelationCondition('left', value, index + 1)}>
+                                        {find(joinData.nodes, { id: currentLeftTableValue }).data.columns.map((column) => {
+                                            return (
+                                                <Option value={column} key={column}>{column}</Option>
+                                            )
+                                        })}
+                                    </Select>
+                                )}
+                            </Form.Item>
+                        </Col>
+                        <Col span={2} offset={2}>
+                            <span>=</span>
+                        </Col>
+                        <Col span={8}>
+                            <Form.Item>
+                                {getFieldDecorator(`rightTableRelationField_${k}`, {
+                                    // initialValue: joinData.nodes[joinData.nodes.length - 1].data.columns[0]
+                                })(
+                                    <Select placeholder="右表关联字段" onChange={(value) => updateRelationCondition('right', value, index + 1)}>
+                                        {joinData.nodes[joinData.nodes.length - 1].data.columns.map((column) => {
+                                            return (
+                                                <Option value={column} key={column}>{column}</Option>
+                                            )
+                                        })}
+                                    </Select>
+                                )}
+                            </Form.Item>
+                        </Col>
+                        <Col span={2} offset={2}>
+                            <Icon
+                                className="dynamic-delete-button"
+                                type="minus-circle-o"
+                                onClick={() => removeCondition(k, index + 1)}
+                            />
+                        </Col>
+                    </Row>
+                )
+            })}
+            <Form.Item>
+                <Button type="dashed" onClick={addCondition} style={{ width: '60%' }}>
+                    <Icon type="plus" /> 增加关联条件
+                </Button>
+            </Form.Item>
+        </Form>
+    )
+}
+
+const WrappedDataSetJoinForm = Form.create({ name: 'dataSetJoin' })(DataSetJoinForm);
+
 function DatasetEdit(props) {
     const { query, setQuery, isDirty, saveQuery } = useQuery(Query.newQuery());
     const dataSource = props.dataSource;
@@ -499,14 +683,17 @@ function DatasetEdit(props) {
         edges: []
     });
     const graphRef = React.useRef(null);
+    const [joinDataFormRef, setJoinDataFormRef] = useState(null);
     const [graph, setGraph] = useState(null);
     const [showJoinDataModal, setShowJoinDataModal] = useState(false);
-    const dataSetJoin = [{
-        leftTable: '左表名',
-        rightTable: '右表名',
-        relation: '关系',
-        condition: [['left_table_field', 'right_table_field']]
-    }];
+    // const dataSetJoin = [{
+    //     leftTable: '左表名',
+    //     rightTable: '右表名',
+    //     relation: '关系',
+    //     condition: [['left_table_field', 'right_table_field']]
+    // }];
+    const dataSetJoinReducer = (prevState, updatedProperty) => ([...updatedProperty]);
+    const [dataSetJoin, setDataSetJoin] = useReducer(dataSetJoinReducer, []);
 
     useEffect(() => {
         if (!graph) {
@@ -515,7 +702,14 @@ function DatasetEdit(props) {
                 width: 1200,
                 height: 260,
                 modes: {
-                    default: ['drag-canvas', 'zoom-canvas']
+                    default: ['drag-canvas', 'zoom-canvas', {
+                        type: 'tooltip', // 提示框
+                        formatText(model) {
+                            // 提示框文本内容
+                            const text = '数据集： ' + model.data.name;
+                            return text;
+                        }
+                    }]
                 },
                 defaultNode: {
                     type: 'modelRect',
@@ -560,28 +754,33 @@ function DatasetEdit(props) {
         console.log('执行副作用');
     }, []);
 
-    useEffect(() => {
-        if (graph) {
-            console.log('副作用joinData', joinData, graph);
-            graph.changeData(cloneDeep(joinData), false);
-        }
-    }, [joinData]);
+    // useEffect(() => {
+    //     if (graph) {
+    //         console.log('副作用joinData', joinData, graph);
+    //         graph.changeData(cloneDeep(joinData), false);
+    //     }
+    // }, [joinData]);
+
+    function handleJoinDataFormRef(ref) {
+        console.log('挂载ref', ref);
+        setJoinDataFormRef(ref);
+    }
 
     const [{ isOver }, dropRef] = useDrop({
         accept: 'dataset',
         drop: (item, monitor) => {
             let nodes = joinData.nodes;
-            nodes.push({ id: 'node' + nodes.length, data: item, label: dealEllipsis(item.name) });
-            if (nodes.length > 1) {
-                joinData.edges.push({
-                    source: nodes[nodes.length - 2].id,
-                    target: nodes[nodes.length - 1].id
-                });
+            const isNodeExist = find(nodes, (node) => node.data.name == item.name);
+            if (isNodeExist) {
+                message.error('已经有此集合！');
+                return;
             }
-            console.log('本次数据', graph, joinData);
+            nodes.push({ id: 'node' + nodes.length, data: item, label: dealEllipsis(item.name) });
             setJoinData(joinData);
-            if (nodes.length > 0) {
+            if (joinData.nodes.length > 1) {
                 setShowJoinDataModal(true);
+            } else {
+                graph.changeData(cloneDeep(joinData), false);
             }
         },
         collect: monitor => ({
@@ -589,9 +788,68 @@ function DatasetEdit(props) {
         }),
     });
 
-    function handleChange(e) {
-        console.log('下拉框change', e);
+    function updateJoin() {
+        const fieldsValue = joinDataFormRef.getForm().getFieldsValue();
+        let nodes = joinData.nodes;
+        dataSetJoin.push({
+            leftTable: find(nodes, { id: fieldsValue.leftTable }).data.name,
+            rightTable: nodes[nodes.length - 1].data.name,
+            relation: fieldsValue.relation,
+            condition: fieldsValue.relationCondition
+        });
+        setDataSetJoin(dataSetJoin);
+        graph.changeData(cloneDeep(joinData), false);
     }
+
+    function resetCondition() {
+        joinDataFormRef.getForm().setFieldsValue({
+            keys: [],
+            relationCondition: [[undefined, undefined]]
+        });
+    }
+
+    function getJoinLineLable(relation) {
+        let label;
+        switch (relation) {
+            case 'innerJoin':
+                label = '内连接';
+                break;
+            case 'leftJoin':
+                label = '左连接';
+                break;
+            case 'rightJoin':
+                label = '右连接';
+                break;
+        }
+        return label;
+    }
+
+    function joinDataModalComfirm() {
+        const fieldsValue = joinDataFormRef.getForm().getFieldsValue();
+        let nodes = joinData.nodes;
+        joinData.edges.push({
+            source: fieldsValue.leftTable,
+            target: nodes[nodes.length - 1].id,
+            label: getJoinLineLable(fieldsValue.relation)
+        });
+        setJoinData(joinData);
+        updateJoin();
+        resetCondition();
+        setShowJoinDataModal(false);
+        console.log('确认', joinDataFormRef.getForm(), dataSetJoin, fieldsValue);
+    }
+
+    function joinDataModalCancle() {
+        joinData.nodes.pop();
+        joinData.edges.pop();
+        dataSetJoin.pop();
+        setJoinData(joinData);
+        setDataSetJoin(dataSetJoin);
+        resetCondition();
+        setShowJoinDataModal(false);
+        console.log('取消', dataSetJoin, joinDataFormRef.getForm().getFieldsValue());
+    }
+
     return (
         <div className={cx("query-page-wrapper dataset-edit", { "query-fixed-layout": !isMobile })}>
             <main className="query-fullscreen edit-drag-drop">
@@ -625,61 +883,10 @@ function DatasetEdit(props) {
             <Modal
                 title="配置数据集关系"
                 visible={showJoinDataModal}
-                onOk={() => setShowJoinDataModal(false)}
-                onCancel={() => setShowJoinDataModal(false)}
+                onOk={joinDataModalComfirm}
+                onCancel={joinDataModalCancle}
             >
-                <Divider>配置关联的数据集</Divider>
-                <Row>
-                    <Col span={8}>
-                        <Select defaultValue={joinData.nodes[joinData.nodes.length-2].data.name} style={{ width: 120 }} onChange={handleChange}>
-                            {
-                                joinData.nodes.map((node, index) => {
-                                    if(index == joinData.nodes.length-1) {
-                                        return (<Option value={node.data.name} disabled>node.data.name</Option>)
-                                    } else {
-                                        return (<Option value={node.data.name}>node.data.name</Option>)
-                                    }
-                                })
-                            }
-                        </Select>
-                    </Col>
-                    <Col span={6} offset={2}>
-                        <Select defaultValue="leftJoin" style={{ width: 120 }} onChange={handleChange}>
-                            <Option value="leftJoin">左连接</Option>
-                            <Option value="rightJoin">右连接</Option>
-                            <Option value="fullJoin">全连接</Option>
-                        </Select>
-                    </Col>
-                    <Col span={6} offset={2}>
-                        <Typography.Text strong>joinData.nodes[joinData.nodes.length-1].data.name</Typography.Text>
-                    </Col>
-                </Row>
-                <Divider>配置关联关系</Divider>
-                <Row>
-                    <Col span={8}>
-                        <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-                            <Option value="jack">Jack</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>
-                                Disabled
-                            </Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    </Col>
-                    <Col span={6} offset={2}>
-                        <span>=</span>
-                    </Col>
-                    <Col span={6} offset={2}>
-                        <Select defaultValue="lucy" style={{ width: 120 }} onChange={handleChange}>
-                            <Option value="jack">Jack</Option>
-                            <Option value="lucy">Lucy</Option>
-                            <Option value="disabled" disabled>
-                                Disabled
-                            </Option>
-                            <Option value="Yiminghe">yiminghe</Option>
-                        </Select>
-                    </Col>
-                </Row>
+                <WrappedDataSetJoinForm ref={handleJoinDataFormRef} joinData={joinData} />
             </Modal>
         </div>
     )
