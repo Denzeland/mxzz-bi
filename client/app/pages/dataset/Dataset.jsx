@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import { Steps, Button, Modal, Row, Col, Card, Typography, Input, Radio, Form, Tooltip, Icon, DatePicker, Divider, Select, message } from 'antd';
-import { isEmpty, reject, includes, intersection, isArray, capitalize, map, find, extend, join, cloneDeep, uniqueId } from "lodash";
+import { Steps, Button, Modal, Row, Col, Card, Typography, Input, Radio, Form, Tooltip, Icon, DatePicker, Divider, Select, message, Tabs, Empty } from 'antd';
+import { isEmpty, reject, includes, intersection, isArray, capitalize, map, find, extend, join, cloneDeep, uniqueId, trim, compact, uniq } from "lodash";
 import DataSource, { IMG_ROOT } from "@/services/data-source";
 import CreateSourceDialog from "@/components/CreateSourceDialog";
 import { policy } from "@/services/policy";
@@ -24,16 +24,18 @@ import SchemaBrowser from "./SchemaBrowser";
 import Resizable from "@/components/Resizable";
 import EditInPlace from "@/components/EditInPlace";
 import { Query } from "@/services/query";
-import wrapQueryPage from "@/pages/queries/components/wrapQueryPage";
 import useMedia from "use-media";
 import cx from "classnames";
 import { useDrop } from 'react-dnd';
 import G6 from '@antv/g6';
+import DatasetEditHeader from "./DatasetEditHeader";
+import getTags from "@/services/getTags";
 
 import "./dataset.less";
 
 const { Step } = Steps;
 const { Search } = Input;
+const { TabPane } = Tabs;
 const WEEKDAYS_SHORT = moment.weekdaysShort();
 const WEEKDAYS_FULL = moment.weekdays();
 const DATE_FORMAT = "YYYY-MM-DD";
@@ -51,7 +53,7 @@ function DataSourceSelect({ onError, selectChange, selectedDataSourceId, radioRe
     useEffect(() => {
         Promise.all([DataSource.query(), DataSource.types()])
             .then(values => {
-                console.log('加载数据源', values);
+                // console.log('加载数据源', values);
                 setDataSources(values[0]);
                 setDataSourceTypes(values[1]);
                 setLoding(false);
@@ -103,7 +105,7 @@ function DataSourceSelect({ onError, selectChange, selectedDataSourceId, radioRe
     }
 
     function renderSelection() {
-        console.log('查看数据源', selectedDataSourceId, dataSources);
+        // console.log('查看数据源', selectedDataSourceId, dataSources);
         const filteredItems = dataSources.filter(
             item => isEmpty(searchText) || includes(item.name.toLowerCase(), searchText.toLowerCase())
         );
@@ -135,6 +137,21 @@ function DataSourceSelect({ onError, selectChange, selectedDataSourceId, radioRe
 
 function DataSetSettingForm(props) {
     const { getFieldDecorator } = props.form;
+    const [availableTags, setAvailableTags] = useState(null);
+    const [tagLoading, setTagLoading] = useState(true);
+
+    function getQueryTags() {
+        return getTags("api/queries/tags").then(tags => map(tags, t => t.name));
+    }
+
+    useEffect(() => {
+        getQueryTags().then(availableTags => {
+            setAvailableTags(uniq(compact(map(availableTags, trim))));
+            setTagLoading(false);
+        });
+    }, []);
+    // console.log('获取tags', availableTags);
+
     return (
         <Row>
             <Col span={6}></Col>
@@ -163,7 +180,20 @@ function DataSetSettingForm(props) {
                             </Tooltip>
                         </span>
                     }>
-                        {getFieldDecorator('tag')(<Input type="textarea" />)}
+                        {/* {getFieldDecorator('tag')(<Input type="textarea" />)} */}
+                        {getFieldDecorator('tag')(<Select
+                            mode="tags"
+                            // className="w-100"
+                            placeholder={__("Add some tags...")}
+                            // onChange={values => this.setState({ result: compact(map(values, trim)) })}
+                            autoFocus
+                            disabled={tagLoading}
+                            loading={tagLoading}>
+                            {availableTags && map(availableTags, tag => (
+                                <Select.Option key={tag}>{tag}</Select.Option>
+                            ))}
+                        </Select>)}
+
                     </Form.Item>
                 </Form>
             </Col>
@@ -173,7 +203,7 @@ function DataSetSettingForm(props) {
 }
 
 function onFieldsChange(props, changedFields, allFields) {
-    console.log('onFieldsChange', props, changedFields, allFields);
+    // console.log('onFieldsChange', props, changedFields, allFields);
     props.onChange(changedFields);
 }
 
@@ -276,7 +306,7 @@ function ScheduleSetting({ scheduleState, setScheduleState }) {
 
     function setUntilToggle(e) {
         const date = e.target.value ? moment().format(DATE_FORMAT) : null;
-        console.log('格式化日期', date, e, scheduleState);
+        // console.log('格式化日期', date, e, scheduleState);
         setScheduleUntil(null, date);
     }
 
@@ -386,7 +416,7 @@ function DatasetSetting({ onError, onSettingFinished }) {
             value: ''
         },
         tag: {
-            value: ''
+            value: []
         }
     });
     const [scheduleState, setScheduleState] = useReducer(reducer, {
@@ -408,7 +438,7 @@ function DatasetSetting({ onError, onSettingFinished }) {
     }
 
     function onFormChange(changedFields) {
-        console.log('表单字段change', changedFields);
+        // console.log('表单字段change', changedFields);
         setFormState(changedFields);
     }
 
@@ -430,13 +460,17 @@ function DatasetSetting({ onError, onSettingFinished }) {
         },
     ];
     function settingFinish() {
+        if (!trim(formState.title.value)) {
+            message.error('数据集的名称是必须的！');
+            return;
+        }
         DataSource.get({ id: selectedDataSourceId }).then((result) => {
             const settingState = {
                 selectedDataSource: result,
                 formState,
                 scheduleState
             };
-            console.log('步骤完成', settingState);
+            // console.log('步骤完成', settingState);
             onSettingFinished(true, settingState);
         });
     }
@@ -481,10 +515,17 @@ function DatasetSetting({ onError, onSettingFinished }) {
 
 function DataSetJoinForm({ form, joinData }) {
     const { getFieldDecorator, setFieldsValue, getFieldValue } = form;
-    const [currentLeftTableValue, setCurrentLeftTableValue] = useState(joinData.nodes[joinData.nodes.length - 2].id);
+    let inittialNode;
+    if (joinData.nodes.length == 1) {
+        inittialNode = joinData.nodes[0];
+    } else {
+        inittialNode = joinData.nodes[joinData.nodes.length - 2];
+    }
+    // console.log('inittialNode', joinData, inittialNode);
+    const [currentLeftTableValue, setCurrentLeftTableValue] = useState(inittialNode.id);
 
     function handleLeftTableChange(value) {
-        console.log('左表选择', value);
+        // console.log('左表选择', value);
         setCurrentLeftTableValue(value);
     }
 
@@ -494,7 +535,7 @@ function DataSetJoinForm({ form, joinData }) {
     function addCondition() {
         const keys = getFieldValue('keys');
         let relationCondition = getFieldValue('relationCondition');
-        console.log('增加条件', relationCondition);
+        // console.log('增加条件', relationCondition);
         const nextKeys = keys.concat(uniqueId());
         relationCondition.push([undefined, undefined]);
         setFieldsValue({
@@ -515,13 +556,21 @@ function DataSetJoinForm({ form, joinData }) {
 
     function updateRelationCondition(type, value, index) {
         let relationCondition = getFieldValue('relationCondition');
-        console.log('更新条件', relationCondition);
+        // console.log('更新条件', relationCondition);
         switch (type) {
             case 'left':
-                relationCondition[index][0] = value;
+                if (value == 'no_select') {
+                    relationCondition[index][0] = undefined;
+                } else {
+                    relationCondition[index][0] = value;
+                }
                 break;
             case 'right':
-                relationCondition[index][1] = value;
+                if (value == 'no_select') {
+                    relationCondition[index][1] = undefined;
+                } else {
+                    relationCondition[index][1] = value;
+                }
                 break;
         }
         setFieldsValue({
@@ -537,7 +586,7 @@ function DataSetJoinForm({ form, joinData }) {
                     <Form.Item>
                         {getFieldDecorator('leftTable', {
                             rules: [{ required: true, message: 'leftTable is required!' }],
-                            initialValue: joinData.nodes[joinData.nodes.length - 2].id
+                            initialValue: inittialNode.id
                         })(
                             <Select onChange={handleLeftTableChange}>
                                 {
@@ -575,12 +624,13 @@ function DataSetJoinForm({ form, joinData }) {
                 <Col span={8}>
                     <Form.Item>
                         {getFieldDecorator('leftTableRelationField', {
-                            // initialValue: find(joinData.nodes, { id: currentLeftTableValue }).data.columns[0]
+                            initialValue: 'no_select'
                         })(
-                            <Select placeholder="左表关联字段" onChange={(value) => updateRelationCondition('left', value, 0)}>
+                            <Select placeholder={'左表关联字段'} onChange={(value) => updateRelationCondition('left', value, 0)}>
+                                <Option value={'no_select'} key={'no_select'}>不选择关联字段</Option>
                                 {find(joinData.nodes, { id: currentLeftTableValue }).data.columns.map((column) => {
                                     return (
-                                        <Option value={column} key={column}>{column}</Option>
+                                        <Option value={column} key={column} label={column}>{column}</Option>
                                     )
                                 })}
                             </Select>
@@ -593,9 +643,10 @@ function DataSetJoinForm({ form, joinData }) {
                 <Col span={8}>
                     <Form.Item>
                         {getFieldDecorator('rightTableRelationField', {
-                            // initialValue: joinData.nodes[joinData.nodes.length - 1].data.columns[0]
+                            initialValue: 'no_select'
                         })(
                             <Select placeholder="右表关联字段" onChange={(value) => updateRelationCondition('right', value, 0)}>
+                                <Option value={'no_select'} key={'no_select'}>不选择关联字段</Option>
                                 {joinData.nodes[joinData.nodes.length - 1].data.columns.map((column) => {
                                     return (
                                         <Option value={column} key={column}>{column}</Option>
@@ -612,9 +663,10 @@ function DataSetJoinForm({ form, joinData }) {
                         <Col span={8}>
                             <Form.Item>
                                 {getFieldDecorator(`leftTableRelationField_${k}`, {
-                                    // initialValue: find(joinData.nodes, { id: currentLeftTableValue }).data.columns[0]
+                                    initialValue: 'no_select'
                                 })(
                                     <Select placeholder="左表关联字段" onChange={(value) => updateRelationCondition('left', value, index + 1)}>
+                                        <Option value={'no_select'} key={'no_select'}>不选择关联字段</Option>
                                         {find(joinData.nodes, { id: currentLeftTableValue }).data.columns.map((column) => {
                                             return (
                                                 <Option value={column} key={column}>{column}</Option>
@@ -630,9 +682,10 @@ function DataSetJoinForm({ form, joinData }) {
                         <Col span={8}>
                             <Form.Item>
                                 {getFieldDecorator(`rightTableRelationField_${k}`, {
-                                    // initialValue: joinData.nodes[joinData.nodes.length - 1].data.columns[0]
+                                    initialValue: 'no_select'
                                 })(
                                     <Select placeholder="右表关联字段" onChange={(value) => updateRelationCondition('right', value, index + 1)}>
+                                        <Option value={'no_select'} key={'no_select'}>不选择关联字段</Option>
                                         {joinData.nodes[joinData.nodes.length - 1].data.columns.map((column) => {
                                             return (
                                                 <Option value={column} key={column}>{column}</Option>
@@ -673,7 +726,7 @@ function DatasetEdit(props) {
     const updateQueryDescription = useUpdateQueryDescription(query, setQuery);
     const editSchedule = useEditScheduleDialog(query, setQuery);
     const isMobile = !useMedia({ minWidth: 768 });
-    console.log('schema', schema);
+    // console.log('schema', schema);
     const reducer = (prevState, updatedProperty) => ({
         ...prevState,
         ...updatedProperty,
@@ -695,7 +748,10 @@ function DatasetEdit(props) {
     const dataSetJoinReducer = (prevState, updatedProperty) => ([...updatedProperty]);
     const [dataSetJoin, setDataSetJoin] = useReducer(dataSetJoinReducer, []);
 
+
     useEffect(() => {
+        setQuery(extend(query.clone(), { name: props.formState.title.value, description: props.formState.description.value, tags: props.formState.tag.value }));
+        console.log('更新后query', query);
         if (!graph) {
             let graphObj = new G6.Graph({
                 container: graphRef.current,
@@ -708,8 +764,10 @@ function DatasetEdit(props) {
                             // 提示框文本内容
                             const text = '数据集： ' + model.data.name;
                             return text;
-                        }
-                    }]
+                        },
+                        offsetX: 0,
+                        offsetY: 0,
+                    },]
                 },
                 defaultNode: {
                     type: 'modelRect',
@@ -751,7 +809,6 @@ function DatasetEdit(props) {
             graphObj.render();
             setGraph(graphObj);
         }
-        console.log('执行副作用');
     }, []);
 
     // useEffect(() => {
@@ -762,7 +819,7 @@ function DatasetEdit(props) {
     // }, [joinData]);
 
     function handleJoinDataFormRef(ref) {
-        console.log('挂载ref', ref);
+        // console.log('挂载ref', ref);
         setJoinDataFormRef(ref);
     }
 
@@ -794,7 +851,7 @@ function DatasetEdit(props) {
         dataSetJoin.push({
             leftTable: find(nodes, { id: fieldsValue.leftTable }).data.name,
             rightTable: nodes[nodes.length - 1].data.name,
-            relation: fieldsValue.relation,
+            relation: mapRelationStr('keyword', fieldsValue.relation),
             condition: fieldsValue.relationCondition
         });
         setDataSetJoin(dataSetJoin);
@@ -804,57 +861,111 @@ function DatasetEdit(props) {
     function resetCondition() {
         joinDataFormRef.getForm().setFieldsValue({
             keys: [],
-            relationCondition: [[undefined, undefined]]
+            relationCondition: [[undefined, undefined]],
+            rightTableRelationField: 'no_select',
+            leftTableRelationField: 'no_select'
         });
     }
 
-    function getJoinLineLable(relation) {
-        let label;
-        switch (relation) {
-            case 'innerJoin':
-                label = '内连接';
-                break;
-            case 'leftJoin':
-                label = '左连接';
-                break;
-            case 'rightJoin':
-                label = '右连接';
-                break;
+    function mapRelationStr(type, relation) {
+        let result;
+        if (type == 'label') {
+            switch (relation) {
+                case 'innerJoin':
+                    result = '内连接';
+                    break;
+                case 'leftJoin':
+                    result = '左连接';
+                    break;
+                case 'rightJoin':
+                    result = '右连接';
+                    break;
+            }
+        } else if (type == 'keyword') {
+            switch (relation) {
+                case 'innerJoin':
+                    result = 'inner join';
+                    break;
+                case 'leftJoin':
+                    result = 'left join';
+                    break;
+                case 'rightJoin':
+                    result = 'right join';
+                    break;
+            }
         }
-        return label;
+
+        return result;
     }
 
     function joinDataModalComfirm() {
         const fieldsValue = joinDataFormRef.getForm().getFieldsValue();
+        const relationCondition = fieldsValue.relationCondition;
+        for (const condition of relationCondition) {
+            const invalidate = (condition[0] == undefined && condition[1] != undefined) || (condition[0] != undefined && condition[1] == undefined);
+            if (invalidate) {
+                message.error('两关联表的条件字段不能只选一个');
+                return;
+            }
+        }
         let nodes = joinData.nodes;
         joinData.edges.push({
             source: fieldsValue.leftTable,
             target: nodes[nodes.length - 1].id,
-            label: getJoinLineLable(fieldsValue.relation)
+            label: mapRelationStr('label', fieldsValue.relation)
         });
         setJoinData(joinData);
         updateJoin();
-        resetCondition();
         setShowJoinDataModal(false);
-        console.log('确认', joinDataFormRef.getForm(), dataSetJoin, fieldsValue);
+        resetCondition();
+        console.log('确认', joinData, dataSetJoin, fieldsValue);
+        const data = dataSetJoin[0];
+        let queryText = `select * from ${data.leftTable}`;
+        function handleSignalJoin(signalJoin) {
+            let sqlText = ` ${signalJoin.relation} ${signalJoin.rightTable}`;
+            const condition = signalJoin.condition;
+            for (let index = 0; index < condition.length; index++) {
+                const fields = condition[index];
+                const noRelation = (fields[0] == undefined && fields[1] == undefined);
+                if (noRelation) {
+                    continue;
+                } else {
+                    if(index == 0) {
+                        sqlText += ` on `;
+                    }
+                    if (index == condition.length - 1) {
+                        sqlText += `${signalJoin.leftTable}.${fields[0]} = ${signalJoin.rightTable}.${fields[1]}`;
+                    } else {
+                        sqlText += `${signalJoin.leftTable}.${fields[0]} = ${signalJoin.rightTable}.${fields[1]} and `;
+                    }
+                }
+            }
+            return sqlText;
+        }
+        for (let index = 0; index < dataSetJoin.length; index++) {
+            const signalJoin = dataSetJoin[index];
+            queryText += handleSignalJoin(signalJoin);
+        }
+       console.log('最终的queryText', queryText);
     }
 
     function joinDataModalCancle() {
         joinData.nodes.pop();
-        joinData.edges.pop();
         dataSetJoin.pop();
         setJoinData(joinData);
         setDataSetJoin(dataSetJoin);
-        resetCondition();
         setShowJoinDataModal(false);
-        console.log('取消', dataSetJoin, joinDataFormRef.getForm().getFieldsValue());
+        resetCondition();
+        graph.changeData(cloneDeep(joinData), false);
+        console.log('取消', joinData, dataSetJoin);
     }
 
     return (
         <div className={cx("query-page-wrapper dataset-edit", { "query-fixed-layout": !isMobile })}>
+            <DatasetEditHeader query={query} dataSource={dataSource} onChange={setQuery} />
             <main className="query-fullscreen edit-drag-drop">
                 <Resizable direction="horizontal" sizeAttribute="flex-basis" toggleShortcut="Alt+Shift+D, Alt+D">
-                    <nav>
+                    <nav className="dataset-edit-nav">
                         <div className="editor__left__schema">
                             <SchemaBrowser
                                 schema={schema}
@@ -880,6 +991,19 @@ function DatasetEdit(props) {
                     </div>
                 </div>
             </main>
+            <div className="datajoin-result">
+                <Tabs defaultActiveKey="1">
+                    <TabPane tab="Tab 1" key="1">
+                        <Empty />
+                    </TabPane>
+                    <TabPane tab="Tab 2" key="2">
+                        Content of Tab Pane 2
+                    </TabPane>
+                    <TabPane tab="Tab 3" key="3">
+                        Content of Tab Pane 3
+                    </TabPane>
+                </Tabs>,
+            </div>
             <Modal
                 title="配置数据集关系"
                 visible={showJoinDataModal}
@@ -892,23 +1016,23 @@ function DatasetEdit(props) {
     )
 }
 
-
 function Dataset(props) {
     const [isSettingFinshed, setIsSettingFinshed] = useState(false);
     const [settingState, setSettingState] = useState(null);
 
     function settingFinished(falg, settingState) {
-        console.log('传入的数据', settingState);
+        // console.log('传入的数据', settingState);
         setIsSettingFinshed(falg);
         setSettingState(settingState);
     }
 
-    return isSettingFinshed && settingState ? <DatasetEdit dataSource={settingState.selectedDataSource} /> : <DatasetSetting onError={props.onError} onSettingFinished={settingFinished} />
+    return isSettingFinshed && settingState ? <DatasetEdit dataSource={settingState.selectedDataSource} formState={settingState.formState} /> : <DatasetSetting onError={props.onError} onSettingFinished={settingFinished} />
 }
 
 
 export default routeWithUserSession({
     path: "/dataset/new",
+    title: '编辑数据集',
     render: pageProps => <Dataset {...pageProps} />,
     bodyClass: "fixed-layout",
 });

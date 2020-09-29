@@ -17,6 +17,7 @@
 }
 
 .dataset-edit {
+  padding-right: 8px;
   .edit-drag-drop {
     height: 50%;
     flex-grow: unset;
@@ -28,7 +29,22 @@
     .content {
       text-align: center;
       margin-right: 8px;
+      position: relative;
+      -ms-overflow-style: none;
+      overflow: -moz-scrollbars-none;
+      &::-webkit-scrollbar { width: 0 !important }
     }
+  }
+
+  .dataset-edit-header {
+    margin-bottom: 5px;
+    background: #fff;
+    margin-top: -10px;
+    box-shadow: rgba(102, 136, 153, 0.15) 0 4px 9px -3px;
+    padding: 0 10px;
+  }
+  .dataset-edit-nav {
+    padding-top: 10px;
   }
 }
 
@@ -46,4 +62,19 @@
 .dynamic-delete-button[disabled] {
   cursor: not-allowed;
   opacity: 0.5;
+}
+.g6-tooltip {
+  padding: 10px 6px;
+  color: #444;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e2e2e2;
+  border-radius: 4px;
+}
+
+.datajoin-result {
+  background: #fff;
+  padding: 0;
+  min-height: 50%;
+  margin: 10px 0px;
+  box-shadow: rgba(102, 136, 153, 0.15) 0 4px 9px -3px;
 }
