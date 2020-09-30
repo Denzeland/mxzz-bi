@@ -26,15 +26,10 @@ import EditInPlace from "@/components/EditInPlace";
 import { Query } from "@/services/query";
 import useMedia from "use-media";
 import cx from "classnames";
-<<<<<<< HEAD
-import { DndProvider, useDrop } from 'react-dnd';
-import G6 from '@antv/g6';
-=======
 import { useDrop } from 'react-dnd';
 import G6 from '@antv/g6';
 import DatasetEditHeader from "./DatasetEditHeader";
 import getTags from "@/services/getTags";
->>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
 
 import "./dataset.less";
 
@@ -926,7 +921,7 @@ function DatasetEdit(props) {
         console.log('确认', joinData, dataSetJoin, fieldsValue);
         const data = dataSetJoin[0];
         let queryText = `select * from ${data.leftTable}`;
-        function handleSignalJoin(signalJoin) {
+        function handleSignalJoinSqlText(signalJoin) {
             let sqlText = ` ${signalJoin.relation} ${signalJoin.rightTable}`;
             const condition = signalJoin.condition;
             for (let index = 0; index < condition.length; index++) {
@@ -949,7 +944,7 @@ function DatasetEdit(props) {
         }
         for (let index = 0; index < dataSetJoin.length; index++) {
             const signalJoin = dataSetJoin[index];
-            queryText += handleSignalJoin(signalJoin);
+            queryText += handleSignalJoinSqlText(signalJoin);
         }
        console.log('最终的queryText', queryText);
     }
@@ -1020,16 +1015,10 @@ function DatasetEdit(props) {
 
     return (
         <div className={cx("query-page-wrapper dataset-edit", { "query-fixed-layout": !isMobile })}>
-<<<<<<< HEAD
-            <main className="query-fullscreen edit-drag-drop">
-                <Resizable direction="horizontal" sizeAttribute="flex-basis" toggleShortcut="Alt+Shift+D, Alt+D">
-                    <nav>
-=======
             <DatasetEditHeader query={query} dataSource={dataSource} onChange={setQuery} />
             <main className="query-fullscreen edit-drag-drop">
                 <Resizable direction="horizontal" sizeAttribute="flex-basis" toggleShortcut="Alt+Shift+D, Alt+D">
                     <nav className="dataset-edit-nav">
->>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
                         <div className="editor__left__schema">
                             <SchemaBrowser
                                 schema={schema}
@@ -1050,13 +1039,8 @@ function DatasetEdit(props) {
                     </nav>
                 </Resizable>
                 <div className={cx("content", { "drop-hover": isOver })} ref={dropRef}>
-<<<<<<< HEAD
-                    <div ref={graphRef}>
-                        <Typography.Title level={4}>把左侧数据集拖入此区域</Typography.Title>
-=======
                     {joinData.nodes.length == 0 && <Typography.Title level={4}>把左侧数据集拖入此区域</Typography.Title>}
                     <div ref={graphRef} style={{ display: joinData.nodes.length == 0 ? 'none' : 'block' }}>
->>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
                     </div>
                 </div>
             </main>
@@ -1095,11 +1079,7 @@ function Dataset(props) {
         setSettingState(settingState);
     }
 
-<<<<<<< HEAD
-    return isSettingFinshed && settingState ? <DatasetEdit dataSource={settingState.selectedDataSource} /> : <DatasetSetting onError={props.onError} onSettingFinished={settingFinished} />
-=======
     return isSettingFinshed && settingState ? <DatasetEdit dataSource={settingState.selectedDataSource} formState={settingState.formState} /> : <DatasetSetting onError={props.onError} onSettingFinished={settingFinished} />
->>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
 }
 
 
