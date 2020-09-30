@@ -111,7 +111,6 @@ function applyFilter(schema, filterString) {
 }
 
 export default function SchemaBrowser({ schema, onRefresh, onItemSelect, ...props }) {
-  console.log('渲染SchemaBrowser', schema);
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilter(schema, filterString), [schema, filterString]);
   const [expandedFlags, setExpandedFlags] = useState({});

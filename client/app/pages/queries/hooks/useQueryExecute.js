@@ -70,6 +70,7 @@ export default function useQueryExecute(query) {
       newQueryResult
         .toPromise(onStatusChange)
         .then(queryResult => {
+          console.log('查询的结果', queryResult);
           if (queryResultInExecution.current === newQueryResult) {
             // TODO: this should probably belong in the QueryEditor page.
             if (queryResult && queryResult.query_result.query === query.query) {

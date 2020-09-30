@@ -13,7 +13,7 @@ import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeT
 import { clientConfig } from "@/services/auth";
 import { TimeEditor } from "@/components/queries/ScheduleDialog";
 import useQuery from "@/pages/queries/hooks/useQuery";
-import useQueryDataSources from "@/pages/queries/hooks/useQueryDataSources";
+import useQueryExecute from "@/pages/queries/hooks/useQueryExecute";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useQueryFlags from "@/pages/queries/hooks/useQueryFlags";
 import useQueryParameters from "@/pages/queries/hooks/useQueryParameters";
@@ -748,11 +748,31 @@ function DatasetEdit(props) {
     const dataSetJoinReducer = (prevState, updatedProperty) => ([...updatedProperty]);
     const [dataSetJoin, setDataSetJoin] = useReducer(dataSetJoinReducer, []);
 
+    const {
+        queryResult,
+        isExecuting: isQueryExecuting,
+        executionStatus,
+        executeQuery,
+        error: executionError,
+        cancelCallback: cancelExecution,
+        isCancelling: isExecutionCancelling,
+        updatedAt,
+        loadedInitialResults,
+    } = useQueryExecute(query);
 
     useEffect(() => {
-        setQuery(extend(query.clone(), { name: props.formState.title.value, description: props.formState.description.value, tags: props.formState.tag.value }));
-        console.log('更新后query', query);
+        console.log('加载副作用', query, dataSource);
+        const updates = {
+            data_source_id: dataSource.id,
+            latest_query_data_id: null,
+            latest_query_data: null,
+            name: props.formState.title.value,
+            description: props.formState.description.value,
+            tags: props.formState.tag.value
+        };
+        setQuery(extend(query.clone(), updates));
         if (!graph) {
+            console.log('挂载', document.getElementById('graph-content').offsetHeight, graphRef.current.offsetHeight);
             let graphObj = new G6.Graph({
                 container: graphRef.current,
                 width: 1200,
@@ -811,13 +831,6 @@ function DatasetEdit(props) {
         }
     }, []);
 
-    // useEffect(() => {
-    //     if (graph) {
-    //         console.log('副作用joinData', joinData, graph);
-    //         graph.changeData(cloneDeep(joinData), false);
-    //     }
-    // }, [joinData]);
-
     function handleJoinDataFormRef(ref) {
         // console.log('挂载ref', ref);
         setJoinDataFormRef(ref);
@@ -838,6 +851,8 @@ function DatasetEdit(props) {
                 setShowJoinDataModal(true);
             } else {
                 graph.changeData(cloneDeep(joinData), false);
+                const sqlText = getJoinSqlText();
+                setQuery(extend(query.clone(), { query: sqlText }));
             }
         },
         collect: monitor => ({
@@ -856,6 +871,8 @@ function DatasetEdit(props) {
         });
         setDataSetJoin(dataSetJoin);
         graph.changeData(cloneDeep(joinData), false);
+        const sqlText = getJoinSqlText();
+        setQuery(extend(query.clone(), { query: sqlText }));
     }
 
     function resetCondition() {
@@ -898,6 +915,46 @@ function DatasetEdit(props) {
         return result;
     }
 
+    function handleSignalJoinSqlText(signalJoin) {
+        let sqlText = ` ${signalJoin.relation} ${signalJoin.rightTable}`;
+        const condition = signalJoin.condition;
+        for (let index = 0; index < condition.length; index++) {
+            const fields = condition[index];
+            const noRelation = (fields[0] == undefined && fields[1] == undefined);
+            if (noRelation) {
+                continue;
+            } else {
+                if (index == 0) {
+                    sqlText += ` on `;
+                }
+                if (index == condition.length - 1) {
+                    sqlText += `${signalJoin.leftTable}.${fields[0]} = ${signalJoin.rightTable}.${fields[1]}`;
+                } else {
+                    sqlText += `${signalJoin.leftTable}.${fields[0]} = ${signalJoin.rightTable}.${fields[1]} and `;
+                }
+            }
+        }
+        return sqlText;
+    }
+
+    function getJoinSqlText() {
+        let queryText = '';
+        if (joinData.nodes.length === 0) {
+            message.error('请至少拖入一个数据集！');
+            return '';
+        } else if (joinData.nodes.length === 1) {
+            queryText += `select * from ${joinData.nodes[0].data.name};`;
+        } else {
+            const data = dataSetJoin[0];
+            queryText += `select * from ${data.leftTable}`;
+            for (let index = 0; index < dataSetJoin.length; index++) {
+                const signalJoin = dataSetJoin[index];
+                queryText += handleSignalJoinSqlText(signalJoin);
+            }
+        }
+        return queryText;
+    }
+
     function joinDataModalComfirm() {
         const fieldsValue = joinDataFormRef.getForm().getFieldsValue();
         const relationCondition = fieldsValue.relationCondition;
@@ -919,103 +976,52 @@ function DatasetEdit(props) {
         setShowJoinDataModal(false);
         resetCondition();
         console.log('确认', joinData, dataSetJoin, fieldsValue);
-        const data = dataSetJoin[0];
-        let queryText = `select * from ${data.leftTable}`;
-        function handleSignalJoinSqlText(signalJoin) {
-            let sqlText = ` ${signalJoin.relation} ${signalJoin.rightTable}`;
-            const condition = signalJoin.condition;
-            for (let index = 0; index < condition.length; index++) {
-                const fields = condition[index];
-                const noRelation = (fields[0] == undefined && fields[1] == undefined);
-                if (noRelation) {
-                    continue;
-                } else {
-                    if(index == 0) {
-                        sqlText += ` on `;
-                    }
-                    if (index == condition.length - 1) {
-                        sqlText += `${signalJoin.leftTable}.${fields[0]} = ${signalJoin.rightTable}.${fields[1]}`;
-                    } else {
-                        sqlText += `${signalJoin.leftTable}.${fields[0]} = ${signalJoin.rightTable}.${fields[1]} and `;
-                    }
-                }
-            }
-            return sqlText;
-        }
-        for (let index = 0; index < dataSetJoin.length; index++) {
-            const signalJoin = dataSetJoin[index];
-            queryText += handleSignalJoinSqlText(signalJoin);
-        }
-       console.log('最终的queryText', queryText);
+
     }
 
     function joinDataModalCancle() {
         joinData.nodes.pop();
-        dataSetJoin.pop();
+        // dataSetJoin.pop();
         setJoinData(joinData);
-        setDataSetJoin(dataSetJoin);
+        // setDataSetJoin(dataSetJoin);
         setShowJoinDataModal(false);
         resetCondition();
         graph.changeData(cloneDeep(joinData), false);
         console.log('取消', joinData, dataSetJoin);
     }
 
-    const graphRef = React.useRef(null);
-
-    let graph = null;
-
-    const [{ isOver }, dropRef] = useDrop({
-        accept: 'dataset',
-        drop: (item, monitor) => {
-            joinData.nodes.push({});
-            graph.changeData(joinData);
-        },
-        collect: monitor => ({
-            isOver: !!monitor.isOver(),
-        }),
-    });
-    const joinData = {
-        nodes: [],
-        edges: []
-    };
-
-    useEffect(() => {
-        if (!graph) {
-            graph = new G6.Graph({
-                container: graphRef.current,
-                width: 1200,
-                height: 260,
-                modes: {
-                    default: ['drag-canvas']
-                },
-                defaultNode: {
-                    type: 'modelRect',
-                    size: [120, 60],
-                    style: {
-                        fill: '#f0f5ff',
-                        stroke: '#adc6ff',
-                        lineWidth: 2,
-                    }
-                },
-                defaultEdge: {
-                    shape: 'polyline'
-                },
-                layout: {
-                    type: 'dagre',
-                    rankdir: 'LR',
-                    nodesep: 30,
-                    ranksep: 100
-                }
-            })
+    const [isQuerySaving, setIsQuerySaving] = useState(false);
+    const doSaveQuery = useCallback(() => {
+        if (!isQuerySaving) {
+            setIsQuerySaving(true);
+            saveQuery().finally(() => setIsQuerySaving(false));
         }
-        graph.data(joinData);
+    }, [isQuerySaving, saveQuery]);
 
-        graph.render();
-    }, []);
+
+    const doExecuteQuery = useCallback(
+        () => {
+            const sqlText = getJoinSqlText();
+            if (sqlText) {
+                if (!queryFlags.canExecute) {
+                    return;
+                }
+                if (isDirty) {
+                    executeQuery(null, () => {
+                        return query.getQueryResultByText(0, sqlText);
+                    });
+                } else {
+                    executeQuery();
+                }
+                console.log('执行查询', query, queryResult);
+            }
+        },
+        [query, queryFlags.canExecute, isQueryExecuting, isDirty, executeQuery]
+    );
 
     return (
         <div className={cx("query-page-wrapper dataset-edit", { "query-fixed-layout": !isMobile })}>
-            <DatasetEditHeader query={query} dataSource={dataSource} onChange={setQuery} />
+            <DatasetEditHeader query={query} dataSource={dataSource} onChange={setQuery} executeQuery={doExecuteQuery} isQuerySaving={isQuerySaving} doSaveQuery={doSaveQuery} />
             <main className="query-fullscreen edit-drag-drop">
                 <Resizable direction="horizontal" sizeAttribute="flex-basis" toggleShortcut="Alt+Shift+D, Alt+D">
                     <nav className="dataset-edit-nav">
@@ -1038,7 +1044,7 @@ function DatasetEdit(props) {
                         </div>
                     </nav>
                 </Resizable>
-                <div className={cx("content", { "drop-hover": isOver })} ref={dropRef}>
+                <div id="graph-content" className={cx("content", { "drop-hover": isOver })} ref={dropRef}>
                     {joinData.nodes.length == 0 && <Typography.Title level={4}>把左侧数据集拖入此区域</Typography.Title>}
                     <div ref={graphRef} style={{ display: joinData.nodes.length == 0 ? 'none' : 'block' }}>
                     </div>

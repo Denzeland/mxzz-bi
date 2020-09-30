@@ -16,6 +16,7 @@ import useRenameQuery from "@/pages/queries/hooks/useRenameQuery";
 import useDuplicateQuery from "@/pages/queries/hooks/useDuplicateQuery";
 import useApiKeyDialog from "@/pages/queries/hooks/useApiKeyDialog";
 import usePermissionsEditorDialog from "@/pages/queries/hooks/usePermissionsEditorDialog";
+import useQuery from "@/pages/queries/hooks/useQuery";
 
 import "./DatasetEditHeader.less";
 
@@ -29,6 +30,9 @@ export default function DatasetEditHeader({
   headerExtra,
   tagsExtra,
   onChange,
+  executeQuery,
+  isQuerySaving,
+  doSaveQuery
 }) {
   const isDesktop = useMedia({ minWidth: 768 });
   const queryFlags = useQueryFlags(query, dataSource);
@@ -39,7 +43,9 @@ export default function DatasetEditHeader({
   const [isDuplicating, duplicateQuery] = useDuplicateQuery(query);
   const openApiKeyDialog = useApiKeyDialog(query, onChange);
   const openPermissionsEditorDialog = usePermissionsEditorDialog(query);
-  console.log('头部组件', queryFlags);
+
+  
+  console.log('头部组件', query);
 
   return (
     <div className="query-page-header dataset-edit-header">
@@ -66,10 +72,10 @@ export default function DatasetEditHeader({
       </div>
       <div className="header-actions">
         {headerExtra}
-        <Button type="dashed" className="m-r-5" onClick={publishQuery}>
+        <Button type="dashed" className="m-r-5" onClick={executeQuery}>
           <i className="fa fa-table m-r-5" /> 查看数据
         </Button>
-        <Button type="primary" className="m-r-5" onClick={publishQuery}>
+        <Button type="primary" className="m-r-5" loading={isQuerySaving} onClick={doSaveQuery}>
           <i className="fa fa-floppy-o m-r-5" /> 保存
         </Button>
         {isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
