@@ -20,14 +20,15 @@ import useQueryParameters from "@/pages/queries/hooks/useQueryParameters";
 import useUpdateQuery from "@/pages/queries/hooks/useUpdateQuery";
 import useUpdateQueryDescription from "@/pages/queries/hooks/useUpdateQueryDescription";
 import useEditScheduleDialog from "@/pages/queries/hooks/useEditScheduleDialog";
-import QueryMetadata from "@/pages/queries/components/QueryMetadata";
-import SchemaBrowser from "@/pages/queries/components/SchemaBrowser";
+import SchemaBrowser from "./SchemaBrowser";
 import Resizable from "@/components/Resizable";
 import EditInPlace from "@/components/EditInPlace";
 import { Query } from "@/services/query";
 import wrapQueryPage from "@/pages/queries/components/wrapQueryPage";
 import useMedia from "use-media";
 import cx from "classnames";
+import { DndProvider, useDrop } from 'react-dnd';
+import G6 from '@antv/g6';
 
 import "./dataset.less";
 
@@ -200,18 +201,6 @@ function ScheduleSetting({ scheduleState, setScheduleState }) {
     const clientConfigIntervals = clientConfig.queryRefreshIntervals;
     const allowedIntervals = policy.getQueryRefreshIntervals();
     const refreshOptions = isArray(allowedIntervals) ? intersection(clientConfigIntervals, allowedIntervals) : clientConfigIntervals;
-    // const reducer = (prevState, updatedProperty) => ({
-    //     ...prevState,
-    //     ...updatedProperty,
-    // });
-    // const [scheduleState, setScheduleState] = useReducer(reducer, {
-    //     dayOfWeek: null,
-    //     hour: null,
-    //     interval: "从不",
-    //     minute: null,
-    //     newSchedule: { interval: null, time: null, day_of_week: null, until: null },
-    //     seconds: null,
-    // });
 
     function getIntervals() {
         const ret = {
@@ -441,7 +430,7 @@ function DatasetSetting({ onError, onSettingFinished }) {
         },
     ];
     function settingFinish() {
-        DataSource.get({id: selectedDataSourceId}).then((result) => {
+        DataSource.get({ id: selectedDataSourceId }).then((result) => {
             const settingState = {
                 selectedDataSource: result,
                 formState,
@@ -449,7 +438,7 @@ function DatasetSetting({ onError, onSettingFinished }) {
             };
             console.log('步骤完成', settingState);
             onSettingFinished(true, settingState);
-        });     
+        });
     }
     return (
         <div className="dataset-guide">
@@ -490,12 +479,6 @@ function DatasetSetting({ onError, onSettingFinished }) {
     );
 }
 
-function chooseDataSourceId(dataSourceIds, availableDataSources) {
-    dataSourceIds = map(dataSourceIds, v => parseInt(v, 10));
-    availableDataSources = map(availableDataSources, ds => ds.id);
-    return find(dataSourceIds, id => includes(availableDataSources, id)) || null;
-}
-
 function DatasetEdit(props) {
     const { query, setQuery, isDirty, saveQuery } = useQuery(Query.newQuery());
     // const { dataSourcesLoaded, dataSources, dataSource } = useQueryDataSources(query);
@@ -509,36 +492,64 @@ function DatasetEdit(props) {
     const isMobile = !useMedia({ minWidth: 768 });
     console.log('schema', schema);
 
+    const graphRef = React.useRef(null);
+
+    let graph = null;
+
+    const [{ isOver }, dropRef] = useDrop({
+        accept: 'dataset',
+        drop: (item, monitor) => {
+            joinData.nodes.push({});
+            graph.changeData(joinData);
+        },
+        collect: monitor => ({
+            isOver: !!monitor.isOver(),
+        }),
+    });
+    const joinData = {
+        nodes: [],
+        edges: []
+    };
+
+    useEffect(() => {
+        if (!graph) {
+            graph = new G6.Graph({
+                container: graphRef.current,
+                width: 1200,
+                height: 260,
+                modes: {
+                    default: ['drag-canvas']
+                },
+                defaultNode: {
+                    type: 'modelRect',
+                    size: [120, 60],
+                    style: {
+                        fill: '#f0f5ff',
+                        stroke: '#adc6ff',
+                        lineWidth: 2,
+                    }
+                },
+                defaultEdge: {
+                    shape: 'polyline'
+                },
+                layout: {
+                    type: 'dagre',
+                    rankdir: 'LR',
+                    nodesep: 30,
+                    ranksep: 100
+                }
+            })
+        }
+        graph.data(joinData);
+
+        graph.render();
+    }, []);
+
     return (
-        <div className={cx("query-page-wrapper", { "query-fixed-layout": !isMobile })}>
-            <main className="query-fullscreen">
+        <div className={cx("query-page-wrapper dataset-edit", { "query-fixed-layout": !isMobile })}>
+            <main className="query-fullscreen edit-drag-drop">
                 <Resizable direction="horizontal" sizeAttribute="flex-basis" toggleShortcut="Alt+Shift+D, Alt+D">
                     <nav>
-                        {/* {dataSourcesLoaded && (
-                            <div className="editor__left__data-source">
-                                <Select
-                                    className="w-100"
-                                    data-test="SelectDataSource"
-                                    placeholder={__("Choose data source...")}
-                                    value={dataSource ? dataSource.id : undefined}
-                                    disabled={!queryFlags.canEdit || !dataSourcesLoaded || dataSources.length === 0}
-                                    loading={!dataSourcesLoaded}
-                                    optionFilterProp="data-name"
-                                    showSearch
-                                    onChange={handleDataSourceChange}>
-                                    {map(dataSources, ds => (
-                                        <Select.Option
-                                            key={`ds-${ds.id}`}
-                                            value={ds.id}
-                                            data-name={ds.name}
-                                            data-test={`SelectDataSource${ds.id}`}>
-                                            <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
-                                            <span>{ds.name}</span>
-                                        </Select.Option>
-                                    ))}
-                                </Select>
-                            </div>
-                        )} */}
                         <div className="editor__left__schema">
                             <SchemaBrowser
                                 schema={schema}
@@ -556,15 +567,17 @@ function DatasetEdit(props) {
                                 multiline
                             />
                         </div>
-                        {/* <QueryMetadata layout="table" query={query} onEditSchedule={editSchedule} /> */}
                     </nav>
                 </Resizable>
+                <div className={cx("content", { "drop-hover": isOver })} ref={dropRef}>
+                    <div ref={graphRef}>
+                        <Typography.Title level={4}>把左侧数据集拖入此区域</Typography.Title>
+                    </div>
+                </div>
             </main>
         </div>
     )
 }
-
-// const DatasetEditPage = wrapQueryPage(DatasetEdit);
 
 function Dataset(props) {
     const [isSettingFinshed, setIsSettingFinshed] = useState(false);
@@ -576,7 +589,7 @@ function Dataset(props) {
         setSettingState(settingState);
     }
 
-    return isSettingFinshed && settingState ? <DatasetEdit dataSource={settingState.selectedDataSource}/> : <DatasetSetting onError={props.onError} onSettingFinished={settingFinished} />
+    return isSettingFinshed && settingState ? <DatasetEdit dataSource={settingState.selectedDataSource} /> : <DatasetSetting onError={props.onError} onSettingFinished={settingFinished} />
 }
 
 
