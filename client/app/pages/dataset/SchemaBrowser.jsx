@@ -7,8 +7,12 @@ import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
+<<<<<<< HEAD
 import { DndProvider, useDrag } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+=======
+import { useDrag } from 'react-dnd';
+>>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
 
 const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -34,7 +38,11 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
   }
 
   const [{ isDragging }, drag] = useDrag({
+<<<<<<< HEAD
     item: { type: 'dataset', data: item },
+=======
+    item: {type: 'dataset', ...item },
+>>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
     collect: monitor => ({
       isDragging: !!monitor.isDragging(),
     }),
@@ -82,8 +90,13 @@ SchemaItem.propTypes = {
 SchemaItem.defaultProps = {
   item: null,
   expanded: false,
+<<<<<<< HEAD
   onToggle: () => { },
   onSelect: () => { },
+=======
+  onToggle: () => {},
+  onSelect: () => {},
+>>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
 };
 
 function applyFilter(schema, filterString) {
@@ -120,7 +133,11 @@ function applyFilter(schema, filterString) {
 }
 
 export default function SchemaBrowser({ schema, onRefresh, onItemSelect, ...props }) {
+<<<<<<< HEAD
   console.log('渲染SchemaBrowser', schema);
+=======
+  // console.log('渲染SchemaBrowser', schema);
+>>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilter(schema, filterString), [schema, filterString]);
   const [expandedFlags, setExpandedFlags] = useState({});
@@ -153,7 +170,11 @@ export default function SchemaBrowser({ schema, onRefresh, onItemSelect, ...prop
       <div className="schema-control">
         <Input
           className="m-r-5"
+<<<<<<< HEAD
           placeholder="Search schema..."
+=======
+          placeholder="搜索数据集..."
+>>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
           disabled={schema.length === 0}
           onChange={event => handleFilterChange(event.target.value)}
         />
@@ -206,6 +227,11 @@ SchemaBrowser.propTypes = {
 
 SchemaBrowser.defaultProps = {
   schema: [],
+<<<<<<< HEAD
   onRefresh: () => { },
   onItemSelect: () => { },
+=======
+  onRefresh: () => {},
+  onItemSelect: () => {},
+>>>>>>> 7c31801bf8ff4b7d19b4d13a1c9cadf8c9b559a0
 };
