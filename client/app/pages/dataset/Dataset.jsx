@@ -30,6 +30,8 @@ import { useDrop } from 'react-dnd';
 import G6 from '@antv/g6';
 import DatasetEditHeader from "./DatasetEditHeader";
 import getTags from "@/services/getTags";
+import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
+import { AceEditor } from "@/components/queries/QueryEditor/ace";
 
 import "./dataset.less";
 
@@ -916,7 +918,7 @@ function DatasetEdit(props) {
     }
 
     function handleSignalJoinSqlText(signalJoin) {
-        let sqlText = ` ${signalJoin.relation} ${signalJoin.rightTable}`;
+        let sqlText = `\n${signalJoin.relation} ${signalJoin.rightTable}`;
         const condition = signalJoin.condition;
         for (let index = 0; index < condition.length; index++) {
             const fields = condition[index];
@@ -976,7 +978,6 @@ function DatasetEdit(props) {
         setShowJoinDataModal(false);
         resetCondition();
         console.log('确认', joinData, dataSetJoin, fieldsValue);
-
     }
 
     function joinDataModalCancle() {
@@ -1013,11 +1014,20 @@ function DatasetEdit(props) {
                 } else {
                     executeQuery();
                 }
-                console.log('执行查询', query, queryResult);
+                setActiveKey("queryResult");
+                // console.log('执行查询', query, queryResult);
             }
         },
         [query, queryFlags.canExecute, isQueryExecuting, isDirty, executeQuery]
     );
+    const [activeKey, setActiveKey] = useState("queryResult");
+
+    function datajoinTabChange(activeKey) {
+        setActiveKey(activeKey);
+        if (activeKey == "queryResult") {
+            doExecuteQuery();
+        }
+    }
 
     return (
         <div className={cx("query-page-wrapper dataset-edit", { "query-fixed-layout": !isMobile })}>
@@ -1050,18 +1060,33 @@ function DatasetEdit(props) {
                     </div>
                 </div>
             </main>
-            <div className="datajoin-result">
-                <Tabs defaultActiveKey="1">
-                    <TabPane tab="Tab 1" key="1">
-                        <Empty />
-                    </TabPane>
-                    <TabPane tab="Tab 2" key="2">
-                        Content of Tab Pane 2
-                    </TabPane>
-                    <TabPane tab="Tab 3" key="3">
-                        Content of Tab Pane 3
-                    </TabPane>
-                </Tabs>,
+            <div className="query-fullscreen datajoin-result">
+                <div className={"query-results-wrapper"}>
+                    <Tabs defaultActiveKey="queryResult" activeKey={activeKey} onChange={datajoinTabChange}>
+                        <TabPane tab="数据集数据" key="queryResult">
+                            {isQueryExecuting ? <LoadingState className="" /> : (!queryResult || queryResult.query_result.data.rows.length === 0 ? <Empty /> : <VisualizationRenderer visualization={{
+                                type: "TABLE",
+                                name: __("Table"),
+                                id: null,
+                                options: {},
+                            }} queryResult={queryResult} context="query" />)}
+                        </TabPane>
+                        <TabPane tab="配置可视化" key="visualization">
+                            <Empty />
+                        </TabPane>
+                        <TabPane tab="查看查询语句" key="query">
+                            <AceEditor
+                                theme="textmate"
+                                mode={dataSource.syntax}
+                                value={query.query}
+                                width="100%"
+                                height="100%"
+                                showPrintMargin={false}
+                                readOnly={true}
+                            />
+                        </TabPane>
+                    </Tabs>,
+                </div>
             </div>
             <Modal
                 title="配置数据集关系"
