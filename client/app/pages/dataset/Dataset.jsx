@@ -20,6 +20,7 @@ import useQueryParameters from "@/pages/queries/hooks/useQueryParameters";
 import useUpdateQuery from "@/pages/queries/hooks/useUpdateQuery";
 import useUpdateQueryDescription from "@/pages/queries/hooks/useUpdateQueryDescription";
 import useEditScheduleDialog from "@/pages/queries/hooks/useEditScheduleDialog";
+import useUnsavedChangesAlert from "@/pages/queries/hooks/useUnsavedChangesAlert";
 import SchemaBrowser from "./SchemaBrowser";
 import Resizable from "@/components/Resizable";
 import EditInPlace from "@/components/EditInPlace";
@@ -761,6 +762,7 @@ function DatasetEdit(props) {
         updatedAt,
         loadedInitialResults,
     } = useQueryExecute(query);
+    useUnsavedChangesAlert(isDirty);
 
     useEffect(() => {
         console.log('加载副作用', query, dataSource);
@@ -913,11 +915,10 @@ function DatasetEdit(props) {
                     break;
             }
         }
-
         return result;
     }
 
-    function handleSignalJoinSqlText(signalJoin) {
+    function handleSingleJoinSqlText(signalJoin) {
         let sqlText = `\n${signalJoin.relation} ${signalJoin.rightTable}`;
         const condition = signalJoin.condition;
         for (let index = 0; index < condition.length; index++) {
@@ -951,7 +952,7 @@ function DatasetEdit(props) {
             queryText += `select * from ${data.leftTable}`;
             for (let index = 0; index < dataSetJoin.length; index++) {
                 const signalJoin = dataSetJoin[index];
-                queryText += handleSignalJoinSqlText(signalJoin);
+                queryText += handleSingleJoinSqlText(signalJoin);
             }
         }
         return queryText;
@@ -1071,11 +1072,11 @@ function DatasetEdit(props) {
                                 options: {},
                             }} queryResult={queryResult} context="query" />)}
                         </TabPane>
-                        <TabPane tab="配置可视化" key="visualization">
+                        {/* <TabPane tab="配置可视化" key="visualization">
                             <Empty />
-                        </TabPane>
+                        </TabPane> */}
                         <TabPane tab="查看查询语句" key="query">
-                            <AceEditor
+                            {query.query? <AceEditor
                                 theme="textmate"
                                 mode={dataSource.syntax}
                                 value={query.query}
@@ -1083,7 +1084,7 @@ function DatasetEdit(props) {
                                 height="100%"
                                 showPrintMargin={false}
                                 readOnly={true}
-                            />
+                            /> : <Empty />}
                         </TabPane>
                     </Tabs>,
                 </div>

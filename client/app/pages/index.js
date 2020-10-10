@@ -25,6 +25,7 @@ import organizationSettingsRoutes from "./settings/OrganizationSettings";
 import userProfileRoutes from "./users/UserProfile";
 import usersListRoutes from "./users/UsersList";
 import datasetRoutes from "./dataset/Dataset";
+import screenRoutes from "./screen/Screen";
 
 export default flatten([
   adminJobsRoutes,
@@ -52,4 +53,5 @@ export default flatten([
   usersListRoutes,
   userProfileRoutes,
   datasetRoutes,
+  screenRoutes,
 ]);

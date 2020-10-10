@@ -80,6 +80,14 @@ export default function DesktopSider({ collapsed }) {
             </span>
           </Menu.Item>
         )}
+        {currentUser.hasPermission("create_dashboard") && (
+          <Menu.Item key="screen" className="dropdown-menu-item">
+            <Icon type="fullscreen" />
+            <span>
+              <a href="screen/new" className="side-href">可视化大屏</a>
+            </span>
+          </Menu.Item>
+        )}
       </Menu>
     </Sider>
   )
