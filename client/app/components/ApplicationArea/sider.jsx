@@ -5,6 +5,7 @@ import { Layout, Menu, Icon, Button, Dropdown } from 'antd';
 import { Query } from "@/services/query";
 import { Dashboard } from "@/services/dashboard";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import NewScreenDialog from '@/pages/screen/NewScreenDialog';
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -12,6 +13,10 @@ const { SubMenu } = Menu;
 export default function DesktopSider({ collapsed }) {
   const showCreateDashboardDialog = useCallback(() => {
     CreateDashboardDialog.showModal();
+  }, []);
+
+  const showNewScreenDialog = useCallback(() => {
+    NewScreenDialog.showModal();
   }, []);
 
   return (
@@ -84,7 +89,7 @@ export default function DesktopSider({ collapsed }) {
           <Menu.Item key="screen" className="dropdown-menu-item">
             <Icon type="fullscreen" />
             <span>
-              <a href="screen/new" className="side-href">可视化大屏</a>
+              <a onMouseUp={showNewScreenDialog} className="side-href">可视化大屏</a>
             </span>
           </Menu.Item>
         )}

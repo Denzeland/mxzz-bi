@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import { Steps, Button, Modal, Row, Col, Card, Typography, Input, Radio, Form, Tooltip, Icon, DatePicker, Divider, Select, message, Tabs, Empty } from 'antd';
+import NewScreenDialog from './NewScreenDialog';
 
 function Screen(props) {
     return (
-        <Typography.Title level={2}>大屏编辑界面</Typography.Title>
+        // <Typography.Title level={2}>大屏编辑界面</Typography.Title>
+        NewScreenDialog.showModal()
     )
 }
 
