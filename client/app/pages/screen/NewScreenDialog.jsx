@@ -83,15 +83,15 @@ function NewScreenDialog({ dialog }) {
     }
 
     const save = () => {
-        const title = wizardFormRef.getFieldValue('title');
-        const description = wizardFormRef.getFieldValue('description');
-        const template = wizardFormRef.getFieldValue('template');
+        console.log('向导表单保存', wizardFormRef);
+        const title = wizardFormRef.getForm().getFieldValue('title');
+        const description = wizardFormRef.getForm().getFieldValue('description');
+        const template = wizardFormRef.getForm().getFieldValue('template');
         dialog.close({
             title,
             description,
             template
         });
-        console.log('向导表单保存', title);
         navigateTo(`/screen?title=${title}&description=${description}&template=${template}`);
     }
 
@@ -102,12 +102,12 @@ function NewScreenDialog({ dialog }) {
     return (
         <Modal
             {...dialog.props}
-            wrapClassName="ant-modal-fullscreen"
+            wrapClassName="screen-modal-fullscreen"
             title="大屏初始化向导"
             okText={__("Save")}
             onOk={save}
             onCancel={dismiss}>
-            <WrappedWizardForm wrappedComponentRef={handleWizardFormRef} />
+            <WrappedWizardForm ref={handleWizardFormRef} />
         </Modal>
     );
 }

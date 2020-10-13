@@ -3,6 +3,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import { Steps, Button, Modal, Row, Col, Card, Typography, Input, Radio, Form, Tooltip, Icon, DatePicker, Divider, Select, message, Tabs, Empty } from 'antd';
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
+import './Screen.less';
 
 function Screen(props) {
     console.log('编辑大屏查询search', location.search);
@@ -16,5 +17,5 @@ export default routeWithUserSession({
     path: "/screen",
     title: '编辑大屏',
     render: pageProps => <Screen {...pageProps} />,
-    bodyClass: "fixed-layout",
+    bodyClass: "screen",
 });
