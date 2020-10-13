@@ -1,9 +1,10 @@
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { Modal, Form, Icon, Input, Button, Tooltip, Row, Col, Radio } from 'antd';
+import { Modal, Form, Icon, Input, Button, Tooltip, Row, Col, Radio, Card } from 'antd';
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Slider from "react-slick";
 import './ScreenDialog.less';
+import { template } from "lodash";
 
 function WizardForm(props) {
     const { getFieldDecorator } = props.form;
@@ -12,15 +13,30 @@ function WizardForm(props) {
         infinite: false,
         speed: 500,
         slidesToShow: 3,
-        slidesToScroll: 3,
-        initialSlide: 0,
-        centerMode: true,
+        slidesToScroll: 1,
+        dots: false,
+        // initialSlide: 0,
+        // centerMode: true,
     };
+    const templateAvailable = [{
+        name: 'blank',
+        imgSrc: '/static/images/empty.png'
+    }, {
+        name: 'templet01',
+        imgSrc: '/static/images/templet-templet01-1.png'
+    }];
+    const templateRadios = templateAvailable.map((template) => {
+        return (
+            <div key={template.name}>
+                <Radio.Button value={template.name} className='template-radio'><img src={template.imgSrc} style={{ height: '100%', width: '100%' }} /></Radio.Button>
+            </div>
+        )
+    })
 
     return (
         <Row>
-            <Col span={6}></Col>
-            <Col span={12}>
+            <Col span={5}></Col>
+            <Col span={14}>
                 <Form layout="vertical">
                     <Form.Item label="数据大屏名称">
                         {getFieldDecorator('title', {
@@ -29,8 +45,8 @@ function WizardForm(props) {
                     </Form.Item>
                     <Form.Item label={
                         <span>
-                            数据集描述&nbsp;
-                            <Tooltip title="数据集的一个较详细的说明">
+                            数据大屏描述&nbsp;
+                            <Tooltip title="大屏的一个较详细的说明">
                                 <Icon type="question-circle-o" />
                             </Tooltip>
                         </span>
@@ -39,34 +55,20 @@ function WizardForm(props) {
                     </Form.Item>
                     <Form.Item label="数据大屏模板">
                         {getFieldDecorator('template', {
-                            initialValue: "a",
+                            initialValue: templateAvailable[0].name,
                             rules: [{ required: true, message: '模板是必填项!' }],
                         })(<Radio.Group buttonStyle="solid" className="radio-slider-content">
                             <Slider {...settings}>
-                                <div>
-                                    <Radio.Button value="a" style={{ height: '100px', width: '100px', padding: 0, margin: 15 }}><img src="/static/images/empty.png" style={{ height: '100%', width: '100%', borderRadius: '4px 0 0 4px' }} /></Radio.Button>
-                                </div>
-                                <div>
-                                    <Radio.Button value="b" style={{ height: '100px', width: '100px', padding: 0, margin: 15 }}><img src="/static/images/empty.png" style={{ height: '100%', width: '100%', borderRadius: '4px 0 0 4px' }} /></Radio.Button>
-                                </div>
-                                <div>
-                                    <Radio.Button value="c" style={{ height: '100px', width: '100px', padding: 0, margin: 15 }}><img src="/static/images/empty.png" style={{ height: '100%', width: '100%', borderRadius: '4px 0 0 4px' }} /></Radio.Button>
-                                </div>
-                                <div>
-                                    <Radio.Button value="d" style={{ height: '100px', width: '100px', padding: 0, margin: 15 }}><img src="/static/images/empty.png" style={{ height: '100%', width: '100%', borderRadius: '4px 0 0 4px' }} /></Radio.Button>
-                                </div>
-                                <div>
-                                    <Radio.Button value="e" style={{ height: '100px', width: '100px', padding: 0, margin: 15 }}><img src="/static/images/empty.png" style={{ height: '100%', width: '100%', borderRadius: '4px 0 0 4px' }} /></Radio.Button>
-                                </div>
-                                <div>
-                                    <Radio.Button value="f" style={{ height: '100px', width: '100px', padding: 0, margin: 15 }}><img src="/static/images/empty.png" style={{ height: '100%', width: '100%', borderRadius: '4px 0 0 4px' }} /></Radio.Button>
+                                {templateRadios}
+                                <div key="more">
+                                    <Radio.Button disabled className='template-radio'>更多模板，敬请期待...</Radio.Button>
                                 </div>
                             </Slider>
                         </Radio.Group>)}
                     </Form.Item>
                 </Form>
             </Col>
-            <Col span={6}></Col>
+            <Col span={5}></Col>
         </Row>
     )
 }
@@ -74,12 +76,23 @@ function WizardForm(props) {
 const WrappedWizardForm = Form.create({ name: 'newScreenForm' })(WizardForm);
 
 function NewScreenDialog({ dialog }) {
+    let wizardFormRef = null;
     const handleWizardFormRef = (ref) => {
         console.log('大屏向导表单', ref);
+        wizardFormRef = ref;
     }
 
     const save = () => {
-        console.log('向导表单保存');
+        const title = wizardFormRef.getFieldValue('title');
+        const description = wizardFormRef.getFieldValue('description');
+        const template = wizardFormRef.getFieldValue('template');
+        dialog.close({
+            title,
+            description,
+            template
+        });
+        console.log('向导表单保存', title);
+        navigateTo(`/screen?title=${title}&description=${description}&template=${template}`);
     }
 
     const dismiss = () => {
@@ -94,7 +107,7 @@ function NewScreenDialog({ dialog }) {
             okText={__("Save")}
             onOk={save}
             onCancel={dismiss}>
-            <WrappedWizardForm ref={handleWizardFormRef} />
+            <WrappedWizardForm wrappedComponentRef={handleWizardFormRef} />
         </Modal>
     );
 }
