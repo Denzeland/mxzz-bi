@@ -1,9 +1,87 @@
 body.screen {
-    .mxbi-content {
-        background: #0b0c3b;
-        color: #fff;
-        h2 {
-            color: #fff;
-        }
+  .mxbi-content {
+    background: #0b0c3b;
+    color: #fff;
+
+    h2 {
+      color: #fff;
     }
+  }
+
+  .screen-page-header {
+    height: auto;
+
+    h3 {
+      margin: 0;
+    }
+
+    h3,
+    .ant-page-header-heading-sub-title,
+    .ant-page-header-back-button {
+      color: #fff;
+    }
+
+    .screen-edit-btn-wrap {
+      list-style: none;
+      display: inline-block;
+
+      li {
+        position: relative;
+        float: left;
+        width: 50px;
+        height: 50px;
+        margin: 3px 5px;
+        padding-top: 5px;
+        overflow: hidden;
+        color: #fff;
+        text-align: center;
+        list-style: none;
+        border-radius: 4px;
+        cursor: pointer;
+        border: 1px solid #464859;
+        -webkit-transition: color .3s ease-in-out, background-color .3s ease-in-out;
+        transition: color .3s ease-in-out, background-color .3s ease-in-out;
+
+        span {
+          display: block;
+          font-family: lucida console, Consolas, Monaco, andale mono, ubuntu mono, monospace;
+          white-space: nowrap;
+          text-align: center;
+          -webkit-transform: scale(.83);
+          -ms-transform: scale(.83);
+          transform: scale(.83);
+        }
+
+        &:hover {
+          color: #fff;
+          background-color: #1890ff;
+
+          .anticon {
+            // margin: 12px 0 8px;
+            font-size: 23px;
+            -webkit-transition: -webkit-transform .3s ease-in-out;
+            transition: -webkit-transform .3s ease-in-out;
+            transition: transform .3s ease-in-out;
+            transition: transform .3s ease-in-out, -webkit-transform .3s ease-in-out;
+            will-change: transform;
+          }
+        }
+
+        &::after {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          color: #fff;
+          line-height: 110px;
+          text-align: center;
+          opacity: 0;
+          -webkit-transition: all .3s cubic-bezier(.18, .89, .32, 1.28);
+          transition: all .3s cubic-bezier(.18, .89, .32, 1.28);
+          content: 'Copied!';
+        }
+      }
+    }
+  }
 }

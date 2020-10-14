@@ -102,7 +102,7 @@ function NewScreenDialog({ dialog }) {
     return (
         <Modal
             {...dialog.props}
-            wrapClassName="screen-modal-fullscreen"
+            wrapClassName="ant-modal-fullscreen"
             title="大屏初始化向导"
             okText={__("Save")}
             onOk={save}
