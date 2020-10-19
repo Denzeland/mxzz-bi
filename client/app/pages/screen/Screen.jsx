@@ -1,17 +1,29 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty } from 'antd';
-import { isEmpty, reject, includes, intersection, isArray, capitalize, map, find, extend, join, cloneDeep, uniqueId, trim, compact, uniq } from "lodash";
+import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, join, cloneDeep, uniqueId, trim, compact, uniq } from "lodash";
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
 import ReactEcharts from 'echarts-for-react';
 import './Screen.less';
+import { Rnd } from 'react-rnd';
 import { defaultChartsOptions } from './defaultChartsOptions';
+import moment from "moment";
 
 function Screen(props) {
     console.log('编辑大屏查询search', location.search);
     const search = location.search;
     const reducer = (prevState, updatedProperty) => ([...updatedProperty]);
+    const sizeReducer = (prevState, updatedProperty) => ({ ...prevState, ...updatedProperty });
+    /**
+     * screenCharts = [{
+     *  id: uniqueId(),
+     *  echartOption: option,
+     *  widgetSize: { width, height },
+     *  widgetPosition: { x, y }
+    }]
+     */
+    const [screenSize, setScreenSize] = useReducer(sizeReducer, { width: 'auto', height: 'auto' });
     const [screenCharts, setScreenCharts] = useReducer(reducer, []);
     const dropdownListData = [
         {
@@ -142,25 +154,30 @@ function Screen(props) {
     const dropdownItemClick = (item) => {
         const defaultOption = find(defaultChartsOptions, { type: item.type });
         if (defaultOption) {
-            screenCharts.push(defaultOption.option);
-            setScreenCharts(screenCharts);
+            screenCharts.push({
+                id: moment().unix(),
+                echartOption: defaultOption.option,
+                widgetSize: { width: 480, height: 270 },
+                widgetPosition: { x: 10, y: 0 }
+            });
+            setScreenCharts(cloneDeep(screenCharts));
         }
         console.log('dropdownItemClick', item, defaultOption, screenCharts);
     }
-    const dropdownListComponent = dropdownListData.map((dropdown) => {
-        const dropdownList = dropdown.data.length > 0 ? <div className="edit-dropdown"><List
+    const dropdownListComponent = dropdownListData.map((dropdown, index) => {
+        const dropdownList = dropdown.data.length > 0 ? <div className="edit-dropdown" key={index}><List
             size="small"
             grid={{ gutter: 16, column: dropdown.data.length >= 3 ? 3 : dropdown.data.length }}
             dataSource={dropdown.data}
             renderItem={item => (
-                <List.Item >
+                <List.Item key={item.type}>
                     <Card hoverable onClick={(e) => { dropdownItemClick(item) }}><img src={item.imgSrc} className="chart-icon"></img><span className="chart-text">{item.name}</span></Card>
                 </List.Item>
             )}
         />
         </div> : <div className="edit-dropdown"><Empty /></div>;
         return (
-            <Dropdown placement="bottomCenter" overlay={dropdownList}>
+            <Dropdown placement="bottomCenter" overlay={dropdownList} key={index}>
                 <li>
                     {dropdown.icon}
                     <span>{dropdown.name}</span>
@@ -168,6 +185,69 @@ function Screen(props) {
             </Dropdown>
         )
     });
+
+    const widgetResize = throttle((id, refToElement, position) => {
+        const widgetSize = { width: refToElement.style.width, height: refToElement.style.height };
+        const widgetPosition = { x: position.x, y: position.y };
+        const widgetOption = find(screenCharts, { id: id });
+        widgetOption.widgetSize = widgetSize;
+        widgetOption.widgetPosition = widgetPosition;
+        setScreenCharts(cloneDeep(screenCharts));
+        console.log('尺寸调整', id, screenCharts);
+    }, 500)
+
+    const widgetResizeStop = (id, refToElement, position, dir) => {
+        const widgetSize = { width: refToElement.style.width, height: refToElement.style.height };
+        const widgetPosition = { x: position.x, y: position.y };
+        const widgetOption = find(screenCharts, { id: id });
+        widgetOption.widgetSize = widgetSize;
+        widgetOption.widgetPosition = widgetPosition;
+        setScreenCharts(cloneDeep(screenCharts));
+        console.log('尺寸调整停止', id, screenCharts);
+    }
+
+    const widgetDrag = throttle((id, data) => {
+        const widgetPosition = { x: data.x, y: data.y };
+        const widgetOption = find(screenCharts, { id: id });
+        widgetOption.widgetPosition = widgetPosition;
+        setScreenCharts(cloneDeep(screenCharts));
+        console.log('位置调整', id, screenCharts);
+    }, 500)
+
+    const widgetDragStop = (id, data) => {
+        const widgetPosition = { x: data.x, y: data.y };
+        const widgetOption = find(screenCharts, { id: id });
+        widgetOption.widgetPosition = widgetPosition;
+        setScreenCharts(cloneDeep(screenCharts));
+        console.log('位置调整停止', id, screenCharts);
+    }
+
+    useEffect(() => {
+        if (screenCharts.length > 0) {
+            const widthArr = map(map(map(screenCharts, 'widgetSize'), 'width'), (width) => {
+                if (isNumber(width)) {
+                    return width;
+                } else if (isString(width)) {
+                    if (endsWith(width), 'px') {
+                        return toNumber(width.slice(0, (width.length - 2)));
+                    }
+                }
+            });
+            const heightArr = map(map(map(screenCharts, 'widgetSize'), 'height'), (height) => {
+                if (isNumber(height)) {
+                    return height;
+                } else if (isString(height)) {
+                    if (endsWith(height), 'px') {
+                        return toNumber(height.slice(0, (height.length - 2)));
+                    }
+                }
+            });
+            const maxOffsetX = max(map(map(screenCharts, 'widgetPosition'), 'x'));
+            const maxOffsetY = max(map(map(screenCharts, 'widgetPosition'), 'y'));
+            setScreenSize({ width: maxOffsetX + 10 + sum(widthArr), height: maxOffsetY + 10 + sum(heightArr) });
+            console.log('调整大屏尺寸', maxOffsetX, maxOffsetY, sum(widthArr), sum(heightArr));
+        }
+    }, [screenCharts]);
 
 
     return (
@@ -187,7 +267,7 @@ function Screen(props) {
                                 <span>表格</span>
                             </li>
                             <li>
-                                <i class="fa fa-text-width" aria-hidden="true"></i>
+                                <i className="fa fa-text-width" aria-hidden="true"></i>
                                 <span>文字</span>
                             </li>
                         </ul>
@@ -203,18 +283,42 @@ function Screen(props) {
                         </ul>
                     </React.Fragment>}
             ></PageHeader>
-            <div className="screen-charts-content">
-                <ReactEcharts
-                    className='chart-widget-item'
-                    option={screenCharts[0]}
-                    style={{ height: '300px', width: '300px' }}
-                />
-                {screenCharts.length > 0 && screenCharts.map((option) => {
-                    <ReactEcharts
-                        className='chart-widget-item'
-                        option={option}
-                        style={{ height: '300px', width: '300px' }}
-                    />
+            <div className="screen-charts-content" style={screenSize}>
+                {screenCharts.length > 0 && screenCharts.map((option, index) => {
+                    return (
+                        <Rnd
+                            default={{
+                                x: index * 10,
+                                y: 0,
+                                width: 480,
+                                height: 270,
+                            }}
+                            style={{ zIndex: index }}
+                            key={index}
+                            lockAspectRatio={16 / 9}
+                            resizeHandleClasses={{
+                                bottom: 'resize-edge',
+                                bottomLeft: 'resize-corner',
+                                bottomRight: 'resize-corner',
+                                left: 'resize-edge',
+                                right: 'resize-edge',
+                                top: 'resize-edge',
+                                topLeft: 'resize-corner',
+                                topRight: 'resize-corner',
+                            }}
+                            onResize={(e, dir, refToElement, delta, position) => { widgetResize(option.id, refToElement, position) }}
+                            onResizeStop={(e, dir, refToElement, delta, position) => { widgetResizeStop(option.id, refToElement, position, dir) }}
+                            onDrag={(e, data) => { widgetDrag(option.id, data) }}
+                            onDragStop={(e, data) => { widgetDragStop(option.id, data) }}
+                        >
+                            <ReactEcharts
+                                className='chart-widget-item'
+                                option={option.echartOption}
+                                style={option.widgetSize}
+                                key={index}
+                            />
+                        </Rnd>
+                    )
                 })}
             </div>
         </React.Fragment>
