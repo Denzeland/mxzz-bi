@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty } from 'antd';
-import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, join, cloneDeep, uniqueId, trim, compact, uniq } from "lodash";
+import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, uniqueId, trim, compact, uniq } from "lodash";
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
 import ReactEcharts from 'echarts-for-react';
@@ -11,14 +11,16 @@ import { defaultChartsOptions } from './defaultChartsOptions';
 import moment from "moment";
 
 function Screen(props) {
-    console.log('编辑大屏查询search', location.search);
+    // console.log('编辑大屏查询search', location.search);
     const search = location.search;
     const reducer = (prevState, updatedProperty) => ([...updatedProperty]);
     const sizeReducer = (prevState, updatedProperty) => ({ ...prevState, ...updatedProperty });
+    const [activeChartIndex, setActiveChartIndex] = useState(null);
     /**
      * screenCharts = [{
      *  id: uniqueId(),
      *  echartOption: option,
+     *  zIndex: zIndex,
      *  widgetSize: { width, height },
      *  widgetPosition: { x, y }
     }]
@@ -156,11 +158,13 @@ function Screen(props) {
         if (defaultOption) {
             screenCharts.push({
                 id: moment().unix(),
+                zIndex: screenCharts.length,
                 echartOption: defaultOption.option,
                 widgetSize: { width: 480, height: 270 },
                 widgetPosition: { x: 10, y: 0 }
             });
             setScreenCharts(cloneDeep(screenCharts));
+            // setScreenCharts(screenCharts);
         }
         console.log('dropdownItemClick', item, defaultOption, screenCharts);
     }
@@ -193,7 +197,7 @@ function Screen(props) {
         widgetOption.widgetSize = widgetSize;
         widgetOption.widgetPosition = widgetPosition;
         setScreenCharts(cloneDeep(screenCharts));
-        console.log('尺寸调整', id, screenCharts);
+        // console.log('尺寸调整', id, screenCharts);
     }, 500)
 
     const widgetResizeStop = (id, refToElement, position, dir) => {
@@ -206,20 +210,42 @@ function Screen(props) {
         console.log('尺寸调整停止', id, screenCharts);
     }
 
-    const widgetDrag = throttle((id, data) => {
+    const widgetDrag = throttle((e, id, data) => {
+        console.log('位置调整', e);
         const widgetPosition = { x: data.x, y: data.y };
         const widgetOption = find(screenCharts, { id: id });
         widgetOption.widgetPosition = widgetPosition;
         setScreenCharts(cloneDeep(screenCharts));
-        console.log('位置调整', id, screenCharts);
     }, 500)
 
-    const widgetDragStop = (id, data) => {
+    const widgetDragStop = (e, id, data) => {
         const widgetPosition = { x: data.x, y: data.y };
         const widgetOption = find(screenCharts, { id: id });
         widgetOption.widgetPosition = widgetPosition;
         setScreenCharts(cloneDeep(screenCharts));
         console.log('位置调整停止', id, screenCharts);
+        const scrollLeft = e.target.getBoundingClientRect().right - document.documentElement.clientWidth;
+        const scrollTop = e.target.getBoundingClientRect().bottom - document.documentElement.clientHeight;
+        document.documentElement.scrollTop = scrollTop;
+        document.documentElement.scrollLeft = scrollLeft;
+    }
+
+    const widgetClick = (index) => {
+        setActiveChartIndex(index);
+        const clickChart = screenCharts[index];
+        console.log('重新调整zinde', index, clickChart);
+        clickChart.zIndex = screenCharts.length - 1;
+        const sortRange = range(screenCharts.length);
+        let j = 0;
+        for (let i = 0; i < sortRange.length; i++) {
+            if (i == index) {
+                continue;
+            } else {
+                screenCharts[i].zIndex = sortRange[j];
+                j++;
+            }
+        }
+        setScreenCharts(cloneDeep(screenCharts));
     }
 
     useEffect(() => {
@@ -293,29 +319,32 @@ function Screen(props) {
                                 width: 480,
                                 height: 270,
                             }}
-                            style={{ zIndex: index }}
-                            key={index}
+                            style={{ zIndex: option.zIndex }}
+                            key={option.id}
                             lockAspectRatio={16 / 9}
-                            resizeHandleClasses={{
-                                bottom: 'resize-edge',
-                                bottomLeft: 'resize-corner',
-                                bottomRight: 'resize-corner',
-                                left: 'resize-edge',
-                                right: 'resize-edge',
-                                top: 'resize-edge',
-                                topLeft: 'resize-corner',
-                                topRight: 'resize-corner',
+                            bounds="parent"
+                            onClick={() => {
+                                widgetClick(index);
+                            }}
+                            resizeHandleClasses={(index == activeChartIndex) && {
+                                bottom: 'resize-edge resize-edge-bottom',
+                                bottomLeft: 'resize-corner resize-corner-bottomLeft',
+                                bottomRight: 'resize-corner resize-corner-bottomRight',
+                                left: 'resize-edge resize-edge-left',
+                                right: 'resize-edge resize-edge-right',
+                                top: 'resize-edge resize-edge-top',
+                                topLeft: 'resize-corner resize-corner-topLeft',
+                                topRight: 'resize-corner resize-corner-topRight',
                             }}
                             onResize={(e, dir, refToElement, delta, position) => { widgetResize(option.id, refToElement, position) }}
                             onResizeStop={(e, dir, refToElement, delta, position) => { widgetResizeStop(option.id, refToElement, position, dir) }}
-                            onDrag={(e, data) => { widgetDrag(option.id, data) }}
-                            onDragStop={(e, data) => { widgetDragStop(option.id, data) }}
+                            onDrag={(e, data) => { widgetDrag(e, option.id, data) }}
+                            onDragStop={(e, data) => { widgetDragStop(e, option.id, data) }}
                         >
                             <ReactEcharts
                                 className='chart-widget-item'
                                 option={option.echartOption}
                                 style={option.widgetSize}
-                                key={index}
                             />
                         </Rnd>
                     )

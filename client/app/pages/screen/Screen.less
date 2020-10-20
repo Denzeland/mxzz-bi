@@ -2,6 +2,7 @@ body.screen {
   .mxbi-content {
     background: #0b0c3b;
     color: #fff;
+    overflow: auto;
 
     h2 {
       color: #fff;
@@ -22,7 +23,8 @@ body.screen {
     .ant-page-header-back-button {
       color: #fff;
     }
-    .ant-page-header-back-button:hover{
+
+    .ant-page-header-back-button:hover {
       color: #4db5ff;
     }
 
@@ -66,7 +68,8 @@ body.screen {
           color: #fff;
           background-color: #1890ff;
 
-          .anticon, .fa {
+          .anticon,
+          .fa {
             // margin: 12px 0 8px;
             font-size: 23px;
             -webkit-transition: -webkit-transform .3s ease-in-out;
@@ -124,8 +127,47 @@ body.screen {
 
   .screen-charts-content {
     position: relative;
+    min-width: 100%;
+    min-height: calc(100% - 85px);
+
     .resize-edge {
-      border: 1px solid #fff;
+      border: 1px solid #1326ff;
+
+      &.resize-edge-bottom,
+      &.resize-edge-top {
+        height: 0px !important;
+      }
+
+      &.resize-edge-left,
+      &.resize-edge-right {
+        width: 0px !important;
+      }
+    }
+
+    .resize-corner {
+      border: 5px solid #1012e6;
+      width: 0px !important;
+      height: 0px !important;
+
+      &.resize-corner-topLeft {
+        top: -8px !important;
+        left: -8px !important;
+      }
+
+      &.resize-corner-topRight {
+        right: -8px !important;
+        top: -8px !important;
+      }
+
+      &.resize-corner-bottomLeft {
+        left: -8px !important;
+        bottom: -8px !important;
+      }
+
+      &.resize-corner-bottomRight {
+        bottom: -8px !important;
+        right: -8px !important;
+      }
     }
   }
 }
