@@ -1,9 +1,37 @@
 body.screen {
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #ffffff;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #0b0c3b;
+  }
+
   .mxbi-content {
     background: #0b0c3b;
     color: #fff;
     margin-top: 66px;
     overflow-y: hidden;
+
+    &::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background: #ffffff;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
 
     h3 {
       color: #fff;
@@ -199,6 +227,7 @@ body.screen {
       width: 100%;
       height: 25px;
       line-height: 25px;
+
       &:hover {
         background-color: #1890ff;
         font-size: 16px;
