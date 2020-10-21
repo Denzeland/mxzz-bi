@@ -2,171 +2,206 @@ body.screen {
   .mxbi-content {
     background: #0b0c3b;
     color: #fff;
-    overflow: auto;
-
-    h2 {
-      color: #fff;
-    }
-  }
-
-  .screen-page-header {
-    height: auto;
-    position: relative;
-    padding-top: 9px;
+    margin-top: 66px;
+    overflow-y: hidden;
 
     h3 {
-      margin: 0;
-    }
-
-    h3,
-    .ant-page-header-heading-sub-title,
-    .ant-page-header-back-button {
       color: #fff;
     }
 
-    .ant-page-header-back-button:hover {
-      color: #4db5ff;
+    .ant-affix {
+      z-index: 999;
     }
 
-    .screen-edit-btn-wrap,
-    .screen-edit-extra {
-      list-style: none;
-      display: inline-block;
-      position: absolute;
-      left: 50%;
-      transform: translate(-50%, 10px);
-      top: 0;
+    &:fullscreen {
+      padding-left: 15px !important;
+      padding-top: 15px;
+      overflow-y: scroll;
 
-      li {
-        position: relative;
-        float: left;
-        width: 50px;
-        height: 50px;
-        margin: 3px 5px;
-        padding-top: 5px;
-        overflow: hidden;
-        color: #fff;
-        text-align: center;
-        list-style: none;
-        border-radius: 4px;
-        cursor: pointer;
-        border: 1px solid #464859;
-        -webkit-transition: color .3s ease-in-out, background-color .3s ease-in-out;
-        transition: color .3s ease-in-out, background-color .3s ease-in-out;
-
-        span {
-          display: block;
-          font-family: lucida console, Consolas, Monaco, andale mono, ubuntu mono, monospace;
-          white-space: nowrap;
-          text-align: center;
-          -webkit-transform: scale(.83);
-          -ms-transform: scale(.83);
-          transform: scale(.83);
-        }
-
-        &:hover {
-          color: #fff;
-          background-color: #1890ff;
-
-          .anticon,
-          .fa {
-            // margin: 12px 0 8px;
-            font-size: 23px;
-            -webkit-transition: -webkit-transform .3s ease-in-out;
-            transition: -webkit-transform .3s ease-in-out;
-            transition: transform .3s ease-in-out;
-            transition: transform .3s ease-in-out, -webkit-transform .3s ease-in-out;
-            will-change: transform;
-          }
-        }
-
-        &::after {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          color: #fff;
-          line-height: 110px;
-          text-align: center;
-          opacity: 0;
-          -webkit-transition: all .3s cubic-bezier(.18, .89, .32, 1.28);
-          transition: all .3s cubic-bezier(.18, .89, .32, 1.28);
-          content: 'Copied!';
-        }
+      .edit-header {
+        display: none;
       }
     }
+  }
+}
 
-    .screen-edit-extra {
-      position: unset !important;
-      margin-top: -9px;
-    }
+.screen-page-header {
+  height: auto;
+  position: relative;
+  padding-top: 9px;
+
+  h3 {
+    margin: 0;
   }
 
-  .edit-dropdown {
-    background-color: #fff;
-    padding: 16px 16px 0px 16px;
-    max-width: 600px;
+  h3,
+  .ant-page-header-heading-sub-title,
+  .ant-page-header-back-button {
+    color: #fff;
+  }
 
-    .ant-card-body {
-      padding: 10px;
+  .ant-page-header-back-button:hover {
+    color: #4db5ff;
+  }
+
+  .screen-edit-btn-wrap,
+  .screen-edit-extra {
+    list-style: none;
+    display: inline-block;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 10px);
+    top: 0;
+
+    li {
+      position: relative;
+      float: left;
+      width: 50px;
+      height: 50px;
+      margin: 3px 5px;
+      padding-top: 5px;
+      overflow: hidden;
+      color: #fff;
       text-align: center;
+      list-style: none;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #464859;
+      -webkit-transition: color .3s ease-in-out, background-color .3s ease-in-out;
+      transition: color .3s ease-in-out, background-color .3s ease-in-out;
 
-      .chart-icon {
-        width: 60px;
-        height: 60px;
+      span {
+        display: block;
+        font-family: lucida console, Consolas, Monaco, andale mono, ubuntu mono, monospace;
+        white-space: nowrap;
+        text-align: center;
+        -webkit-transform: scale(.83);
+        -ms-transform: scale(.83);
+        transform: scale(.83);
       }
 
-      .chart-text {
-        display: block;
-        padding-top: 5px;
-        font-weight: 600;
+      &:hover {
+        color: #fff;
+        background-color: #1890ff;
+
+        .anticon,
+        .fa {
+          // margin: 12px 0 8px;
+          font-size: 23px;
+          -webkit-transition: -webkit-transform .3s ease-in-out;
+          transition: -webkit-transform .3s ease-in-out;
+          transition: transform .3s ease-in-out;
+          transition: transform .3s ease-in-out, -webkit-transform .3s ease-in-out;
+          will-change: transform;
+        }
+      }
+
+      &::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        color: #fff;
+        line-height: 110px;
+        text-align: center;
+        opacity: 0;
+        -webkit-transition: all .3s cubic-bezier(.18, .89, .32, 1.28);
+        transition: all .3s cubic-bezier(.18, .89, .32, 1.28);
+        content: 'Copied!';
       }
     }
   }
 
-  .screen-charts-content {
-    position: relative;
-    min-width: 100%;
-    min-height: calc(100% - 85px);
+  .screen-edit-extra {
+    position: unset !important;
+    margin-top: -9px;
+  }
+}
 
-    .resize-edge {
-      border: 1px solid #1326ff;
+.edit-dropdown {
+  background-color: #fff;
+  padding: 16px 16px 0px 16px;
+  max-width: 600px;
 
-      &.resize-edge-bottom,
-      &.resize-edge-top {
-        height: 0px !important;
-      }
+  .ant-card-body {
+    padding: 10px;
+    text-align: center;
 
-      &.resize-edge-left,
-      &.resize-edge-right {
-        width: 0px !important;
-      }
+    .chart-icon {
+      width: 60px;
+      height: 60px;
     }
 
-    .resize-corner {
-      border: 5px solid #1012e6;
-      width: 0px !important;
+    .chart-text {
+      display: block;
+      padding-top: 5px;
+      font-weight: 600;
+    }
+  }
+}
+
+.screen-charts-content {
+  position: relative;
+  min-width: 100%;
+  min-height: calc(100% - 85px);
+
+  .resize-edge {
+    border: 1px solid #1326ff;
+
+    &.resize-edge-bottom,
+    &.resize-edge-top {
       height: 0px !important;
+    }
 
-      &.resize-corner-topLeft {
-        top: -8px !important;
-        left: -8px !important;
-      }
+    &.resize-edge-left,
+    &.resize-edge-right {
+      width: 0px !important;
+    }
+  }
 
-      &.resize-corner-topRight {
-        right: -8px !important;
-        top: -8px !important;
-      }
+  .resize-corner {
+    border: 5px solid #1012e6;
+    width: 0px !important;
+    height: 0px !important;
 
-      &.resize-corner-bottomLeft {
-        left: -8px !important;
-        bottom: -8px !important;
-      }
+    &.resize-corner-topLeft {
+      top: -8px !important;
+      left: -8px !important;
+    }
 
-      &.resize-corner-bottomRight {
-        bottom: -8px !important;
-        right: -8px !important;
+    &.resize-corner-topRight {
+      right: -8px !important;
+      top: -8px !important;
+    }
+
+    &.resize-corner-bottomLeft {
+      left: -8px !important;
+      bottom: -8px !important;
+    }
+
+    &.resize-corner-bottomRight {
+      bottom: -8px !important;
+      right: -8px !important;
+    }
+  }
+
+  .chart-item-edit {
+    position: absolute;
+    right: -3px;
+    top: -3px;
+    width: 25px;
+    background: transparent;
+    cursor: pointer;
+
+    .anticon {
+      display: block;
+      width: 100%;
+      height: 25px;
+      line-height: 25px;
+      &:hover {
+        background-color: #1890ff;
+        font-size: 16px;
       }
     }
   }

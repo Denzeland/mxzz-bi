@@ -1,5 +1,4 @@
 import { pm25Data, geoCoordMap } from './pm25Data';
-console.log('pm25Data', pm25Data);
 const convertData = function (data) {
     var res = [];
     for (var i = 0; i < data.length; i++) {
