@@ -130,7 +130,7 @@ HSTS_INCLUDE_SUBDOMAINS = parse_boolean(
 CONTENT_SECURITY_POLICY = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY",
     # "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'; frame-ancestors 'none'; frame-src redash.io;",
-    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'; frame-ancestors 'none'; frame-src 127.0.0.1:8000;",
+    "default-src 'self'; style-src 'self' 'unsafe-inline' *.baidu.com *.bdimg.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' *.baidu.com *.bdimg.com; font-src 'self' data:; img-src 'self' http: https: data: blob:; object-src 'none'; frame-ancestors 'none'; frame-src 127.0.0.1:8000;",
 )
 CONTENT_SECURITY_POLICY_REPORT_URI = os.environ.get(
     "REDASH_CONTENT_SECURITY_POLICY_REPORT_URI", ""

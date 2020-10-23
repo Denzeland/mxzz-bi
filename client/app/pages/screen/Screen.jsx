@@ -9,6 +9,7 @@ import './Screen.less';
 import { Rnd } from 'react-rnd';
 import { defaultChartsOptions } from './defaultChartsOptions';
 import moment from "moment";
+import bmap from 'echarts/extension/bmap/bmap';
 
 function Screen(props) {
     // console.log('编辑大屏查询search', location.search);
@@ -199,8 +200,8 @@ function Screen(props) {
     });
 
     const widgetResize = throttle((e, id, refToElement, position) => {
-        e.preventDefault();
-        e.stopPropagation();
+        // e.preventDefault();
+        // e.stopPropagation();
         const widgetSize = { width: refToElement.style.width, height: refToElement.style.height };
         const widgetPosition = { x: position.x, y: position.y };
         const widgetOption = find(screenCharts, { id: id });
@@ -211,8 +212,8 @@ function Screen(props) {
     }, 500)
 
     const widgetResizeStop = (e, id, refToElement, position, dir) => {
-        e.preventDefault();
-        e.stopPropagation();
+        // e.preventDefault();
+        // e.stopPropagation();
         const widgetSize = { width: refToElement.style.width, height: refToElement.style.height };
         const widgetPosition = { x: position.x, y: position.y };
         const widgetOption = find(screenCharts, { id: id });
@@ -222,29 +223,13 @@ function Screen(props) {
         console.log('尺寸调整停止', id, screenCharts);
     }
 
-    const widgetDrag = throttle((e, id, data) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('位置调整', e);
-        const widgetPosition = { x: data.x, y: data.y };
-        const widgetOption = find(screenCharts, { id: id });
-        widgetOption.widgetPosition = widgetPosition;
-        setScreenCharts(screenCharts);
-    }, 500)
-
     const widgetDragStop = (e, id, data) => {
-        e.preventDefault();
-        e.stopPropagation();
+        // e.preventDefault();
+        // e.stopPropagation();
         const widgetPosition = { x: data.x, y: data.y };
         const widgetOption = find(screenCharts, { id: id });
         widgetOption.widgetPosition = widgetPosition;
         setScreenCharts(screenCharts);
-        // console.log('位置调整停止', e);
-        // const scrollLeft = e.target.getBoundingClientRect().right - document.documentElement.clientWidth;
-        // const scrollTop = e.target.getBoundingClientRect().bottom - document.documentElement.clientHeight;
-        // document.documentElement.scrollTop = scrollTop;
-        // document.documentElement.scrollLeft = scrollLeft;
-        // document.querySelector('.mxbi-content').scrollTop = scrollTop;
     }
 
     const resetZindex = (index) => {
@@ -272,19 +257,29 @@ function Screen(props) {
 
     const cancleActive = (e) => {
         // console.log('点击chart容器', e.target.getAttribute('class'));
+        e.stopPropagation();
         if (e.target.getAttribute('class') == "screen-charts-content") {
             setActiveChartIndex(null);
         }
     }
 
-    const deleteChartItem = (index) => {
+    const activeChartItem = (e, index) => {
+        console.log('激活图表', e.target.tagName);
+        if(screenViewMode == 'edit' && e.target.tagName !== "I") {
+            resetZindex(index);
+        }
+    }
+
+    const deleteChartItem = (e, index) => {
+        e.stopPropagation();
         console.log('删除图表', index);
         setActiveChartIndex(null);
         screenCharts.splice(index, 1);
         setScreenCharts(screenCharts);
     }
 
-    const copyChartItem = (option) => {
+    const copyChartItem = (e, option) => {
+        e.stopPropagation();
         console.log('复制图表', option);
         screenCharts.push({
             id: moment().unix(),
@@ -296,7 +291,8 @@ function Screen(props) {
         resetZindex(screenCharts.length - 1);
     }
 
-    const freshChartItem = (index) => {
+    const freshChartItem = (e, index) => {
+        e.stopPropagation();
         console.log('刷新数据', index);
     }
 
@@ -377,8 +373,10 @@ function Screen(props) {
                             key={option.id}
                             lockAspectRatio={16 / 9}
                             bounds="parent"
-                            enableResizing={screenViewMode == 'edit'? true : false}
-                            disableDragging={screenViewMode == 'preview'? true : false}
+                            dragHandleClassName='drag-handle'
+                            dragGrid={[5,5]}
+                            enableResizing={screenViewMode == 'edit' ? true : false}
+                            disableDragging={screenViewMode == 'preview' ? true : false}
                             resizeHandleClasses={(index == activeChartIndex) && {
                                 bottom: 'resize-edge resize-edge-bottom',
                                 bottomLeft: 'resize-corner resize-corner-bottomLeft',
@@ -389,25 +387,28 @@ function Screen(props) {
                                 topLeft: 'resize-corner resize-corner-topLeft',
                                 topRight: 'resize-corner resize-corner-topRight',
                             }}
-                            onResizeStart={(e, dir, refToElement) => { e.preventDefault(); e.stopPropagation(); resetZindex(index); }}
+                            // onResizeStart={(e, dir, refToElement) => { resetZindex(index); }}
                             onResize={(e, dir, refToElement, delta, position) => { widgetResize(e, option.id, refToElement, position) }}
                             onResizeStop={(e, dir, refToElement, delta, position) => { widgetResizeStop(e, option.id, refToElement, position, dir) }}
-                            onDragStart={(e, data) => { e.preventDefault(); e.stopPropagation(); resetZindex(index) }}
-                            onDrag={(e, data) => { widgetDrag(e, option.id, data) }}
+                            // onDragStart={(e, data) => { resetZindex(index) }}
+                            // onDrag={(e, data) => { widgetDrag(e, option.id, data) }}
                             onDragStop={(e, data) => { widgetDragStop(e, option.id, data) }}
                         >
-                            <ReactEcharts
-                                className='chart-widget-item'
-                                option={option.echartOption.option}
-                                style={option.widgetSize}
-                            />
-                            {(index == activeChartIndex) &&
-                                <div className="chart-item-edit">
-                                    <Icon type="delete" onClick={() => { deleteChartItem(index) }} />
-                                    <Icon type="copy" onClick={() => { copyChartItem(option.echartOption) }} />
-                                    <Icon type="sync" onClick={() => { freshChartItem(index) }} />
-                                </div>
-                            }
+                            <div onClick={(e) => { activeChartItem(e, index); }}>
+                                <ReactEcharts
+                                    className='chart-widget-item'
+                                    option={option.echartOption.option}
+                                    style={option.widgetSize}
+                                />
+                                {(index == activeChartIndex) &&
+                                    <div className="chart-item-edit">
+                                        <Icon type="delete" onClick={(e) => { deleteChartItem(e, index) }} />
+                                        <Icon type="copy" onClick={(e) => { copyChartItem(e, option.echartOption) }} />
+                                        <Icon type="sync" onClick={(e) => { freshChartItem(e, index) }} />
+                                        <Icon type="drag" className='drag-handle' />
+                                    </div>
+                                }
+                            </div>
                         </Rnd>
                     )
                 })}
