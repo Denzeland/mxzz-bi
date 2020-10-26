@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix } from 'antd';
-import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, uniqueId, trim, compact, uniq } from "lodash";
+import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, trim, compact, uniq } from "lodash";
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
 import ReactEcharts from 'echarts-for-react';
@@ -265,7 +265,7 @@ function Screen(props) {
 
     const activeChartItem = (e, index) => {
         console.log('激活图表', e.target.tagName);
-        if(screenViewMode == 'edit' && e.target.tagName !== "I") {
+        if (screenViewMode == 'edit' && e.target.tagName !== "I") {
             resetZindex(index);
         }
     }
@@ -318,7 +318,19 @@ function Screen(props) {
             });
             const maxOffsetX = max(map(map(screenCharts, 'widgetPosition'), 'x'));
             const maxOffsetY = max(map(map(screenCharts, 'widgetPosition'), 'y'));
-            setScreenSize({ width: maxOffsetX + 10 + sum(widthArr), height: maxOffsetY + 10 + sum(heightArr) });
+            const maxOffsetXIndex = findIndex(screenCharts, (item) => {
+                return item.widgetPosition.x == maxOffsetX
+            });
+            const maxOffsetYIndex = findIndex(screenCharts, (item) => {
+                return item.widgetPosition.y == maxOffsetY
+            });
+            const widthByMaxOffsetX = maxOffsetX + widthArr[maxOffsetXIndex];
+            const heightByMaxOffsetY = maxOffsetY + heightArr[maxOffsetYIndex];
+            const widthByMaxWidth = screenCharts[findIndex(widthArr, (item) => { return item === max(widthArr) })].widgetPosition.x + max(widthArr);
+            const heightByMaxHeight = screenCharts[findIndex(heightArr, (item) => { return item === max(heightArr) })].widgetPosition.y + max(heightArr);
+            const finalScreenWidth = max([widthByMaxOffsetX, widthByMaxWidth]);
+            const finalScreenHeight = max([heightByMaxOffsetY, heightByMaxHeight]);
+            setScreenSize({ width: finalScreenWidth + 100, height: finalScreenHeight + 100 });
             console.log('调整大屏尺寸', maxOffsetX, maxOffsetY, sum(widthArr), sum(heightArr));
         }
     }, [screenCharts]);
@@ -374,7 +386,7 @@ function Screen(props) {
                             lockAspectRatio={16 / 9}
                             bounds="parent"
                             dragHandleClassName='drag-handle'
-                            dragGrid={[5,5]}
+                            dragGrid={[100, 100]}
                             enableResizing={screenViewMode == 'edit' ? true : false}
                             disableDragging={screenViewMode == 'preview' ? true : false}
                             resizeHandleClasses={(index == activeChartIndex) && {
@@ -401,12 +413,14 @@ function Screen(props) {
                                     style={option.widgetSize}
                                 />
                                 {(index == activeChartIndex) &&
-                                    <div className="chart-item-edit">
-                                        <Icon type="delete" onClick={(e) => { deleteChartItem(e, index) }} />
-                                        <Icon type="copy" onClick={(e) => { copyChartItem(e, option.echartOption) }} />
-                                        <Icon type="sync" onClick={(e) => { freshChartItem(e, index) }} />
+                                    <React.Fragment>
+                                        <div className="chart-item-edit">
+                                            <Icon type="delete" onClick={(e) => { deleteChartItem(e, index) }} />
+                                            <Icon type="copy" onClick={(e) => { copyChartItem(e, option.echartOption) }} />
+                                            <Icon type="sync" onClick={(e) => { freshChartItem(e, index) }} />
+                                        </div>
                                         <Icon type="drag" className='drag-handle' />
-                                    </div>
+                                    </React.Fragment>
                                 }
                             </div>
                         </Rnd>
