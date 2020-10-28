@@ -9,11 +9,27 @@ import './Screen.less';
 import { Rnd } from 'react-rnd';
 import { defaultChartsOptions } from './defaultChartsOptions';
 import moment from "moment";
+import cx from "classnames";
 import bmap from 'echarts/extension/bmap/bmap';
+import 'echarts/theme/vintage';
+import 'echarts/theme/shine';
+import 'echarts/theme/roma';
+import 'echarts/theme/macarons';
+import 'echarts/theme/infographic';
+import './theme-data/chalk';
+import './theme-data/essos';
+import './theme-data/purple-passion';
+import './theme-data/walden';
+import './theme-data/westeros';
+import './theme-data/wonderland';
+import './theme-data/science';
+
+const themeInPak = ['infographic', 'dark', 'light', 'macarons', 'roma', 'shine', 'vintage']
 
 function Screen(props) {
     // console.log('编辑大屏查询search', location.search);
     const search = location.search;
+    const theme = search.template;
     const reducer = (prevState, updatedProperty) => ([...updatedProperty]);
     const sizeReducer = (prevState, updatedProperty) => ({ ...prevState, ...updatedProperty });
     const [activeChartIndex, setActiveChartIndex] = useState(null);
@@ -25,6 +41,7 @@ function Screen(props) {
             setScreenViewMode('edit');
         }
     });
+    document.body.classList.add(theme);
     /**
      * screenCharts = [{
      *  id: moment().unix(),
@@ -333,7 +350,14 @@ function Screen(props) {
             setScreenSize({ width: finalScreenWidth + 100, height: finalScreenHeight + 100 });
             console.log('调整大屏尺寸', maxOffsetX, maxOffsetY, sum(widthArr), sum(heightArr));
         }
+
     }, [screenCharts]);
+
+    useEffect(() => {
+        return () => {
+            document.body.classList.remove(theme);
+        };
+    }, [theme])
 
 
     return (
@@ -341,7 +365,7 @@ function Screen(props) {
             <Affix offsetTop={80} style={{ height: 'auto' }} className="edit-header">
                 <PageHeader
                     // ghost={false}
-                    className="screen-page-header"
+                    className={cx("screen-page-header", { [`${theme}`]: true })}
                     onBack={() => null}
                     title={<Typography.Title level={3}>{search.title}</Typography.Title>}
                     subTitle={search.description}
@@ -411,6 +435,8 @@ function Screen(props) {
                                     className='chart-widget-item'
                                     option={option.echartOption.option}
                                     style={option.widgetSize}
+                                    theme={theme}
+                                // showLoading={true}
                                 />
                                 {(index == activeChartIndex) &&
                                     <React.Fragment>
@@ -435,5 +461,5 @@ export default routeWithUserSession({
     path: "/screen",
     title: '编辑大屏',
     render: pageProps => <Screen {...pageProps} />,
-    bodyClass: "screen",
+    bodyClass: cx("screen")
 });

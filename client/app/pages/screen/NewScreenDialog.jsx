@@ -19,11 +19,41 @@ function WizardForm(props) {
         // centerMode: true,
     };
     const templateAvailable = [{
-        name: 'blank',
-        imgSrc: '/static/images/empty.png'
+        name: 'science',
+        imgSrc: '/static/images/science-theme.png'
     }, {
-        name: 'templet01',
-        imgSrc: '/static/images/templet-templet01-1.png'
+        name: 'vintage',
+        imgSrc: '/static/images/vintage-theme.png'
+    }, {
+        name: 'shine',
+        imgSrc: '/static/images/shine-theme.png'
+    }, {
+        name: 'roma',
+        imgSrc: '/static/images/roma-theme.png'
+    }, {
+        name: 'macarons',
+        imgSrc: '/static/images/macarons-theme.png'
+    }, {
+        name: 'infographic',
+        imgSrc: '/static/images/infographic-theme.png'
+    }, {
+        name: 'chalk',
+        imgSrc: '/static/images/chalk-theme.png'
+    }, {
+        name: 'essos',
+        imgSrc: '/static/images/essos-theme.png'
+    }, {
+        name: 'purple-passion',
+        imgSrc: '/static/images/purple-passion-theme.png'
+    }, {
+        name: 'walden',
+        imgSrc: '/static/images/walden-theme.png'
+    }, {
+        name: 'westeros',
+        imgSrc: '/static/images/westeros-theme.png'
+    }, {
+        name: 'wonderland',
+        imgSrc: '/static/images/wonderland-theme.png'
     }];
     const templateRadios = templateAvailable.map((template) => {
         return (
@@ -53,7 +83,7 @@ function WizardForm(props) {
                     }>
                         {getFieldDecorator('description')(<Input type="textarea" />)}
                     </Form.Item>
-                    <Form.Item label="数据大屏模板">
+                    <Form.Item label="大屏颜色主题">
                         {getFieldDecorator('template', {
                             initialValue: templateAvailable[0].name,
                             rules: [{ required: true, message: '模板是必填项!' }],

@@ -9,12 +9,82 @@ body.screen {
     background: #ffffff;
   }
 
-  &::-webkit-scrollbar-track {
-    background: #0b0c3b;
+  &.science {
+    &::-webkit-scrollbar-track {
+      background: #0b0c3b;
+    }
+
+    .mxbi-content {
+      background: #0b0c3b;
+    }
+  }
+
+  &.vintage {
+    &::-webkit-scrollbar-track {
+      background: #fef8ef;
+    }
+
+    .mxbi-content {
+      background: #fef8ef;
+    }
+  }
+
+  &.shine,
+  &.roma,
+  &.macarons,
+  &.infographic,
+  &.westeros,
+  &.wonderland {
+    &::-webkit-scrollbar-track {
+      background: #ffffff;
+    }
+
+    .mxbi-content {
+      background: #ffffff;
+    }
+  }
+
+  &.chalk {
+    &::-webkit-scrollbar-track {
+      background: #293441;
+    }
+
+    .mxbi-content {
+      background: #293441;
+    }
+  }
+
+  &.essos {
+    &::-webkit-scrollbar-track {
+      background: #f2eabf;
+    }
+
+    .mxbi-content {
+      background: #f2eabf;
+    }
+  }
+
+  &.purple-passion {
+    &::-webkit-scrollbar-track {
+      background: #5b5c6e;
+    }
+
+    .mxbi-content {
+      background: #5b5c6e;
+    }
+  }
+
+  &.walden {
+    &::-webkit-scrollbar-track {
+      background: #fcfcfc;
+    }
+
+    .mxbi-content {
+      background: #fcfcfc;
+    }
   }
 
   .mxbi-content {
-    background: #0b0c3b;
     color: #fff;
     margin-top: 66px;
     overflow-y: hidden;
@@ -33,9 +103,9 @@ body.screen {
       background: transparent;
     }
 
-    h3 {
-      color: #fff;
-    }
+    // h3 {
+    //   color: #fff;
+    // }
 
     .ant-affix {
       z-index: 999;
@@ -62,14 +132,134 @@ body.screen {
     margin: 0;
   }
 
-  h3,
-  .ant-page-header-heading-sub-title,
-  .ant-page-header-back-button {
-    color: #fff;
-  }
+
 
   .ant-page-header-back-button:hover {
-    color: #4db5ff;
+    color: #4db5ff !important;
+  }
+
+  &.science {
+
+    h3,
+    .ant-page-header-heading-sub-title,
+    .ant-page-header-back-button {
+      color: #fff;
+    }
+
+    .screen-edit-btn-wrap,
+    .screen-edit-extra {
+      li {
+        background: #0b0c3b;
+        color: #fff;
+      }
+    }
+  }
+
+  &.vintage {
+
+    h3,
+    .ant-page-header-heading-sub-title,
+    .ant-page-header-back-button {
+      color: #333;
+    }
+
+    .screen-edit-btn-wrap,
+    .screen-edit-extra {
+      li {
+        background: #fef8ef;
+        color: #333;
+      }
+    }
+  }
+
+  &.shine,
+  &.roma,
+  &.macarons,
+  &.infographic,
+  &.westeros,
+  &.wonderland {
+
+    h3,
+    .ant-page-header-heading-sub-title,
+    .ant-page-header-back-button {
+      color: #333;
+    }
+
+    .screen-edit-btn-wrap,
+    .screen-edit-extra {
+      li {
+        background: #fff;
+        color: #333;
+      }
+    }
+  }
+
+  &.chalk {
+
+    h3,
+    .ant-page-header-heading-sub-title,
+    .ant-page-header-back-button {
+      color: #ffffff;
+    }
+
+    .screen-edit-btn-wrap,
+    .screen-edit-extra {
+      li {
+        background: #293441;
+        color: #ffffff;
+      }
+    }
+  }
+
+  &.essos {
+
+    h3,
+    .ant-page-header-heading-sub-title,
+    .ant-page-header-back-button {
+      color: #893448;
+    }
+
+    .screen-edit-btn-wrap,
+    .screen-edit-extra {
+      li {
+        background: #f2eabf;
+        color: #893448;
+      }
+    }
+  }
+
+  &.purple-passion {
+
+    h3,
+    .ant-page-header-heading-sub-title,
+    .ant-page-header-back-button {
+      color: #ffffff;
+    }
+
+    .screen-edit-btn-wrap,
+    .screen-edit-extra {
+      li {
+        background: #5b5c6e;
+        color: #ffffff;
+      }
+    }
+  }
+
+  &.walden {
+
+    h3,
+    .ant-page-header-heading-sub-title,
+    .ant-page-header-back-button {
+      color: #666666;
+    }
+
+    .screen-edit-btn-wrap,
+    .screen-edit-extra {
+      li {
+        background: #fcfcfc;
+        color: #666666;
+      }
+    }
   }
 
   .screen-edit-btn-wrap,
@@ -89,11 +279,10 @@ body.screen {
       margin: 3px 5px;
       padding-top: 5px;
       overflow: hidden;
-      color: #fff;
       text-align: center;
       list-style: none;
       border-radius: 4px;
-      background: #0b0c3b;
+
       cursor: pointer;
       border: 1px solid #464859;
       -webkit-transition: color .3s ease-in-out, background-color .3s ease-in-out;

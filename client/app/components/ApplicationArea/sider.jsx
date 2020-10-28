@@ -1,11 +1,12 @@
 import React, { useCallback, useRef } from "react";
 import { currentUser, Auth, clientConfig } from "@/services/auth";
 import FavoritesDropdown from "./ApplicationHeader/FavoritesDropdown";
-import { Layout, Menu, Icon, Button, Dropdown } from 'antd';
+import { Layout, Menu, Icon, message, Dropdown } from 'antd';
 import { Query } from "@/services/query";
 import { Dashboard } from "@/services/dashboard";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
 import NewScreenDialog from '@/pages/screen/NewScreenDialog';
+import location from "@/services/location";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -16,7 +17,12 @@ export default function DesktopSider({ collapsed }) {
   }, []);
 
   const showNewScreenDialog = useCallback(() => {
-    NewScreenDialog.showModal();
+    console.log('新建大屏', location.path);
+    if(location.path == '/screen') {
+      message.error('要先退出编辑才能新建大屏！');
+    } else {
+      NewScreenDialog.showModal();
+    }
   }, []);
 
   return (
