@@ -1,4 +1,7 @@
 import { pm25Data, geoCoordMap } from './pm25Data';
+const ROOT_PATH = window.location.host;
+console.log('根路径', ROOT_PATH);
+
 const convertData = function (data) {
     var res = [];
     for (var i = 0; i < data.length; i++) {
@@ -3638,5 +3641,33 @@ export const defaultChartsOptions = [{
                 zlevel: 1
             }
         ]
+    }
+}, {
+    type: 'globe-base',
+    option: {
+        backgroundColor: '#000',
+        globe: {
+            baseTexture: "/static/images/world.topo.bathy.200401.jpg",
+            heightTexture: "/static/images/world.topo.bathy.200401.jpg",
+            displacementScale: 0.04,
+            shading: 'realistic',
+            // environment: '/static/images/starfield.jpg',
+            realisticMaterial: {
+                roughness: 0.9
+            },
+            postEffect: {
+                enable: true
+            },
+            light: {
+                main: {
+                    intensity: 5,
+                    shadow: true
+                },
+                ambientCubemap: {
+                    texture: '/static/images/pisa.hdr',
+                    diffuseIntensity: 0.2
+                }
+            }
+        }
     }
 }];

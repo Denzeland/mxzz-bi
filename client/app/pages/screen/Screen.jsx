@@ -23,8 +23,11 @@ import './theme-data/walden';
 import './theme-data/westeros';
 import './theme-data/wonderland';
 import './theme-data/science';
+import useUnsavedChangesAlert from "@/pages/queries/hooks/useUnsavedChangesAlert";
+import { createBrowserHistory } from "history";
+import 'echarts-gl';
 
-const themeInPak = ['infographic', 'dark', 'light', 'macarons', 'roma', 'shine', 'vintage']
+const history = createBrowserHistory();
 
 function Screen(props) {
     // console.log('编辑大屏查询search', location.search);
@@ -53,6 +56,7 @@ function Screen(props) {
      */
     const [screenSize, setScreenSize] = useReducer(sizeReducer, { width: 'auto', height: 'auto' });
     const [screenCharts, setScreenCharts] = useReducer(reducer, []);
+    useUnsavedChangesAlert(screenCharts.length > 0);
     const dropdownListData = [
         {
             name: '基础',
@@ -176,7 +180,11 @@ function Screen(props) {
         {
             name: '3D',
             icon: <i className="fa fa-cubes" aria-hidden="true"></i>,
-            data: []
+            data: [{
+                imgSrc: '/static/images/globe-echarts-gl-hello-world.jpg',
+                name: '3D地球',
+                type: 'globe-base'
+            },]
         }
     ];
     const dropdownItemClick = (item) => {
@@ -366,7 +374,7 @@ function Screen(props) {
                 <PageHeader
                     // ghost={false}
                     className={cx("screen-page-header", { [`${theme}`]: true })}
-                    onBack={() => null}
+                    onBack={() => { history.goBack(); }}
                     title={<Typography.Title level={3}>{search.title}</Typography.Title>}
                     subTitle={search.description}
                     extra={
