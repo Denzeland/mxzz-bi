@@ -11,6 +11,7 @@ import { defaultChartsOptions } from './defaultChartsOptions';
 import moment from "moment";
 import cx from "classnames";
 import bmap from 'echarts/extension/bmap/bmap';
+import "echarts/map/js/china.js";
 import 'echarts/theme/vintage';
 import 'echarts/theme/shine';
 import 'echarts/theme/roma';
@@ -163,12 +164,17 @@ function Screen(props) {
         },
         {
             name: '地图',
-            icon: <i className="fa fa-globe" aria-hidden="true"></i>,
+            icon: <i className="fa fa-map" aria-hidden="true"></i>,
             data: [
                 {
                     imgSrc: '/static/images/map_chart.png',
-                    name: '地图',
-                    type: 'map'
+                    name: '百度地图',
+                    type: 'bmap'
+                },
+                {
+                    imgSrc: '/static/images/china_map.png',
+                    name: '中国地图',
+                    type: 'china-map'
                 },
                 {
                     imgSrc: '/static/images/route_map.png',
@@ -184,6 +190,19 @@ function Screen(props) {
                 imgSrc: '/static/images/globe-echarts-gl-hello-world.jpg',
                 name: '3D地球',
                 type: 'globe-base'
+            },]
+        },
+        {
+            name: '其他',
+            icon: <i className="fa fa-list" aria-hidden="true"></i>,
+            data: [{
+                imgSrc: '/static/images/table_chart.png',
+                name: '表格',
+                type: 'table'
+            },{
+                imgSrc: '/static/images/text_chart.png',
+                name: '文字',
+                type: 'text'
             },]
         }
     ];
@@ -381,14 +400,14 @@ function Screen(props) {
                         <React.Fragment>
                             <ul className="screen-edit-btn-wrap">
                                 {dropdownListComponent}
-                                <li>
+                                {/* <li>
                                     <Icon type="table" />
                                     <span>表格</span>
                                 </li>
                                 <li>
                                     <i className="fa fa-text-width" aria-hidden="true"></i>
                                     <span>文字</span>
-                                </li>
+                                </li> */}
                             </ul>
                             <ul className="screen-edit-extra">
                                 <li onClick={onPreview}>
@@ -415,7 +434,7 @@ function Screen(props) {
                             }}
                             style={{ zIndex: option.zIndex }}
                             key={option.id}
-                            lockAspectRatio={16 / 9}
+                            // lockAspectRatio={16 / 9}
                             bounds="parent"
                             dragHandleClassName='drag-handle'
                             dragGrid={[100, 100]}
