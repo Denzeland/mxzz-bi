@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix } from 'antd';
-import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, trim, compact, uniq } from "lodash";
+import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table } from 'antd';
+import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, trim, compact, floor, assignIn } from "lodash";
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
 import ReactEcharts from 'echarts-for-react';
@@ -49,10 +49,11 @@ function Screen(props) {
     /**
      * screenCharts = [{
      *  id: moment().unix(),
-     *  echartOption: option,
+     *  chartOption: option,
      *  zIndex: zIndex,
      *  widgetSize: { width, height },
-     *  widgetPosition: { x, y }
+     *  widgetPosition: { x, y },
+     *  engine: 'echarts' or 'antd-*'
     }]
      */
     const [screenSize, setScreenSize] = useReducer(sizeReducer, { width: 'auto', height: 'auto' });
@@ -66,27 +67,32 @@ function Screen(props) {
                 {
                     imgSrc: '/static/images/line_chart.png',
                     name: '折线图',
-                    type: 'line'
+                    type: 'line',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/bar_chart.png',
                     name: '直方图',
-                    type: 'bar'
+                    type: 'bar',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/pie_chart.png',
                     name: '饼图',
-                    type: 'pie'
+                    type: 'pie',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/scatter_plot.png',
                     name: '散点图',
-                    type: 'scatter'
+                    type: 'scatter',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/bubble_chart.png',
                     name: '涟漪气泡图',
-                    type: 'effectScatter'
+                    type: 'effectScatter',
+                    engine: 'echarts'
                 },
             ]
         },
@@ -97,42 +103,50 @@ function Screen(props) {
                 {
                     imgSrc: '/static/images/heat_map.png',
                     name: '热力图',
-                    type: 'heatmap'
+                    type: 'heatmap',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/relate.png',
                     name: '关系图',
-                    type: 'graph'
+                    type: 'graph',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/themeRiver.png',
                     name: '河流图',
-                    type: 'themeRiver'
+                    type: 'themeRiver',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/radar.png',
                     name: '雷达图',
-                    type: 'radar'
+                    type: 'radar',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/tree_chart.png',
                     name: '树图',
-                    type: 'tree'
+                    type: 'tree',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/treemap.png',
                     name: '矩形树图',
-                    type: 'treemap'
+                    type: 'treemap',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/sunburst.png',
                     name: '旭日图',
-                    type: 'sunburst'
+                    type: 'sunburst',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/sankey.png',
                     name: '桑基图',
-                    type: 'sankey'
+                    type: 'sankey',
+                    engine: 'echarts'
                 },
             ]
         },
@@ -143,22 +157,26 @@ function Screen(props) {
                 {
                     imgSrc: '/static/images/candlestick.png',
                     name: 'K 线图',
-                    type: 'candlestick'
+                    type: 'candlestick',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/boxplot.png',
                     name: '盒须图',
-                    type: 'boxplot'
+                    type: 'boxplot',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/funnel.png',
                     name: '漏斗图',
-                    type: 'funnel'
+                    type: 'funnel',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/gauge.png',
                     name: '仪表盘',
-                    type: 'gauge'
+                    type: 'gauge',
+                    engine: 'echarts'
                 },
             ]
         },
@@ -169,17 +187,20 @@ function Screen(props) {
                 {
                     imgSrc: '/static/images/map_chart.png',
                     name: '百度地图',
-                    type: 'bmap'
+                    type: 'bmap',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/china_map.png',
                     name: '中国地图',
-                    type: 'china-map'
+                    type: 'china-map',
+                    engine: 'echarts'
                 },
                 {
                     imgSrc: '/static/images/route_map.png',
                     name: '路径图',
-                    type: 'lines'
+                    type: 'lines',
+                    engine: 'echarts'
                 },
             ]
         },
@@ -189,7 +210,8 @@ function Screen(props) {
             data: [{
                 imgSrc: '/static/images/globe-echarts-gl-hello-world.jpg',
                 name: '3D地球',
-                type: 'globe-base'
+                type: 'globe-base',
+                engine: 'echarts'
             },]
         },
         {
@@ -198,27 +220,42 @@ function Screen(props) {
             data: [{
                 imgSrc: '/static/images/table_chart.png',
                 name: '表格',
-                type: 'table'
-            },{
+                type: 'table',
+                engine: 'antd-table'
+            }, {
                 imgSrc: '/static/images/text_chart.png',
                 name: '文字',
-                type: 'text'
+                type: 'text',
+                engine: 'antd-text'
             },]
         }
     ];
     const dropdownItemClick = (item) => {
         const defaultOption = find(defaultChartsOptions, { type: item.type });
         if (defaultOption) {
-            screenCharts.push({
-                id: moment().unix(),
-                zIndex: screenCharts.length,
-                echartOption: cloneDeep(defaultOption),
-                widgetSize: { width: 480, height: 270 },
-                widgetPosition: { x: 10, y: 0 }
-            });
+            if (item.engine !== 'antd-text') {
+                screenCharts.push({
+                    id: moment().unix(),
+                    zIndex: screenCharts.length,
+                    chartOption: cloneDeep(defaultOption),
+                    widgetSize: { width: 480, height: 270 },
+                    widgetPosition: { x: 10, y: 0 },
+                    engine: item.engine
+                });
+            } else {
+                screenCharts.push({
+                    id: moment().unix(),
+                    zIndex: screenCharts.length,
+                    chartOption: cloneDeep(defaultOption),
+                    widgetSize: { width: 300, height: 100 },
+                    widgetPosition: { x: 10, y: 0 },
+                    engine: item.engine
+                });
+            }
             // setScreenCharts(screenCharts);
             setScreenCharts(screenCharts);
         }
+
         console.log('dropdownItemClick', item, defaultOption, screenCharts);
     }
     const dropdownListComponent = dropdownListData.map((dropdown, index) => {
@@ -325,13 +362,10 @@ function Screen(props) {
     const copyChartItem = (e, option) => {
         e.stopPropagation();
         console.log('复制图表', option);
-        screenCharts.push({
+        screenCharts.push(assignIn(cloneDeep(option), {
             id: moment().unix(),
             zIndex: screenCharts.length,
-            echartOption: cloneDeep(option),
-            widgetSize: { width: 480, height: 270 },
-            widgetPosition: { x: 10, y: 0 }
-        });
+        }));
         resetZindex(screenCharts.length - 1);
     }
 
@@ -346,7 +380,7 @@ function Screen(props) {
                 if (isNumber(width)) {
                     return width;
                 } else if (isString(width)) {
-                    if (endsWith(width), 'px') {
+                    if (endsWith(width, 'px')) {
                         return toNumber(width.slice(0, (width.length - 2)));
                     }
                 }
@@ -355,7 +389,7 @@ function Screen(props) {
                 if (isNumber(height)) {
                     return height;
                 } else if (isString(height)) {
-                    if (endsWith(height), 'px') {
+                    if (endsWith(height, 'px')) {
                         return toNumber(height.slice(0, (height.length - 2)));
                     }
                 }
@@ -385,6 +419,27 @@ function Screen(props) {
             document.body.classList.remove(theme);
         };
     }, [theme])
+
+    const renderChartItem = (option) => {
+        let widget;
+        if (option.engine == 'echarts') {
+            widget = <ReactEcharts
+                className='chart-widget-item'
+                option={option.chartOption.option}
+                style={option.widgetSize}
+                theme={theme}
+            // showLoading={true}
+            />;
+        } else if (option.engine == 'antd-text') {
+            widget = <Input  {...option.chartOption.option} style={option.widgetSize}/>
+        } else if (option.engine == 'antd-table') {
+            const widgetHeight = option.widgetSize.height;
+            const widgetHeightNum = endsWith(widgetHeight, 'px') ? toNumber(widgetHeight.slice(0, (widgetHeight.length - 2))) : widgetHeight;
+            const pageSize = floor((widgetHeightNum - 100) / 35);
+            widget = <Table  {...option.chartOption.option} style={option.widgetSize} pagination={false} scroll={{y: widgetHeightNum - 50}}/>
+        }
+        return widget;
+    }
 
 
     return (
@@ -429,8 +484,8 @@ function Screen(props) {
                             default={{
                                 x: index * 10,
                                 y: document.documentElement.scrollTop,
-                                width: 480,
-                                height: 270,
+                                width: option.widgetSize.width,
+                                height: option.widgetSize.height,
                             }}
                             style={{ zIndex: option.zIndex }}
                             key={option.id}
@@ -458,18 +513,12 @@ function Screen(props) {
                             onDragStop={(e, data) => { widgetDragStop(e, option.id, data) }}
                         >
                             <div onClick={(e) => { activeChartItem(e, index); }}>
-                                <ReactEcharts
-                                    className='chart-widget-item'
-                                    option={option.echartOption.option}
-                                    style={option.widgetSize}
-                                    theme={theme}
-                                // showLoading={true}
-                                />
+                                {renderChartItem(option)}
                                 {(index == activeChartIndex) &&
                                     <React.Fragment>
                                         <div className="chart-item-edit">
                                             <Icon type="delete" onClick={(e) => { deleteChartItem(e, index) }} />
-                                            <Icon type="copy" onClick={(e) => { copyChartItem(e, option.echartOption) }} />
+                                            <Icon type="copy" onClick={(e) => { copyChartItem(e, option) }} />
                                             <Icon type="sync" onClick={(e) => { freshChartItem(e, index) }} />
                                         </div>
                                         <Icon type="drag" className='drag-handle' />

@@ -16,16 +16,32 @@ body.screen {
 
     .mxbi-content {
       background: #0b0c3b;
+
+      .ant-table-thead>tr>th {
+        color: #fff;
+      }
     }
   }
 
   &.vintage {
+    &::-webkit-scrollbar-thumb {
+      background: rgba(50, 50, 50, 0.3);
+    }
+
     &::-webkit-scrollbar-track {
       background: #fef8ef;
     }
 
     .mxbi-content {
       background: #fef8ef;
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(50, 50, 50, 0.3);
+      }
+
+      .ant-table-body::-webkit-scrollbar-thumb {
+        background: rgba(50, 50, 50, 0.3);
+      }
     }
   }
 
@@ -43,6 +59,10 @@ body.screen {
       background: #ffffff;
 
       &::-webkit-scrollbar-thumb {
+        background: rgba(50, 50, 50, 0.3);
+      }
+
+      .ant-table-body::-webkit-scrollbar-thumb {
         background: rgba(50, 50, 50, 0.3);
       }
     }
@@ -93,7 +113,6 @@ body.screen {
   }
 
   .mxbi-content {
-    color: #fff;
     margin-top: 66px;
     overflow-y: hidden;
 
@@ -111,10 +130,6 @@ body.screen {
       background: transparent;
     }
 
-    // h3 {
-    //   color: #fff;
-    // }
-
     .ant-affix {
       z-index: 999;
     }
@@ -126,6 +141,42 @@ body.screen {
 
       .edit-header {
         display: none;
+      }
+    }
+
+    .ant-table {
+      border: 1px solid #707070;
+
+      table {
+        background-color: transparent;
+      }
+    }
+
+    .ant-table-fixed-header .ant-table-scroll .ant-table-header::-webkit-scrollbar {
+      border: none !important;
+      min-width: 0;
+      width: 0px;
+    }
+
+    .ant-table-tbody>tr>td {
+      border-bottom: none;
+    }
+
+    .ant-table-body {
+      background: transparent !important;
+
+      &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #fff;
+        border-radius: 10px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background-color: transparent;
       }
     }
   }
