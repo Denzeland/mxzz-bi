@@ -1,0 +1,16 @@
+{
+	"parameterMappings": {
+	},
+	"isHidden": false,
+	"position": {
+		"autoHeight": false,
+		"sizeX": 2,
+		"sizeY": 7,
+		"minSizeX": 1,
+		"maxSizeX": 6,
+		"minSizeY": 5,
+		"maxSizeY": 1000,
+		"col": 1,
+		"row": 0
+	}
+}

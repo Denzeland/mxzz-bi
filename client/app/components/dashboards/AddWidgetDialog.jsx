@@ -95,7 +95,7 @@ function AddWidgetDialog({ dialog, dashboard }) {
               setSelectedVisualization(first(query.visualizations));
             }
           }
-        });
+        }); 
       }
     },
     [dashboard]

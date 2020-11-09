@@ -1,5 +1,5 @@
-import React from "react";
-import PropTypes from "prop-types";
+﻿import React, { useState, useRef, useImperativeHandle, forwardRef } from "react";
+import PropTypes, { func } from "prop-types";
 import { chain, cloneDeep, find } from "lodash";
 import cx from "classnames";
 import { Responsive, WidthProvider } from "react-grid-layout";
@@ -11,6 +11,7 @@ import { WidgetTypeEnum } from "@/services/widget";
 
 import "react-grid-layout/css/styles.css";
 import "./dashboard-grid.less";
+
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -45,14 +46,17 @@ const DashboardWidget = React.memo(
     isPublic,
     isLoading,
     filters,
+    GetWiGitId,
   }) {
     const { type } = widget;
     const onLoad = () => onLoadWidget(widget);
     const onRefresh = () => onRefreshWidget(widget);
     const onDelete = () => onRemoveWidget(widget.id);
-
+    //const onWiGitId = () => GetWiGitId();
+    {/*getData={getChildrenIdPid.bind(this)}*/ }
     if (type === WidgetTypeEnum.VISUALIZATION) {
       return (
+
         <VisualizationWidget
           widget={widget}
           dashboard={dashboard}
@@ -64,7 +68,9 @@ const DashboardWidget = React.memo(
           onRefresh={onRefresh}
           onDelete={onDelete}
           onParameterMappingsChange={onParameterMappingsChange}
+          getData={GetWiGitId}
         />
+
       );
     }
     if (type === WidgetTypeEnum.TEXTBOX) {
@@ -80,7 +86,37 @@ const DashboardWidget = React.memo(
     prevProps.filters === nextProps.filters
 );
 
+
+
+
+//const WitgetVisJsonId = React.createContext(['', '']);
+
+//const WitgetVisJsonId = React.createContext([0, 0]);
+
+//function getChildrenIdPid(visId, widId) {
+
+//  console.log(visId, widId, "第二次");
+
+//  //props.getChildId(visId, widId);
+//  //this.setState({ childrenVisId: visId, childrenWitId: widId, })
+//  //return (
+//  //  //<GlobolWiget.Provider value={{ visId: visId, widId: widId }}>
+//  //  <ToolCharts visId={visId} widId={widId} />
+//  //  //</GlobolWiget.Provider>
+//  //);
+//};
+
+
+//let ChildComp = (props, ref) => {
+//  useImperativeHandle(ref, () => ({
+
+//  }));
+//}
+
+
 class DashboardGrid extends React.Component {
+
+
   static propTypes = {
     isEditing: PropTypes.bool.isRequired,
     isPublic: PropTypes.bool,
@@ -93,18 +129,21 @@ class DashboardGrid extends React.Component {
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
     onParameterMappingsChange: PropTypes.func,
+    onLookWidget: PropTypes.func,
   };
 
   static defaultProps = {
     isPublic: false,
     filters: [],
-    onLoadWidget: () => {},
-    onRefreshWidget: () => {},
-    onRemoveWidget: () => {},
-    onLayoutChange: () => {},
-    onBreakpointChange: () => {},
-    onParameterMappingsChange: () => {},
+    onLoadWidget: () => { },
+    onRefreshWidget: () => { },
+    onRemoveWidget: () => { },
+    onLayoutChange: () => { },
+    onBreakpointChange: () => { },
+    onParameterMappingsChange: () => { },
+    onLookWidget: () => { },
   };
+
 
   static normalizeFrom(widget) {
     const {
@@ -129,18 +168,29 @@ class DashboardGrid extends React.Component {
 
   autoHeightCtrl = null;
 
-  constructor(props) {
-    super(props);
 
+  constructor(props, ref) {
+    super(props);
     this.state = {
       layouts: {},
       disableAnimations: true,
+      childrenVisId: '',
+      childrenWitId: '',
     };
+
+    
+
 
     // init AutoHeightController
     this.autoHeightCtrl = new AutoHeightController(this.onWidgetHeightUpdated);
     this.autoHeightCtrl.update(this.props.widgets);
   }
+
+
+
+  //getChildIdOn(visId, widId) {
+  //  this.props.getChildId(visId, widId);
+  //}
 
   componentDidMount() {
     this.onBreakpointChange(document.body.offsetWidth <= cfg.mobileBreakPoint ? SINGLE : MULTI);
@@ -222,7 +272,15 @@ class DashboardGrid extends React.Component {
     autoHeight: this.autoHeightCtrl.exists(layout.i),
   });
 
+  //getChildrenIdPid = (visId, widId) => {
+  //  console.log(visId, widId, "第二次");
+  //};
+  LoadChange = () => {
+    alert("11");
+  }
+
   render() {
+    //console.log(this.props.VisualizationsId);
     const className = cx("dashboard-wrapper", this.props.isEditing ? "editing-mode" : "preview-mode");
     const {
       onLoadWidget,
@@ -233,8 +291,8 @@ class DashboardGrid extends React.Component {
       dashboard,
       isPublic,
       widgets,
+      getChildrenIdPid,
     } = this.props;
-
     return (
       <div className={className}>
         <ResponsiveGridLayout
@@ -270,6 +328,7 @@ class DashboardGrid extends React.Component {
                 onRefreshWidget={onRefreshWidget}
                 onRemoveWidget={onRemoveWidget}
                 onParameterMappingsChange={onParameterMappingsChange}
+                GetWiGitId={getChildrenIdPid}
               />
             </div>
           ))}

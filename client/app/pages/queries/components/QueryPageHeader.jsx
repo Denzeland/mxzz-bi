@@ -21,6 +21,7 @@ import useDuplicateQuery from "../hooks/useDuplicateQuery";
 import useApiKeyDialog from "../hooks/useApiKeyDialog";
 import usePermissionsEditorDialog from "../hooks/usePermissionsEditorDialog";
 
+
 import "./QueryPageHeader.less";
 
 function getQueryTags() {

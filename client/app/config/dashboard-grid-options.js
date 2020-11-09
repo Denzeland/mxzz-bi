@@ -6,7 +6,7 @@ export default {
   // defaults for widgets
   defaultSizeX: 3,
   defaultSizeY: 3,
-  minSizeX: 1,
+  minSizeX: 0.2,
   maxSizeX: 6,
   minSizeY: 1,
   maxSizeY: 1000,

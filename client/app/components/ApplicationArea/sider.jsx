@@ -5,6 +5,8 @@ import { Layout, Menu, Icon, Button, Dropdown } from 'antd';
 import { Query } from "@/services/query";
 import { Dashboard } from "@/services/dashboard";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+import { LeftDialog } from "@/components/cold/LeftDialog";
+
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -13,6 +15,10 @@ export default function DesktopSider({ collapsed }) {
   const showCreateDashboardDialog = useCallback(() => {
     CreateDashboardDialog.showModal();
   }, []);
+
+  //const ShowLeftDialog = useCallback(() => {
+  //  LeftDialog;
+  //});
 
   return (
     <Sider trigger={null} collapsible collapsed={collapsed} data-platform="desktop" className="mxbi-aside">
@@ -68,6 +74,11 @@ export default function DesktopSider({ collapsed }) {
             {currentUser.hasPermission("list_alerts") && (
               <Menu.Item key="new-alert">
                 <a href="alerts/new">{__("New Alert")}</a>
+              </Menu.Item>
+            )}
+            {currentUser.hasPermission("list_alerts") && (
+              <Menu.Item key="new-cold">
+                <a href="cold/Left">测试</a>
               </Menu.Item>
             )}
           </SubMenu>

@@ -84,7 +84,7 @@ from redash.handlers.visualizations import (
 )
 from redash.handlers.widgets import WidgetListResource, WidgetResource
 from redash.utils import json_dumps
-
+from redash.handlers.custom_api import CustomApi
 
 class ApiExt(Api):
     def add_org_resource(self, resource, *urls, **kwargs):
@@ -313,3 +313,14 @@ api.add_org_resource(
 api.add_org_resource(
     OrganizationSettings, "/api/settings/organization", endpoint="organization_settings"
 )
+
+api.add_org_resource(CustomApi,"/api/select",endpoint="DashboardStyle")
+
+
+api.add_org_resource(CustomApi,"/api/update",endpoint="DashboardStyles")
+
+
+api.add_org_resource(
+    CustomApi, "/api/visualizations/<visualization_id>/refresh", endpoint="visualization_refresh"
+)
+

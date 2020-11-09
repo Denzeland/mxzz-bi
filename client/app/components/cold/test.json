@@ -1,0 +1,64 @@
+{
+  "globalSeriesType": "pie",
+  "sortX": true,
+  "legend": {
+    "enabled": true,
+    "placement": "below"
+  },
+  "yAxis": [
+    {
+      "type": "linear",
+      "rangeMin": 1,
+      "rangeMax": 20
+    },
+    {
+      "type": "category",
+      "opposite": true
+    }
+  ],
+  "xAxis": {
+    "type": "-",
+    "labels": { "enabled": true }
+  },
+  "error_y": {
+    "type": "data",
+    "visible": true
+  },
+  "series": {
+    "stacking": null,
+    "error_y": {
+      "type": "data",
+      "visible": true
+    },
+    "percentValues": false
+  },
+  "seriesOptions": {
+    "count": {
+      "yAxis": 0,
+      "type": "pie",
+      "color": "#A55F2A",
+      "name": "count"
+    }
+  },
+  "valuesOptions": {
+    "false": { "color": "#FB8D3D" },
+    "true": { "color": "#B554FF" }
+  },
+  "columnMapping": {
+    "active": "x",
+    "count": "y"
+  },
+  "direction": { "type": "counterclockwise" },
+  "sizemode": "diameter",
+  "coefficient": 1,
+  "numberFormat": "0,0[.]00000",
+  "percentFormat": "0[.]00%",
+  "textFormat": "",
+  "missingValuesAsZero": false,
+  "showDataLabels": true,
+  "dateTimeFormat": "DD/MM/YY HH:mm",
+  "colorScheme": "Custom...",
+  "heatMinColor": "#3BD973",
+  "heatMaxColor": "#E92828",
+  "reverseX": true
+}

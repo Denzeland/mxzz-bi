@@ -1,7 +1,7 @@
-﻿import React from "react";
+﻿import React, { useState } from "react";
 import cx from "classnames";
-import PropTypes from "prop-types";
-import { map, includes } from "lodash";
+import PropTypes, { func } from "prop-types";
+import { map, includes, functions } from "lodash";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
@@ -16,8 +16,11 @@ import { clientConfig } from "@/services/auth";
 import { policy } from "@/services/policy";
 import { durationHumanize } from "@/lib/utils";
 import { DashboardStatusEnum } from "../hooks/useDashboard";
+import cs from "classnames";
 
 import "./DashboardHeader.less";
+
+
 
 
 function getDashboardTags() {
@@ -182,6 +185,12 @@ function DashboardControl({ dashboardOptions }) {
   const showFullscreenButton = !dashboard.is_draft;
   const showShareButton = dashboard.publicAccessEnabled || (canEditDashboard && !dashboard.is_draft);
   const showMoreOptionsButton = canEditDashboard;
+
+  function ChangeColors() {
+
+    var obj = document.getElementsByClassName("dashboard-page");
+  }
+
   return (
     <div className="dashboard-control">
       {!dashboard.is_archived && (
@@ -274,3 +283,5 @@ export default function DashboardHeader({ dashboardOptions }) {
 DashboardHeader.propTypes = {
   dashboardOptions: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
+
+

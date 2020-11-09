@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+﻿import React, { useState } from "react";
+import PropTypes, { func } from "prop-types";
 import { compact, isEmpty, invoke } from "lodash";
 import { markdown } from "markdown";
 import cx from "classnames";
@@ -18,8 +18,13 @@ import ExpandedWidgetDialog from "@/components/dashboards/ExpandedWidgetDialog";
 import EditParameterMappingsDialog from "@/components/dashboards/EditParameterMappingsDialog";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import Widget from "./Widget";
+import { axios } from "@/services/axios";
+import { local } from "d3";
+import { log } from "debug";
 
-function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit }) {
+
+
+function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParametersEdit, onLook }) {
   const canViewQuery = currentUser.hasPermission("view_query");
   const canEditParameters = canEditDashboard && !isEmpty(invoke(widget, "query.getParametersDefs"));
   const widgetQueryResult = widget.getQueryResult();
@@ -27,6 +32,7 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
 
   const downloadLink = fileType => widgetQueryResult.getLink(widget.getQuery().id, fileType);
   const downloadName = fileType => widgetQueryResult.getName(widget.getQuery().name, fileType);
+
   return compact([
     <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
@@ -34,8 +40,8 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
           {__("Download as CSV File")}
         </a>
       ) : (
-        __("Download as CSV File")
-      )}
+          __("Download as CSV File")
+        )}
     </Menu.Item>,
     <Menu.Item key="download_tsv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
@@ -43,8 +49,8 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
           {__("Download as TSV File")}
         </a>
       ) : (
-        __("Download as TSV File")
-      )}
+          __("Download as TSV File")
+        )}
     </Menu.Item>,
     <Menu.Item key="download_excel" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
@@ -52,8 +58,8 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
           {__("Download as Excel File")}
         </a>
       ) : (
-        __("Download as Excel File")
-      )}
+          __("Download as Excel File")
+        )}
     </Menu.Item>,
     (canViewQuery || canEditParameters) && <Menu.Divider key="divider" />,
     canViewQuery && (
@@ -61,13 +67,56 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
         <a href={widget.getQuery().getUrl(true, widget.visualization.id)}>{__("View Query")}</a>
       </Menu.Item>
     ),
+    //<Menu.Item key="view_property" onClick={() => PropertyGet(widget.visualization.id, widget.id)}>
+    //  查看属性
+    //</Menu.Item>,
+    //onClick = {() => onLook(widget.visualization.id, widget.id)}
+    <Menu.Item key="view_property" onClick={onLook.bind(this, widget.visualization.id, widget.id)}>
+      查看属性
+    </Menu.Item>,
     canEditParameters && (
       <Menu.Item key="edit_parameters" onClick={onParametersEdit}>
         {__("Edit Parameters")}
       </Menu.Item>
     ),
+    //<Menu.Item key="view_property" onClick={() => PropertyGet(widget.visualization.id, widget.id)}>
+    //  {/*<a href={widget.getQuery().getUrl(true, widget.visualization.id)}>查看属性</a>*/}
+    //  查看属性
+    //</Menu.Item>,
   ]);
 }
+
+//function PropertyGet(Pids, Wids) {
+//  console.log(Wids);
+//  if (Pids != "" && Pids != null && Pids != undefined) {
+//    // select t1.id,t1.type,t1.options as VisualizationsJson,t2.id,t2.options as WidgetJson from public.visualizations t1 
+//    //left join public.widgets t2 on t1.id = t2.visualization_id where t1.id = 7 and t2.id = 10
+//    var sql = "select t1.id,t1.type,t1.options as VisualizationsJson,t2.id,t2.options as WidgetJson from public.visualizations t1 left join public.widgets t2 on t1.id = t2.visualization_id";
+//    sql += " where t1.id = " + Pids + " and t2.id = " + Wids;
+//    axios.get('/api/select?sql=' + sql).then(function (response) {
+//      console.log(response.data);
+//      switch (response.data[0]["t1.type"]) {
+//        case "CHART":
+//          console.log(response.data[0]["t1.options as VisualizationsJson"]);
+//          console.log(response.data[0]["t2.options as WidgetJson"]);
+//          break;
+//        case "TABLE":
+//          console.log(response.data[0]["t1.type"]);
+//          break;
+//        case "FUNNEL":
+//          console.log(response.data[0]["t1.type"]);
+//          break;
+//        case "MAP":
+//          console.log(response.data[0]["t1.type"]);
+//          break;
+//        default:
+//          break;
+//      }
+//    }).catch(function (error) {
+//      console.log(error);
+//    });
+//  }
+//}
 
 function RefreshIndicator({ refreshStartedAt }) {
   return (
@@ -119,7 +168,7 @@ VisualizationWidgetHeader.propTypes = {
 
 VisualizationWidgetHeader.defaultProps = {
   refreshStartedAt: null,
-  onParametersUpdate: () => {},
+  onParametersUpdate: () => { },
   parameters: [],
 };
 
@@ -181,6 +230,7 @@ VisualizationWidgetFooter.propTypes = {
 
 VisualizationWidgetFooter.defaultProps = { isPublic: false };
 
+
 class VisualizationWidget extends React.Component {
   static propTypes = {
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
@@ -193,23 +243,34 @@ class VisualizationWidget extends React.Component {
     onRefresh: PropTypes.func,
     onDelete: PropTypes.func,
     onParameterMappingsChange: PropTypes.func,
+    onLook: PropTypes.func,
   };
+
 
   static defaultProps = {
     filters: [],
     isPublic: false,
     isLoading: false,
     canEdit: false,
-    onLoad: () => {},
-    onRefresh: () => {},
-    onDelete: () => {},
-    onParameterMappingsChange: () => {},
+    onLoad: () => { },
+    onRefresh: () => { },
+    onDelete: () => { },
+    onParameterMappingsChange: () => { },
+    onLook: () => { },
   };
 
   constructor(props) {
     super(props);
-    this.state = { localParameters: props.widget.getLocalParameters() };
+    this.state = { localParameters: props.widget.getLocalParameters(), VisualizationsId: '', WidgetId: '' };
   }
+
+
+  onLook = (visId, widId) => {
+    console.log(visId, widId, "第一次");
+    this.setState({ VisualizationsId: visId, WidgetId: widId });
+    this.props.getData(visId, widId);
+    //this.props.getData(this.state.VisualizationsId, this.state.WidgetId);
+  };
 
   componentDidMount() {
     const { widget, onLoad } = this.props;
@@ -236,6 +297,42 @@ class VisualizationWidget extends React.Component {
       this.setState({ localParameters: widget.getLocalParameters() });
     });
   };
+
+  //onLook = () => {
+
+  //var VisualizationsJson;
+  //var WidgetJson;
+  //if (Pids != "" && Pids != null && Pids != undefined) {
+  //  // select t1.id,t1.type,t1.options as VisualizationsJson,t2.id,t2.options as WidgetJson from public.visualizations t1 
+  //  //left join public.widgets t2 on t1.id = t2.visualization_id where t1.id = 7 and t2.id = 10
+  //  var sql = "select t1.id,t1.type,t1.options as VisualizationsJson,t2.id,t2.options as WidgetJson from public.visualizations t1 left join public.widgets t2 on t1.id = t2.visualization_id";
+  //  sql += " where t1.id = " + Pids + " and t2.id = " + Wids;
+  //  axios.get('/api/select?sql=' + sql).then(function (response) {
+  //    console.log(response.data);
+  //    switch (response.data[0]["t1.type"]) {
+  //      case "CHART":
+  //        VisualizationsJson = response.data[0]["t1.options as VisualizationsJson"];
+  //        WidgetJson = response.data[0]["t2.options as WidgetJson"];
+  //        this.setState({ VisualizationsJson: VisualizationsJson, WidgetJson: WidgetJson }, () => { console.log(this.state.VisualizationsJson); });
+  //        break;
+  //      case "TABLE":
+  //        console.log(response.data[0]["t1.type"]);
+  //        break;
+  //      case "FUNNEL":
+  //        console.log(response.data[0]["t1.type"]);
+  //        break;
+  //      case "MAP":
+  //        console.log(response.data[0]["t1.type"]);
+  //        break;
+  //      default:
+  //        break;
+  //    }
+  //  }).catch(function (error) {
+  //    console.log(error);
+  //  });
+
+  //  }
+  //};
 
   renderVisualization() {
     const { widget, filters } = this.props;
@@ -288,6 +385,7 @@ class VisualizationWidget extends React.Component {
           widget,
           canEditDashboard: canEdit,
           onParametersEdit: this.editParameterMappings,
+          onLook: this.onLook,
         })}
         header={
           <VisualizationWidgetHeader

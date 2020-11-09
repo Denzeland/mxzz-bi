@@ -9,8 +9,9 @@ import recordEvent from "@/services/recordEvent";
 import { Moment } from "@/components/proptypes";
 
 import "./Widget.less";
+import { Mention } from "antd";
 
-function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
+function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete, onLookProp }) {
   const WidgetMenu = (
     <Menu data-test="WidgetDropdownButtonMenu">
       {extraOptions}
@@ -39,7 +40,7 @@ WidgetDropdownButton.propTypes = {
 WidgetDropdownButton.defaultProps = {
   extraOptions: null,
   showDeleteOption: false,
-  onDelete: () => {},
+  onDelete: () => { },
 };
 
 function WidgetDeleteButton({ onClick }) {
@@ -53,7 +54,7 @@ function WidgetDeleteButton({ onClick }) {
 }
 
 WidgetDeleteButton.propTypes = { onClick: PropTypes.func };
-WidgetDeleteButton.defaultProps = { onClick: () => {} };
+WidgetDeleteButton.defaultProps = { onClick: () => { } };
 
 class Widget extends React.Component {
   static propTypes = {
@@ -80,7 +81,7 @@ class Widget extends React.Component {
     refreshStartedAt: null,
     menuOptions: null,
     tileProps: {},
-    onDelete: () => {},
+    onDelete: () => { },
   };
 
   componentDidMount() {
