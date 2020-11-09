@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table } from 'antd';
+import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table, Drawer, Button } from 'antd';
 import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, trim, compact, floor, assignIn } from "lodash";
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
@@ -38,6 +38,7 @@ function Screen(props) {
     const sizeReducer = (prevState, updatedProperty) => ({ ...prevState, ...updatedProperty });
     const [activeChartIndex, setActiveChartIndex] = useState(null);
     const [screenViewMode, setScreenViewMode] = useState('edit');
+    const [chartItemInEdit, setChartItemInEdit] = useState(false);
     document.addEventListener("fullscreenchange", function (event) {
         if (document.fullscreenElement) {
             setScreenViewMode('preview');
@@ -431,12 +432,12 @@ function Screen(props) {
             // showLoading={true}
             />;
         } else if (option.engine == 'antd-text') {
-            widget = <Input  {...option.chartOption.option} style={option.widgetSize}/>
+            widget = <Input  {...option.chartOption.option} style={option.widgetSize} />
         } else if (option.engine == 'antd-table') {
             const widgetHeight = option.widgetSize.height;
             const widgetHeightNum = endsWith(widgetHeight, 'px') ? toNumber(widgetHeight.slice(0, (widgetHeight.length - 2))) : widgetHeight;
             const pageSize = floor((widgetHeightNum - 100) / 35);
-            widget = <Table  {...option.chartOption.option} style={option.widgetSize} pagination={false} scroll={{y: widgetHeightNum - 50}}/>
+            widget = <Table  {...option.chartOption.option} style={option.widgetSize} pagination={false} scroll={{ y: widgetHeightNum - 50 }} />
         }
         return widget;
     }
@@ -520,6 +521,7 @@ function Screen(props) {
                                             <Icon type="delete" onClick={(e) => { deleteChartItem(e, index) }} />
                                             <Icon type="copy" onClick={(e) => { copyChartItem(e, option) }} />
                                             <Icon type="sync" onClick={(e) => { freshChartItem(e, index) }} />
+                                            <Icon type="edit" onClick={(e) => { setChartItemInEdit(true) }} />
                                         </div>
                                         <Icon type="drag" className='drag-handle' />
                                     </React.Fragment>
@@ -529,6 +531,33 @@ function Screen(props) {
                     )
                 })}
             </div>
+            <Drawer
+                title="配置图表"
+                width={720}
+                visible={chartItemInEdit}
+                bodyStyle={{ paddingBottom: 80 }}
+                onClose={() => {setChartItemInEdit(false)}}
+            >
+                <div
+                    style={{
+                        position: 'absolute',
+                        right: 0,
+                        bottom: 0,
+                        width: '100%',
+                        borderTop: '1px solid #e9e9e9',
+                        padding: '10px 16px',
+                        background: '#fff',
+                        textAlign: 'right',
+                    }}
+                >
+                    <Button onClick={() => {setChartItemInEdit(false)}} style={{ marginRight: 8 }}>
+                        取消
+                    </Button>
+                    <Button onClick={() => {setChartItemInEdit(false)}} type="primary">
+                        确定
+                    </Button>
+                </div>
+            </Drawer>
         </React.Fragment>
     )
 }
