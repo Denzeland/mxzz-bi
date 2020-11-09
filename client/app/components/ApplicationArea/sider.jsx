@@ -5,8 +5,13 @@ import { Layout, Menu, Icon, message, Dropdown } from 'antd';
 import { Query } from "@/services/query";
 import { Dashboard } from "@/services/dashboard";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
+
+import { LeftDialog } from "@/components/cold/LeftDialog";
+
+
 import NewScreenDialog from '@/pages/screen/NewScreenDialog';
 import location from "@/services/location";
+
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -79,6 +84,11 @@ export default function DesktopSider({ collapsed }) {
             {currentUser.hasPermission("list_alerts") && (
               <Menu.Item key="new-alert">
                 <a href="alerts/new">{__("New Alert")}</a>
+              </Menu.Item>
+            )}
+            {currentUser.hasPermission("list_alerts") && (
+              <Menu.Item key="new-cold">
+                <a href="cold/Left">测试</a>
               </Menu.Item>
             )}
           </SubMenu>
