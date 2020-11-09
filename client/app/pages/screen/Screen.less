@@ -17,7 +17,7 @@ body.screen {
     .mxbi-content {
       background: #0b0c3b;
 
-      .ant-table-thead>tr>th {
+      .ant-table-thead > tr > th {
         color: #fff;
       }
     }
@@ -42,6 +42,48 @@ body.screen {
       .ant-table-body::-webkit-scrollbar-thumb {
         background: rgba(50, 50, 50, 0.3);
       }
+    }
+    // 主题文本框字体默认颜色 2020-11-9 寒芜
+    .ant-input {
+      color: black;
+    }
+  }
+
+  &.science, &.chalk, &.purple-passion {
+    // 主题文本框字体默认颜色 2020-11-9 寒芜
+    .ant-input {
+      color: white;
+    }
+  }
+
+  &.shine {
+    // 主题文本框字体默认颜色 2020-11-9 寒芜
+    .ant-input {
+      color: black;
+      font-weight: normal;
+    }
+  }
+
+  &.macarons {
+    // 主题文本框字体默认颜色 2020-11-9 寒芜
+    .ant-input {
+      color: #2196f3;
+      font-weight: normal;
+    }
+  }
+
+  &.infographic {
+    // 主题文本框字体默认颜色 2020-11-9 寒芜
+    .ant-input {
+      color: #27727B;
+      font-weight: normal;
+    }
+  }
+
+  &.westeros {
+    // 主题文本框字体默认颜色 2020-11-9 寒芜
+    .ant-input {
+      color: #61789B;
     }
   }
 
@@ -89,6 +131,10 @@ body.screen {
 
     .mxbi-content {
       background: #f2eabf;
+    }
+    // 主题文本框字体默认颜色 2020-11-9 寒芜
+    .ant-input {
+      color: #893448;
     }
   }
 
@@ -158,7 +204,7 @@ body.screen {
       width: 0px;
     }
 
-    .ant-table-tbody>tr>td {
+    .ant-table-tbody > tr > td {
       border-bottom: none;
     }
 
@@ -341,7 +387,6 @@ body.screen {
       text-align: center;
       list-style: none;
       border-radius: 4px;
-
       cursor: pointer;
       border: 1px solid #464859;
       -webkit-transition: color .3s ease-in-out, background-color .3s ease-in-out;
@@ -461,6 +506,22 @@ body.screen {
       bottom: -8px !important;
       right: -8px !important;
     }
+  }
+  //2020-11-9 寒芜 修改图表的文字（文本框）样式
+  .ant-input {
+    border-color: transparent;
+    background-color: transparent;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .ant-input:hover {
+    border-color: transparent;
+  }
+
+  .ant-input:focus {
+    border-color: transparent;
+    box-shadow: none;
   }
 
   .chart-item-edit {
