@@ -24,7 +24,8 @@ import querySnippetsRoutes from "./query-snippets/QuerySnippetsList";
 import organizationSettingsRoutes from "./settings/OrganizationSettings";
 import userProfileRoutes from "./users/UserProfile";
 import usersListRoutes from "./users/UsersList";
-import leftdialogRoutes from "./cold/Left";
+import datasetRoutes from "./dataset/Dataset";
+import screenRoutes from "./screen/Screen";
 
 export default flatten([
   adminJobsRoutes,
@@ -51,5 +52,6 @@ export default flatten([
   organizationSettingsRoutes,
   usersListRoutes,
   userProfileRoutes,
-  leftdialogRoutes,
+  datasetRoutes,
+  screenRoutes,
 ]);

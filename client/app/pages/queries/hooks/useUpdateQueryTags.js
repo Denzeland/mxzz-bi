@@ -7,6 +7,7 @@ export default function useUpdateQueryTags(query, onChange) {
 
   return useCallback(
     tags => {
+      console.log('更新tag', tags);
       recordEvent("edit_tags", "query", query.id);
       updateQuery({ tags });
     },

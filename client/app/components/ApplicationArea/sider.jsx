@@ -1,12 +1,12 @@
 import React, { useCallback, useRef } from "react";
 import { currentUser, Auth, clientConfig } from "@/services/auth";
 import FavoritesDropdown from "./ApplicationHeader/FavoritesDropdown";
-import { Layout, Menu, Icon, Button, Dropdown } from 'antd';
+import { Layout, Menu, Icon, message, Dropdown } from 'antd';
 import { Query } from "@/services/query";
 import { Dashboard } from "@/services/dashboard";
 import CreateDashboardDialog from "@/components/dashboards/CreateDashboardDialog";
-import { LeftDialog } from "@/components/cold/LeftDialog";
-
+import NewScreenDialog from '@/pages/screen/NewScreenDialog';
+import location from "@/services/location";
 
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -16,9 +16,14 @@ export default function DesktopSider({ collapsed }) {
     CreateDashboardDialog.showModal();
   }, []);
 
-  //const ShowLeftDialog = useCallback(() => {
-  //  LeftDialog;
-  //});
+  const showNewScreenDialog = useCallback(() => {
+    console.log('新建大屏', location.path);
+    if(location.path == '/screen') {
+      message.error('要先退出编辑才能新建大屏！');
+    } else {
+      NewScreenDialog.showModal();
+    }
+  }, []);
 
   return (
     <Sider trigger={null} collapsible collapsed={collapsed} data-platform="desktop" className="mxbi-aside">
@@ -76,12 +81,23 @@ export default function DesktopSider({ collapsed }) {
                 <a href="alerts/new">{__("New Alert")}</a>
               </Menu.Item>
             )}
-            {currentUser.hasPermission("list_alerts") && (
-              <Menu.Item key="new-cold">
-                <a href="cold/Left">测试</a>
-              </Menu.Item>
-            )}
           </SubMenu>
+        )}
+        {currentUser.hasPermission("view_query") && (
+          <Menu.Item key="dataset" className="dropdown-menu-item">
+            <Icon type="search" />
+            <span>
+              <a href="dataset/new" className="side-href">数据集</a>
+            </span>
+          </Menu.Item>
+        )}
+        {currentUser.hasPermission("create_dashboard") && (
+          <Menu.Item key="screen" className="dropdown-menu-item">
+            <Icon type="fullscreen" />
+            <span>
+              <a onMouseUp={showNewScreenDialog} className="side-href">可视化大屏</a>
+            </span>
+          </Menu.Item>
         )}
       </Menu>
     </Sider>

@@ -4,6 +4,20 @@ import { clientConfig } from "@/services/auth";
 
 moment.locale('zh-cn');
 
+export function dealEllipsis(name) {
+  // 排除undefined、null、""
+  if (!name) {
+    return "--";
+  } else {
+    name += "";
+    if (name.length > 8) {
+      // 超出部分显示...
+      name = name.substring(0, 8) + "...";
+    }
+    return name;
+  }
+}
+
 export const IntervalEnum = {
   NEVER: __("Never"),
   SECONDS: __("second"),

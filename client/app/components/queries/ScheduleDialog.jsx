@@ -197,6 +197,7 @@ class ScheduleDialog extends React.Component {
       seconds,
       newSchedule: { until },
     } = this.state;
+    console.log('刷新间隔state', this.state, WEEKDAYS_FULL, WEEKDAYS_SHORT, this.intervals);
 
     return (
       <Modal {...dialog.props} title="刷新调度计划" className="schedule" onOk={() => this.save()}>

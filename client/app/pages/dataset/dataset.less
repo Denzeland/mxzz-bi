@@ -1,0 +1,90 @@
+.dataset-guide {
+  // background: #fff;
+  height: auto !important;
+
+  .steps-content {
+    min-height: 200px;
+    padding: 20px 15px;
+  }
+
+  .data-source-radio-content {
+    .data-source-radio-search-input {
+      margin: 20px 15px;
+      max-width: 38%;
+      display: block;
+    }
+  }
+}
+
+.dataset-edit {
+  padding-right: 8px;
+  .edit-drag-drop {
+    height: 50%;
+    flex-grow: unset;
+
+    .drop-hover {
+      border: 3px dashed #f80e09;
+    }
+
+    .content {
+      text-align: center;
+      margin-right: 8px;
+      position: relative;
+      -ms-overflow-style: none;
+      overflow: -moz-scrollbars-none;
+      &::-webkit-scrollbar { width: 0 !important }
+    }
+  }
+
+  .dataset-edit-header {
+    margin-bottom: 5px;
+    background: #fff;
+    margin-top: -10px;
+    box-shadow: rgba(102, 136, 153, 0.15) 0 4px 9px -3px;
+    padding: 0 10px;
+  }
+  .dataset-edit-nav {
+    padding-top: 10px;
+  }
+}
+
+.dynamic-delete-button {
+  cursor: pointer;
+  position: relative;
+  top: 4px;
+  font-size: 24px;
+  color: #999;
+  transition: all 0.3s;
+}
+.dynamic-delete-button:hover {
+  color: #777;
+}
+.dynamic-delete-button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.g6-tooltip {
+  padding: 10px 6px;
+  color: #444;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e2e2e2;
+  border-radius: 4px;
+}
+
+.datajoin-result {
+  background: #fff;
+  padding: 0;
+  min-height: 50%;
+  margin: 10px 0px;
+  box-shadow: rgba(102, 136, 153, 0.15) 0 4px 9px -3px;
+}
+
+.query-fullscreen.datajoin-result .query-results-wrapper {
+  width: 100%;
+  .ant-tabs .ant-tabs-content {
+    position: unset;
+    .ant-tabs-tabpane {
+      top: 50px;
+    }
+  }
+}
