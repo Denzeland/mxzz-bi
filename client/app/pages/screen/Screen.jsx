@@ -35,10 +35,11 @@ function Screen(props) {
     const search = location.search;
     const theme = search.template;
     const reducer = (prevState, updatedProperty) => ([...updatedProperty]);
-    const sizeReducer = (prevState, updatedProperty) => ({ ...prevState, ...updatedProperty });
+    const objReducer = (prevState, updatedProperty) => ({ ...prevState, ...updatedProperty });
     const [activeChartIndex, setActiveChartIndex] = useState(null);
     const [screenViewMode, setScreenViewMode] = useState('edit');
     const [chartItemInEdit, setChartItemInEdit] = useState(false);
+    const [currentEditChartOption, setCurrentEditChartOption] = useReducer(objReducer, null);
     document.addEventListener("fullscreenchange", function (event) {
         if (document.fullscreenElement) {
             setScreenViewMode('preview');
@@ -57,7 +58,7 @@ function Screen(props) {
      *  engine: 'echarts' or 'antd-*'
     }]
      */
-    const [screenSize, setScreenSize] = useReducer(sizeReducer, { width: 'auto', height: 'auto' });
+    const [screenSize, setScreenSize] = useReducer(objReducer, { width: 'auto', height: 'auto' });
     const [screenCharts, setScreenCharts] = useReducer(reducer, []);
     useUnsavedChangesAlert(screenCharts.length > 0);
     const dropdownListData = [
@@ -442,6 +443,12 @@ function Screen(props) {
         return widget;
     }
 
+    const editChartItem = (e, option) => {
+        e.stopPropagation();
+        setCurrentEditChartOption(cloneDeep(option));
+        setChartItemInEdit(true);
+    }
+
 
     return (
         <React.Fragment>
@@ -521,7 +528,7 @@ function Screen(props) {
                                             <Icon type="delete" onClick={(e) => { deleteChartItem(e, index) }} />
                                             <Icon type="copy" onClick={(e) => { copyChartItem(e, option) }} />
                                             <Icon type="sync" onClick={(e) => { freshChartItem(e, index) }} />
-                                            <Icon type="edit" onClick={(e) => { setChartItemInEdit(true) }} />
+                                            <Icon type="edit" onClick={(e) => { editChartItem(e, option) }} />
                                         </div>
                                         <Icon type="drag" className='drag-handle' />
                                     </React.Fragment>
@@ -536,8 +543,11 @@ function Screen(props) {
                 width={720}
                 visible={chartItemInEdit}
                 bodyStyle={{ paddingBottom: 80 }}
-                onClose={() => {setChartItemInEdit(false)}}
+                onClose={() => { setChartItemInEdit(false) }}
             >
+                <div className="chart-item-preview">
+                    {currentEditChartOption ? renderChartItem(currentEditChartOption) : null}
+                </div>
                 <div
                     style={{
                         position: 'absolute',
@@ -550,10 +560,10 @@ function Screen(props) {
                         textAlign: 'right',
                     }}
                 >
-                    <Button onClick={() => {setChartItemInEdit(false)}} style={{ marginRight: 8 }}>
+                    <Button onClick={() => { setChartItemInEdit(false) }} style={{ marginRight: 8 }}>
                         取消
                     </Button>
-                    <Button onClick={() => {setChartItemInEdit(false)}} type="primary">
+                    <Button onClick={() => { setChartItemInEdit(false) }} type="primary">
                         确定
                     </Button>
                 </div>
