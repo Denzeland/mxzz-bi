@@ -36,10 +36,11 @@ function Screen(props) {
     const theme = search.template;
     const reducer = (prevState, updatedProperty) => ([...updatedProperty]);
     const objReducer = (prevState, updatedProperty) => ({ ...prevState, ...updatedProperty });
+    const currentChartObjReducer = (prevState, updatedProperty) => ({ ...updatedProperty });
     const [activeChartIndex, setActiveChartIndex] = useState(null);
     const [screenViewMode, setScreenViewMode] = useState('edit');
     const [chartItemInEdit, setChartItemInEdit] = useState(false);
-    const [currentEditChartOption, setCurrentEditChartOption] = useReducer(objReducer, null);
+    const [currentEditChartOption, setCurrentEditChartOption] = useReducer(currentChartObjReducer, null);
     document.addEventListener("fullscreenchange", function (event) {
         if (document.fullscreenElement) {
             setScreenViewMode('preview');
@@ -444,8 +445,11 @@ function Screen(props) {
     }
 
     const editChartItem = (e, option) => {
+        console.log('传入的option', option);
+        const editChartOption = cloneDeep(option);
         e.stopPropagation();
-        setCurrentEditChartOption(cloneDeep(option));
+        setCurrentEditChartOption(editChartOption);
+        console.log('当前编辑的option', editChartOption); 
         setChartItemInEdit(true);
     }
 
@@ -463,14 +467,6 @@ function Screen(props) {
                         <React.Fragment>
                             <ul className="screen-edit-btn-wrap">
                                 {dropdownListComponent}
-                                {/* <li>
-                                    <Icon type="table" />
-                                    <span>表格</span>
-                                </li>
-                                <li>
-                                    <i className="fa fa-text-width" aria-hidden="true"></i>
-                                    <span>文字</span>
-                                </li> */}
                             </ul>
                             <ul className="screen-edit-extra">
                                 <li onClick={onPreview}>
@@ -546,7 +542,7 @@ function Screen(props) {
                 onClose={() => { setChartItemInEdit(false) }}
             >
                 <div className="chart-item-preview">
-                    {currentEditChartOption ? renderChartItem(currentEditChartOption) : null}
+                    {chartItemInEdit && (currentEditChartOption ? renderChartItem(currentEditChartOption) : null)}
                 </div>
                 <div
                     style={{
