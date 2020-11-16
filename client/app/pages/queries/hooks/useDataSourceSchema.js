@@ -55,7 +55,7 @@ export default function useDataSourceSchema(dataSource) {
         .toString(36)
         .substr(2);
       refreshSchemaTokenRef.current = refreshToken;
-      getSchema(dataSource, refresh).then(data => {
+      getSchema(dataSource).then(data => {
         if (refreshSchemaTokenRef.current === refreshToken) {
           setSchema(prepareSchema(data));
         }

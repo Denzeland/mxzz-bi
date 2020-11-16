@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table, Drawer, Button } from 'antd';
-import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, trim, compact, floor, assignIn } from "lodash";
+import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table, Drawer, Button, Select, Tree } from 'antd';
+import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, trim, compact, floor, assignIn, has } from "lodash";
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
 import ReactEcharts from 'echarts-for-react';
@@ -28,7 +28,13 @@ import useUnsavedChangesAlert from "@/pages/queries/hooks/useUnsavedChangesAlert
 import { createBrowserHistory } from "history";
 import 'echarts-gl';
 
+import DataSource, { SCHEMA_NOT_SUPPORTED } from "@/services/data-source";
+import SchemaBrowser from "@/pages/queries/components/SchemaBrowser";
+import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
+import { axios } from "@/services/axios";
+
 const history = createBrowserHistory();
+const { TreeNode } = Tree;
 
 function Screen(props) {
     // console.log('编辑大屏查询search', location.search);
@@ -36,11 +42,120 @@ function Screen(props) {
     const theme = search.template;
     const reducer = (prevState, updatedProperty) => ([...updatedProperty]);
     const objReducer = (prevState, updatedProperty) => ({ ...prevState, ...updatedProperty });
-    const currentChartObjReducer = (prevState, updatedProperty) => ({ ...updatedProperty });
+    const replaceObjReducer = (prevState, updatedProperty) => ({ ...updatedProperty });
     const [activeChartIndex, setActiveChartIndex] = useState(null);
     const [screenViewMode, setScreenViewMode] = useState('edit');
     const [chartItemInEdit, setChartItemInEdit] = useState(false);
-    const [currentEditChartOption, setCurrentEditChartOption] = useReducer(currentChartObjReducer, null);
+    const [currentEditChartOption, setCurrentEditChartOption] = useReducer(replaceObjReducer, null);
+
+    const [allDataSources, setAllDataSources] = useState([]);
+    const [dataSourcesLoaded, setDataSourcesLoaded] = useState(false);
+    const [currentDataSource, setCurrentDataSource] = useReducer(replaceObjReducer, null);
+    // const [schema, refreshSchema] = useDataSourceSchema(currentDataSource);
+    const [treeData, setTreeData] = useReducer(reducer, [
+        { title: '未处理数据集', key: '1' },
+        { title: '已建立数据集', key: '2' },
+    ]);
+
+    console.log('抽屉dataSources', allDataSources, treeData);
+
+    function getSchema(dataSource, refresh = undefined) {
+        if (!dataSource) {
+            return Promise.resolve([]);
+        }
+
+        const fetchSchemaFromJob = data => {
+            return axios.get(`api/jobs/${data.job.id}`).then(data => {
+                if (data.job.status < 3) {
+                    return sleep(1000).then(() => fetchSchemaFromJob(data));
+                } else if (data.job.status === 3) {
+                    return data.job.result;
+                } else if (data.job.status === 4 && data.job.error.code === SCHEMA_NOT_SUPPORTED) {
+                    return [];
+                } else {
+                    return Promise.reject(new Error(data.job.error));
+                }
+            });
+        };
+
+        return DataSource.fetchSchema(dataSource, refresh)
+            .then(data => {
+                if (has(data, "job")) {
+                    return fetchSchemaFromJob(data);
+                }
+                return has(data, "schema") ? data.schema : Promise.reject();
+            })
+            .catch(() => {
+                notification.error(__("Schema refresh failed."), __("Please try again later."));
+                return Promise.resolve([]);
+            });
+    }
+
+    const onLoadData = treeNode => {
+        if (has(treeNode.props, 'dataSource') && treeNode.props.children) {
+            return Promise.resolve();
+        }
+        if (has(treeNode.props, 'dataSource')) {
+            return getSchema(treeNode.props.dataSource).then(data => {
+                const schemaTree = map(data, (schema, index) => {
+                    return {
+                        title: schema.name,
+                        key: `1-${treeNode.props.dataSource.id}-${index + 1}`,
+                        isLeaf: true
+                    }
+                });
+                treeNode.props.dataRef.children = schemaTree;
+                setTreeData(treeData);
+                // if (refreshSchemaTokenRef.current === refreshToken) {
+                //     setSchema(prepareSchema(data));
+                // }
+            });
+        } else {
+            return Promise.resolve();
+        }
+    }
+
+    const renderTreeNodes = data =>
+        data.map(item => {
+            if (item.children) {
+                return (
+                    <TreeNode {...item} title={item.title} key={item.key} dataRef={item}>
+                        {renderTreeNodes(item.children)}
+                    </TreeNode>
+                );
+            }
+            return <TreeNode key={item.key} {...item} dataRef={item} />;
+        });
+
+    useEffect(() => {
+        let cancelDataSourceLoading = false;
+        DataSource.query().then(data => {
+            if (!cancelDataSourceLoading) {
+                setDataSourcesLoaded(true);
+                setAllDataSources(data);
+                const dataSourceToTree = map(data, (data) => ({
+                    key: `1-${data.id}`,
+                    title: data.name,
+                    dataSource: data
+                }));
+                treeData[0].children = dataSourceToTree;
+                setTreeData(treeData);
+                // if (data.length > 0) {
+                //     setCurrentDataSource(data[0]);
+                // }
+            }
+        });
+
+        return () => {
+            cancelDataSourceLoading = true;
+        };
+    }, []);
+
+    const handleDataSourceChange = (dataSourceId) => {
+        const dataSource = find(allDataSources, { id: dataSourceId });
+        setCurrentDataSource(dataSource);
+    }
+
     document.addEventListener("fullscreenchange", function (event) {
         if (document.fullscreenElement) {
             setScreenViewMode('preview');
@@ -449,7 +564,7 @@ function Screen(props) {
         const editChartOption = cloneDeep(option);
         e.stopPropagation();
         setCurrentEditChartOption(editChartOption);
-        console.log('当前编辑的option', editChartOption); 
+        console.log('当前编辑的option', editChartOption);
         setChartItemInEdit(true);
     }
 
@@ -538,11 +653,65 @@ function Screen(props) {
                 title="配置图表"
                 width={720}
                 visible={chartItemInEdit}
-                bodyStyle={{ paddingBottom: 80 }}
+                bodyStyle={{ height: 'calc(100vh - 100px)' }}
                 onClose={() => { setChartItemInEdit(false) }}
+                className={theme}
             >
-                <div className="chart-item-preview">
-                    {chartItemInEdit && (currentEditChartOption ? renderChartItem(currentEditChartOption) : null)}
+                <div className="chart-item-edit-wraper">
+                    <div className="chart-item-preview">
+                        {chartItemInEdit && (currentEditChartOption ? renderChartItem(currentEditChartOption) : null)}
+                    </div>
+                    <div className="chart-item-edit-content">
+                        <Row gutter={16} style={{height: '100%' }}>
+                            <Col span={8} style={{height: '100%' }}>
+                                <Card title="配置数据集" hoverable={true} className="chart-item-edit-card" bodyStyle={{maxHeight: 'calc(100% - 55px)', overflow: 'auto'}}>
+                                    {dataSourcesLoaded && (
+                                        // <div className="editor__left__data-source">
+                                        //     <Select
+                                        //         className="w-100"
+                                        //         data-test="SelectDataSource"
+                                        //         placeholder={__("Choose data source...")}
+                                        //         value={currentDataSource ? currentDataSource.id : undefined}
+                                        //         disabled={!dataSourcesLoaded || allDataSources.length === 0}
+                                        //         loading={!dataSourcesLoaded}
+                                        //         optionFilterProp="data-name"
+                                        //         showSearch
+                                        //         onChange={handleDataSourceChange}
+                                        //     >
+                                        //         {map(allDataSources, ds => (
+                                        //             <Select.Option
+                                        //                 key={`ds-${ds.id}`}
+                                        //                 value={ds.id}
+                                        //                 data-name={ds.name}
+                                        //                 data-test={`SelectDataSource${ds.id}`}>
+                                        //                 <img src={`/static/images/db-logos/${ds.type}.png`} width="20" alt={ds.name} />
+                                        //                 <span>{ds.name}</span>
+                                        //             </Select.Option>
+                                        //         ))}
+                                        //     </Select>
+                                        // </div>
+                                        <Tree defaultExpandedKeys={['1']} loadData={onLoadData}>{renderTreeNodes(treeData)}</Tree>
+                                    )}
+                                    {/* <div className="editor__left__schema">
+                                        <SchemaBrowser
+                                            schema={schema}
+                                            onRefresh={() => refreshSchema(true)}
+                                        />
+                                    </div> */}
+                                </Card>
+                            </Col>
+                            <Col span={8} style={{height: '100%' }}>
+                                <Card title="配置数据指标" hoverable={true} className="chart-item-edit-card" bodyStyle={{maxHeight: 'calc(100% - 55px)', overflow: 'auto'}}>
+                                    Card content
+                                </Card>
+                            </Col>
+                            <Col span={8} style={{height: '100%' }}>
+                                <Card title="配置数据过滤" hoverable={true} className="chart-item-edit-card" bodyStyle={{maxHeight: 'calc(100% - 55px)', overflow: 'auto'}}>
+                                    Card content
+                                </Card>
+                            </Col>
+                        </Row>
+                    </div>
                 </div>
                 <div
                     style={{

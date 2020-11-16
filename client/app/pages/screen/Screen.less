@@ -574,11 +574,32 @@
   }
 }
 
-.chart-item-preview {
-  width: 100%;
-  overflow-y: auto;
-  max-height: 40rem;
-  padding: 10px;
+.chart-item-edit-wraper {
+  height: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+
+  .chart-item-preview {
+    .chart-widget-item {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    width: 100%;
+    overflow-y: auto;
+    height: 50%;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .chart-item-edit-content {
+    height: 50%;
+    margin-top: 10px;
+    overflow: hidden;
+
+    .chart-item-edit-card {
+      height: 100%;
+    }
+  }
 }
