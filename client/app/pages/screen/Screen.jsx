@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table, Drawer, Button, Select, Tree, Badge } from 'antd';
-import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, extend, forEach, floor, assignIn, has } from "lodash";
+import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table, Drawer, Button, Select, Tree, Badge, Modal } from 'antd';
+import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, extend, forEach, floor, assignIn, has, startsWith } from "lodash";
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
 import ReactEcharts from 'echarts-for-react';
@@ -49,14 +49,28 @@ function Screen(props) {
             return [];
         }
     };
-    const objReducer = (prevState, updatedProperty) => ({ ...prevState, ...updatedProperty });
-    const replaceObjReducer = (prevState, updatedProperty) => ({ ...updatedProperty });
+    const objReducer = (prevState, updatedProperty) => {
+        if (updatedProperty) {
+            return { ...prevState, ...updatedProperty };
+        } else {
+            return null;
+        }
+    };
+    const replaceObjReducer = (prevState, updatedProperty) => {
+        if (updatedProperty) {
+            return { ...updatedProperty };
+        } else {
+            return null;
+        }
+    };
     const [activeChartIndex, setActiveChartIndex] = useState(null);
     const [screenViewMode, setScreenViewMode] = useState('edit');
     const [chartItemInEdit, setChartItemInEdit] = useState(false);
     const [currentEditChartOption, setCurrentEditChartOption] = useReducer(replaceObjReducer, null);
+    const currentEditChartRef = React.useRef(null);
 
     const [allDataSources, setAllDataSources] = useState([]);
+    const [allQueries, setAllQueries] = useReducer(arryReducer, []);
     const [currentQueryResultColumns, setCurrentQueryResultColumns] = useReducer(arryReducer, []);
     const [currentQueryResultData, setCurrentQueryResultData] = useReducer(arryReducer, []);
     const [queryResultColumnsLoaded, setQueryResultColumnsLoaded] = useState(true);
@@ -461,7 +475,7 @@ function Screen(props) {
         };
     }, [theme])
 
-    const renderChartItem = (option) => {
+    const renderChartItem = (option, refOrCallback) => {
         let widget;
         if (option.engine == 'echarts') {
             widget = <ReactEcharts
@@ -469,6 +483,7 @@ function Screen(props) {
                 option={option.chartOption.option}
                 style={option.widgetSize}
                 theme={theme}
+                ref={refOrCallback}
             // showLoading={true}
             />;
         } else if (option.engine == 'antd-text') {
@@ -486,42 +501,78 @@ function Screen(props) {
         e.stopPropagation();
         const editChartOption = cloneDeep(option);
         const visualSetting = find(screenChartsVisualSettings, { chartId: option.id });
-        if (visualSetting) {
-            setCurrentChartVisualSetting(cloneDeep(visualSetting));
-        } else {
-            setCurrentChartVisualSetting({
-                chartId: option.id,
-                expandedKeys: [],
-                selectedKeys: [],
-                columnSetting: {
-                    xAxis: null,
-                    yAxis: null,
-                },
-                dataFiltering: null
-            });
-        }
-        setCurrentEditChartOption(editChartOption);
-        prepareTreeNodeRender();
-        setChartItemInEdit(true);
+        prepareTreeNodeRender().then(() => {
+            if (visualSetting) {
+                const selectedKey = visualSetting.selectedKeys[0];
+                if (startsWith(selectedKey, '1-')) {
+                    const keyToFind = selectedKey.match(/(\d{1})-(\w*)-(\w*)/);
+                    const dataSourceId = toNumber(keyToFind[2]);
+                    const schameName = keyToFind[3];
+                    const query = extend(Query.newQuery(), { data_source_id: dataSourceId });
+                    setColumnsByQuery(query, schameName);
+                } else {
+                    const queryTreeNodeData = find(allQueries, { key: selectedKey });
+                    setColumnsByQuery(queryTreeNodeData.query);
+                }
+                setCurrentChartVisualSetting(cloneDeep(visualSetting));
+            } else {
+                setCurrentChartVisualSetting({
+                    chartId: option.id,
+                    expandedKeys: ['1'],
+                    selectedKeys: [],
+                    columnSetting: {
+                        xAxis: null,
+                        yAxis: null,
+                    },
+                    dataFiltering: null
+                });
+            }
+            setCurrentEditChartOption(editChartOption);
+            setChartItemInEdit(true);
+        });
     }
 
     const onDimensionChange = (value) => {
-        setCurrentChartVisualSetting({
-            columnSetting: {
-                xAxis: value
-            }
-        });
+        currentChartVisualSetting.columnSetting.xAxis = value;
+        setCurrentChartVisualSetting(currentChartVisualSetting);
         console.log("维度", currentChartVisualSetting);
     }
 
     const onIndicatorChange = (value) => {
-        setCurrentChartVisualSetting({
-            columnSetting: {
-                yAxis: value
-            }
-        });
+        currentChartVisualSetting.columnSetting.yAxis = value;
+        setCurrentChartVisualSetting(currentChartVisualSetting);
         console.log("指标", currentChartVisualSetting);
     }
+
+    useEffect(() => {
+        if (currentChartVisualSetting) {
+            const xAxisFieldName = currentChartVisualSetting.columnSetting.xAxis;
+            const yAxisFieldNames = currentChartVisualSetting.columnSetting.yAxis;
+            const xAxisData = map(currentQueryResultData, (data) => {
+                return data[xAxisFieldName];
+            });
+            const series = map(yAxisFieldNames, (name) => {
+                return {
+                    name: name,
+                    type: currentEditChartOption.chartOption.type,
+                    data: map(currentQueryResultData, (data) => {
+                        return data[name];
+                    })
+                }
+            });
+            if (currentEditChartOption) {
+                if(currentEditChartRef.current) {
+                    console.log('更新chart', currentEditChartOption, currentEditChartRef.current.getEchartsInstance());
+                    const currentEditChartInstance = currentEditChartRef.current.getEchartsInstance();
+                    currentEditChartInstance.showLoading();
+                    currentEditChartOption.chartOption.option.xAxis.data = xAxisData;
+                    currentEditChartOption.chartOption.option.series = series;
+                    currentEditChartInstance.setOption(currentEditChartOption.chartOption.option);
+                    currentEditChartInstance.hideLoading();
+                }
+            }
+        }
+    }, [currentChartVisualSetting]);
 
     function getSchema(dataSource, refresh = undefined) {
         if (!dataSource) {
@@ -555,28 +606,49 @@ function Screen(props) {
             });
     }
 
-    const onTreeNodeExpand = (expandedKeys, {expanded: bool, node}) => {
-        console.log('展开树节点', expandedKeys, expanded, node);
+    const onTreeNodeExpand = (expandedKeys, { expanded: bool, node }) => {
+        setCurrentChartVisualSetting({ expandedKeys });
+        console.log('展开树节点', expandedKeys, currentChartVisualSetting);
+    }
+
+    const setColumnsByQuery = (query, schameName = undefined) => {
+        let queryResult;
+        setQueryResultColumnsLoaded(false);
+        if (query.isNew()) {
+            const sqlText = `select * from ${schameName};`;
+            queryResult = query.getQueryResultByText(0, sqlText);
+        } else {
+            queryResult = query.getQueryResult(0);
+        }
+        queryResult.toPromise().then(data => {
+            console.log('promise结果', data.getColumns(), data.getData());
+            setCurrentQueryResultColumns(data.getColumns());
+            setCurrentQueryResultData(data.getData());
+            setQueryResultColumnsLoaded(true);
+        });
     }
 
     const onTreeNodeSelect = (selectedKeys, info) => {
         const dataRef = info.node.props.dataRef
         if (has(dataRef, 'query')) {
             const query = dataRef.query;
-            let queryResult;
-            setQueryResultColumnsLoaded(false);
-            if (query.isNew()) {
-                const sqlText = `select * from ${dataRef.title};`;
-                queryResult = query.getQueryResultByText(0, sqlText);
-            } else {
-                queryResult = query.getQueryResult(0);
-            }
-            queryResult.toPromise().then(data => {
-                console.log('promise结果', data.getColumns(), data.getData());
-                setCurrentQueryResultColumns(data.getColumns());
-                setCurrentQueryResultData(data.getData());
-                setQueryResultColumnsLoaded(true);
-            });
+            setColumnsByQuery(query, dataRef.title);
+            setCurrentChartVisualSetting({ selectedKeys });
+            console.log('节点选中设置', selectedKeys, currentChartVisualSetting);
+            // let queryResult;
+            // setQueryResultColumnsLoaded(false);
+            // if (query.isNew()) {
+            //     const sqlText = `select * from ${dataRef.title};`;
+            //     queryResult = query.getQueryResultByText(0, sqlText);
+            // } else {
+            //     queryResult = query.getQueryResult(0);
+            // }
+            // queryResult.toPromise().then(data => {
+            //     console.log('promise结果', data.getColumns(), data.getData());
+            //     setCurrentQueryResultColumns(data.getColumns());
+            //     setCurrentQueryResultData(data.getData());
+            //     setQueryResultColumnsLoaded(true);
+            // });
         }
     };
 
@@ -593,7 +665,7 @@ function Screen(props) {
         });
 
     const prepareTreeNodeRender = () => {
-        Promise.all([DataSource.query(), Query.query()]).then(([dataSource, query]) => {
+        return Promise.all([DataSource.query(), Query.query()]).then(([dataSource, query]) => {
             console.log('并发获取数据', dataSource, query);
             setAllDataSources(dataSource);
             if (dataSource.length > 0) {
@@ -634,8 +706,24 @@ function Screen(props) {
                     }
                 });
                 treeData[1].children = queryToTree;
+                setAllQueries(queryToTree);
             }
             setTreeData(treeData);
+        });
+    }
+
+    const onEditDrawerClose = () => {
+        Modal.confirm({
+            title: '你确定要取消配置吗?',
+            content: '关闭后将会丢失当前的操作',
+            onOk() {
+                setChartItemInEdit(false);
+                setCurrentQueryResultColumns([]);
+                setCurrentEditChartOption(null);
+            },
+            onCancel() {
+                console.log('Cancel');
+            },
         });
     }
 
@@ -724,12 +812,13 @@ function Screen(props) {
                 width={720}
                 visible={chartItemInEdit}
                 bodyStyle={{ height: 'calc(100vh - 100px)' }}
-                onClose={() => { setChartItemInEdit(false) }}
+                onClose={onEditDrawerClose}
                 className={theme}
+                maskClosable={false}
             >
                 <div className="chart-item-edit-wraper">
                     <div className="chart-item-preview">
-                        {chartItemInEdit && (currentEditChartOption ? renderChartItem(currentEditChartOption) : null)}
+                        {chartItemInEdit && (currentEditChartOption ? renderChartItem(currentEditChartOption, currentEditChartRef) : null)}
                     </div>
                     <div className="chart-item-edit-content">
                         <Row gutter={16} style={{ height: '100%' }}>
@@ -737,15 +826,15 @@ function Screen(props) {
                                 <Card title="配置数据集" hoverable={true} className="chart-item-edit-card" bodyStyle={{ maxHeight: 'calc(100% - 55px)', overflow: 'auto' }}>
                                     {chartItemInEdit && !dataSourcesLoaded && <LoadingState />}
                                     {chartItemInEdit && dataSourcesLoaded && (
-                                        <Tree onSelect={onTreeNodeSelect} defaultExpandedKeys={['1']} onExpand={onTreeNodeExpand} expandedKeys={currentChartVisualSetting.expandedKeys} selectedKeys={currentChartVisualSetting.selectedKeys}>{renderTreeNodes(treeData)}</Tree>
+                                        <Tree onSelect={onTreeNodeSelect} defaultExpandedKeys={currentChartVisualSetting.expandedKeys} defaultSelectedKeys={currentChartVisualSetting.selectedKeys} onExpand={onTreeNodeExpand}>{renderTreeNodes(treeData)}</Tree>
                                     )}
                                 </Card>
                             </Col>
                             <Col span={8} style={{ height: '100%' }}>
                                 <Card title="配置数据指标" hoverable={true} className="chart-item-edit-card" bodyStyle={{ maxHeight: 'calc(100% - 55px)', overflow: 'auto' }}>
-                                    {!queryResultColumnsLoaded && <LoadingState />}
+                                    {chartItemInEdit && !queryResultColumnsLoaded && <LoadingState />}
                                     {
-                                        queryResultColumnsLoaded &&
+                                        chartItemInEdit && queryResultColumnsLoaded &&
                                         <React.Fragment>
                                             <div className="dimension">
                                                 <Typography.Title level={4}>维度：</Typography.Title>
