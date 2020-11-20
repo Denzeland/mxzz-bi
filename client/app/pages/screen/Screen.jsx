@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table, Drawer, Button, Select, Tree, Badge, Modal } from 'antd';
+import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table, Drawer, Button, Select, Tree, Badge, Modal, message } from 'antd';
 import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, extend, forEach, floor, assignIn, has, startsWith } from "lodash";
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
@@ -74,7 +74,7 @@ function Screen(props) {
     const [currentQueryResultColumns, setCurrentQueryResultColumns] = useReducer(arryReducer, []);
     const [currentQueryResultData, setCurrentQueryResultData] = useReducer(arryReducer, []);
     const [queryResultColumnsLoaded, setQueryResultColumnsLoaded] = useState(true);
-    const [dataSourcesLoaded, setDataSourcesLoaded] = useState(false);
+    const [treeDataReady, setTreeDataReady] = useState(false);
     const [currentDataSource, setCurrentDataSource] = useReducer(replaceObjReducer, null);
     // const [schema, refreshSchema] = useDataSourceSchema(currentDataSource);
     const [treeData, setTreeData] = useReducer(arryReducer, [
@@ -82,7 +82,7 @@ function Screen(props) {
         { title: '已建立数据集', key: '2' },
     ]);
 
-    console.log('抽屉dataSources', allDataSources, treeData);
+    // console.log('抽屉dataSources', allDataSources, treeData);
 
     document.addEventListener("fullscreenchange", function (event) {
         if (document.fullscreenElement) {
@@ -93,12 +93,14 @@ function Screen(props) {
     });
     document.body.classList.add(theme);
     /**
+     * 考虑数据库不宜存储图表数据，所以最后持久化到数据库时，chartOption字段不保存，图表的数据根据screenChartsVisualSettings动态获取
      * screenCharts = [{
      *  id: moment().unix(),
      *  chartOption: option,
      *  zIndex: zIndex,
      *  widgetSize: { width, height },
      *  widgetPosition: { x, y },
+     *  type: '图表类型',
      *  engine: 'echarts' or 'antd-*',
     }]
      */
@@ -111,7 +113,8 @@ function Screen(props) {
      *           xAxis: 'columnName',
      *           yAxis: ['columnName', 'columnName'],
      *      },
-     *      dataFiltering: null
+     *      dataFiltering: null,
+     *      updateCurrentChart: false
      * }]
      */
     const [screenSize, setScreenSize] = useReducer(objReducer, { width: 'auto', height: 'auto' });
@@ -300,6 +303,7 @@ function Screen(props) {
                     chartOption: cloneDeep(defaultOption),
                     widgetSize: { width: 480, height: 270 },
                     widgetPosition: { x: 10, y: 0 },
+                    type: item.type,
                     engine: item.engine
                 });
             } else {
@@ -309,6 +313,7 @@ function Screen(props) {
                     chartOption: cloneDeep(defaultOption),
                     widgetSize: { width: 300, height: 100 },
                     widgetPosition: { x: 10, y: 0 },
+                    type: item.type,
                     engine: item.engine
                 });
             }
@@ -316,7 +321,7 @@ function Screen(props) {
             setScreenCharts(screenCharts);
         }
 
-        console.log('dropdownItemClick', item, defaultOption, screenCharts);
+        // console.log('dropdownItemClick', item, defaultOption, screenCharts);
     }
     const dropdownListComponent = dropdownListData.map((dropdown, index) => {
         const dropdownList = dropdown.data.length > 0 ? <div className="edit-dropdown" key={index}><List
@@ -341,27 +346,21 @@ function Screen(props) {
     });
 
     const widgetResize = throttle((e, id, refToElement, position) => {
-        // e.preventDefault();
-        // e.stopPropagation();
         const widgetSize = { width: refToElement.style.width, height: refToElement.style.height };
         const widgetPosition = { x: position.x, y: position.y };
         const widgetOption = find(screenCharts, { id: id });
         widgetOption.widgetSize = widgetSize;
         widgetOption.widgetPosition = widgetPosition;
         setScreenCharts(screenCharts);
-        // console.log('尺寸调整', id, screenCharts);
     }, 500)
 
     const widgetResizeStop = (e, id, refToElement, position, dir) => {
-        // e.preventDefault();
-        // e.stopPropagation();
         const widgetSize = { width: refToElement.style.width, height: refToElement.style.height };
         const widgetPosition = { x: position.x, y: position.y };
         const widgetOption = find(screenCharts, { id: id });
         widgetOption.widgetSize = widgetSize;
         widgetOption.widgetPosition = widgetPosition;
         setScreenCharts(screenCharts);
-        console.log('尺寸调整停止', id, screenCharts);
     }
 
     const widgetDragStop = (e, id, data) => {
@@ -376,7 +375,6 @@ function Screen(props) {
     const resetZindex = (index) => {
         setActiveChartIndex(index);
         const clickChart = screenCharts[index];
-        // console.log('重新调整zinde', index, clickChart);
         clickChart.zIndex = screenCharts.length - 1;
         const sortRange = range(screenCharts.length);
         let j = 0;
@@ -464,7 +462,6 @@ function Screen(props) {
             const finalScreenWidth = max([widthByMaxOffsetX, widthByMaxWidth]);
             const finalScreenHeight = max([heightByMaxOffsetY, heightByMaxHeight]);
             setScreenSize({ width: finalScreenWidth + 100, height: finalScreenHeight + 100 });
-            console.log('调整大屏尺寸', maxOffsetX, maxOffsetY, sum(widthArr), sum(heightArr));
         }
 
     }, [screenCharts]);
@@ -514,7 +511,7 @@ function Screen(props) {
                     const queryTreeNodeData = find(allQueries, { key: selectedKey });
                     setColumnsByQuery(queryTreeNodeData.query);
                 }
-                setCurrentChartVisualSetting(cloneDeep(visualSetting));
+                setCurrentChartVisualSetting(extend(cloneDeep(visualSetting), { updateCurrentChart: true }));
             } else {
                 setCurrentChartVisualSetting({
                     chartId: option.id,
@@ -522,9 +519,10 @@ function Screen(props) {
                     selectedKeys: [],
                     columnSetting: {
                         xAxis: null,
-                        yAxis: null,
+                        yAxis: [],
                     },
-                    dataFiltering: null
+                    dataFiltering: null,
+                    updateCurrentChart: false
                 });
             }
             setCurrentEditChartOption(editChartOption);
@@ -534,40 +532,66 @@ function Screen(props) {
 
     const onDimensionChange = (value) => {
         currentChartVisualSetting.columnSetting.xAxis = value;
+        currentChartVisualSetting.updateCurrentChart = true;
         setCurrentChartVisualSetting(currentChartVisualSetting);
-        console.log("维度", currentChartVisualSetting);
+        // console.log("维度", currentChartVisualSetting);
     }
 
     const onIndicatorChange = (value) => {
         currentChartVisualSetting.columnSetting.yAxis = value;
+        currentChartVisualSetting.updateCurrentChart = true;
         setCurrentChartVisualSetting(currentChartVisualSetting);
-        console.log("指标", currentChartVisualSetting);
+        // console.log("指标", currentChartVisualSetting);
     }
 
+    // 根据当前的查询数据和设置来获取直角坐标系的数据
+    const getRectAxisDataBySetting = (queryResultData, currentChartVisualSetting) => {
+        const xAxisFieldName = currentChartVisualSetting.columnSetting.xAxis;
+        const yAxisFieldNames = currentChartVisualSetting.columnSetting.yAxis;
+        const xAxisData = map(queryResultData, (data) => {
+            return data[xAxisFieldName];
+        });
+        const series = map(yAxisFieldNames, (name) => {
+            return {
+                name: name,
+                type: currentEditChartOption.chartOption.type,
+                data: map(queryResultData, (data) => {
+                    return data[name];
+                })
+            }
+        });
+        return [xAxisData, series];
+    }
+
+    // 更新当前编辑的图表，根据updateCurrentChart来判断当前操作是否需要更新
     useEffect(() => {
-        if (currentChartVisualSetting) {
-            const xAxisFieldName = currentChartVisualSetting.columnSetting.xAxis;
-            const yAxisFieldNames = currentChartVisualSetting.columnSetting.yAxis;
-            const xAxisData = map(currentQueryResultData, (data) => {
-                return data[xAxisFieldName];
-            });
-            const series = map(yAxisFieldNames, (name) => {
-                return {
-                    name: name,
-                    type: currentEditChartOption.chartOption.type,
-                    data: map(currentQueryResultData, (data) => {
-                        return data[name];
-                    })
-                }
-            });
+        if (currentChartVisualSetting && currentChartVisualSetting.updateCurrentChart) {
+            // const xAxisFieldName = currentChartVisualSetting.columnSetting.xAxis;
+            // const yAxisFieldNames = currentChartVisualSetting.columnSetting.yAxis;
+            // const xAxisData = map(currentQueryResultData, (data) => {
+            //     return data[xAxisFieldName];
+            // });
+            // const series = map(yAxisFieldNames, (name) => {
+            //     return {
+            //         name: name,
+            //         type: currentEditChartOption.chartOption.type,
+            //         data: map(currentQueryResultData, (data) => {
+            //             return data[name];
+            //         })
+            //     }
+            // });
+            const [xAxisData, series] = getRectAxisDataBySetting(currentQueryResultData, currentChartVisualSetting);
             if (currentEditChartOption) {
-                if(currentEditChartRef.current) {
+                if (currentEditChartRef.current) {
                     console.log('更新chart', currentEditChartOption, currentEditChartRef.current.getEchartsInstance());
                     const currentEditChartInstance = currentEditChartRef.current.getEchartsInstance();
                     currentEditChartInstance.showLoading();
-                    currentEditChartOption.chartOption.option.xAxis.data = xAxisData;
+                    currentEditChartOption.chartOption.option.xAxis = { data: xAxisData };
                     currentEditChartOption.chartOption.option.series = series;
-                    currentEditChartInstance.setOption(currentEditChartOption.chartOption.option);
+                    currentEditChartInstance.setOption(currentEditChartOption.chartOption.option, {
+                        notMerge: true,
+                    });
+                    setCurrentEditChartOption(currentEditChartOption);
                     currentEditChartInstance.hideLoading();
                 }
             }
@@ -606,11 +630,6 @@ function Screen(props) {
             });
     }
 
-    const onTreeNodeExpand = (expandedKeys, { expanded: bool, node }) => {
-        setCurrentChartVisualSetting({ expandedKeys });
-        console.log('展开树节点', expandedKeys, currentChartVisualSetting);
-    }
-
     const setColumnsByQuery = (query, schameName = undefined) => {
         let queryResult;
         setQueryResultColumnsLoaded(false);
@@ -620,35 +639,38 @@ function Screen(props) {
         } else {
             queryResult = query.getQueryResult(0);
         }
-        queryResult.toPromise().then(data => {
-            console.log('promise结果', data.getColumns(), data.getData());
+        return queryResult.toPromise().then(data => {
+            // console.log('promise结果', data.getColumns(), data.getData());
             setCurrentQueryResultColumns(data.getColumns());
             setCurrentQueryResultData(data.getData());
             setQueryResultColumnsLoaded(true);
         });
     }
 
+    const onTreeNodeExpand = (expandedKeys, { expanded: bool, node }) => {
+        setCurrentChartVisualSetting({
+            expandedKeys,
+            updateCurrentChart: false,
+        });
+        // console.log('展开树节点', expandedKeys, currentChartVisualSetting);
+    }
+
+    // 树的节点选中时(更换了数据集)，其他配置使用默认值
     const onTreeNodeSelect = (selectedKeys, info) => {
         const dataRef = info.node.props.dataRef
         if (has(dataRef, 'query')) {
             const query = dataRef.query;
             setColumnsByQuery(query, dataRef.title);
-            setCurrentChartVisualSetting({ selectedKeys });
-            console.log('节点选中设置', selectedKeys, currentChartVisualSetting);
-            // let queryResult;
-            // setQueryResultColumnsLoaded(false);
-            // if (query.isNew()) {
-            //     const sqlText = `select * from ${dataRef.title};`;
-            //     queryResult = query.getQueryResultByText(0, sqlText);
-            // } else {
-            //     queryResult = query.getQueryResult(0);
-            // }
-            // queryResult.toPromise().then(data => {
-            //     console.log('promise结果', data.getColumns(), data.getData());
-            //     setCurrentQueryResultColumns(data.getColumns());
-            //     setCurrentQueryResultData(data.getData());
-            //     setQueryResultColumnsLoaded(true);
-            // });
+            setCurrentChartVisualSetting({
+                selectedKeys,
+                updateCurrentChart: false,
+                columnSetting: {
+                    xAxis: null,
+                    yAxis: [],
+                },
+                dataFiltering: null
+            });
+            // console.log('节点选中设置', selectedKeys, currentChartVisualSetting);
         }
     };
 
@@ -664,40 +686,57 @@ function Screen(props) {
             return <TreeNode key={item.key} {...item} dataRef={item} />;
         });
 
-    const prepareTreeNodeRender = () => {
-        return Promise.all([DataSource.query(), Query.query()]).then(([dataSource, query]) => {
-            console.log('并发获取数据', dataSource, query);
-            setAllDataSources(dataSource);
-            if (dataSource.length > 0) {
-                const dataSourceToTree = map(dataSource, (data) => ({
-                    key: `1-${data.id}`,
-                    title: data.name,
-                    dataSource: data
-                }));
-                Promise.all(map(dataSource, (data) => {
-                    return getSchema(data);
-                })).then(schemas => {
-                    console.log('schemas', schemas);
-                    forEach(schemas, (schema, index) => {
-                        const query = extend(Query.newQuery(), { data_source_id: dataSource[index].id });
-                        const schemaTree = map(schema, (schemaItem, schemaIndex) => {
-                            return {
-                                title: schemaItem.name,
-                                key: `1-${dataSource[index].id}-${schemaItem.name}`,
-                                isLeaf: true,
-                                query
-                            }
-                        });
-                        dataSourceToTree[index].children = schemaTree;
+    const refreshScreenByVisualSettings = () => {
+        if (screenCharts.length > 0) {
+            forEach(screenCharts, (screenChart) => {
+                const defaultOption = find(defaultChartsOptions, { type: screenChart.type });
+                screenChart.chartOption = cloneDeep(defaultOption);
+            });
+            if (screenChartsVisualSettings.length > 0) {
+                const promiseArr = map(screenChartsVisualSettings, (visualSetting) => {
+                    let queryResult;
+                    const selectedKey = visualSetting.selectedKeys[0];
+                    if (startsWith(selectedKey, '1-')) {
+                        const keyToFind = selectedKey.match(/(\d{1})-(\w*)-(\w*)/);
+                        const dataSourceId = toNumber(keyToFind[2]);
+                        const schameName = keyToFind[3];
+                        const query = extend(Query.newQuery(), { data_source_id: dataSourceId });
+                        const sqlText = `select * from ${schameName};`;
+                        queryResult = query.getQueryResultByText(0, sqlText);
+                    } else {
+                        const queryTreeNodeData = find(allQueries, { key: selectedKey });
+                        queryResult = queryTreeNodeData.query.getQueryResult(0);
+                    }
+                    return queryResult.toPromise().then(data => {
+                        const visualData = data.getData();
+                        const [xAxisData, series] = getRectAxisDataBySetting(visualData, visualSetting);
+                        const screenChart = find(screenCharts, { id: visualSetting.chartId });
+                        screenChart.chartOption.xAxis = { data: xAxisData };
+                        screenChart.chartOption.series = series;
                     });
-                    treeData[0].children = dataSourceToTree;
-                    setDataSourcesLoaded(true);
                 });
+                Promise.all(promiseArr).then(() => {
+                    setScreenCharts(screenCharts);
+                });
+            } else {
+                setScreenCharts(screenCharts);
             }
+        }
+    };
 
+    useEffect(() => {
+        setDataSourcesAndQueries().then(() => {
+            refreshScreenByVisualSettings();
+        });
+    }, []);
+
+
+
+    const setDataSourcesAndQueries = () => {
+        return Promise.all([DataSource.query(), Query.query()]).then(([dataSource, query]) => {
+            setAllDataSources(dataSource);
             if (query.results.length > 0) {
                 const queryToTree = map(query.results, (data) => {
-                    console.log('getQueryResult', data.getQueryResult(0));
                     return {
                         key: `2-${data.id}`,
                         title: data.name,
@@ -705,11 +744,94 @@ function Screen(props) {
                         isLeaf: true,
                     }
                 });
-                treeData[1].children = queryToTree;
                 setAllQueries(queryToTree);
             }
-            setTreeData(treeData);
         });
+    };
+
+    const prepareTreeNodeRender = () => {
+        setTreeDataReady(false);
+        // return Promise.all([DataSource.query(), Query.query()]).then(([dataSource, query]) => {
+        //     setAllDataSources(dataSource);
+        //     if (dataSource.length > 0) {
+        //         const dataSourceToTree = map(dataSource, (data) => ({
+        //             key: `1-${data.id}`,
+        //             title: data.name,
+        //             dataSource: data
+        //         }));
+        //         Promise.all(map(dataSource, (data) => {
+        //             return getSchema(data);
+        //         })).then(schemas => {
+        //             forEach(schemas, (schema, index) => {
+        //                 const query = extend(Query.newQuery(), { data_source_id: dataSource[index].id });
+        //                 const schemaTree = map(schema, (schemaItem, schemaIndex) => {
+        //                     return {
+        //                         title: schemaItem.name,
+        //                         key: `1-${dataSource[index].id}-${schemaItem.name}`,
+        //                         isLeaf: true,
+        //                         query
+        //                     }
+        //                 });
+        //                 dataSourceToTree[index].children = schemaTree;
+        //             });
+        //             treeData[0].children = dataSourceToTree;
+        //             setTreeDataReady(true);
+        //         });
+        //     }
+
+        //     if (query.results.length > 0) {
+        //         const queryToTree = map(query.results, (data) => {
+        //             return {
+        //                 key: `2-${data.id}`,
+        //                 title: data.name,
+        //                 query: data,
+        //                 isLeaf: true,
+        //             }
+        //         });
+        //         treeData[1].children = queryToTree;
+        //         setAllQueries(queryToTree);
+        //     }
+        //     setTreeData(treeData);
+        // });
+        if (allDataSources.length > 0) {
+            const dataSourceToTree = map(allDataSources, (data) => ({
+                key: `1-${data.id}`,
+                title: data.name,
+                dataSource: data
+            }));
+            return Promise.all(map(allDataSources, (data) => {
+                return getSchema(data);
+            })).then(schemas => {
+                forEach(schemas, (schema, index) => {
+                    const query = extend(Query.newQuery(), { data_source_id: allDataSources[index].id });
+                    const schemaTree = map(schema, (schemaItem, schemaIndex) => {
+                        return {
+                            title: schemaItem.name,
+                            key: `1-${allDataSources[index].id}-${schemaItem.name}`,
+                            isLeaf: true,
+                            query
+                        }
+                    });
+                    dataSourceToTree[index].children = schemaTree;
+                });
+                treeData[0].children = dataSourceToTree;
+                if (allQueries.length > 0) {
+                    treeData[1].children = allQueries;
+                }
+                setTreeData(treeData);
+                setTreeDataReady(true);
+            });
+        } else {
+            setTreeDataReady(true);
+            return Promise.resolve();
+        }
+    }
+
+    const clearCurrentSettings = () => {
+        setCurrentQueryResultColumns([]);
+        // setCurrentEditChartOption(null);
+        setCurrentChartVisualSetting(null);
+        setChartItemInEdit(false);
     }
 
     const onEditDrawerClose = () => {
@@ -717,14 +839,41 @@ function Screen(props) {
             title: '你确定要取消配置吗?',
             content: '关闭后将会丢失当前的操作',
             onOk() {
-                setChartItemInEdit(false);
-                setCurrentQueryResultColumns([]);
-                setCurrentEditChartOption(null);
+                clearCurrentSettings();
             },
             onCancel() {
                 console.log('Cancel');
             },
         });
+    }
+
+    const onEditDrawerSave = () => {
+        const xAxisFieldName = currentChartVisualSetting.columnSetting.xAxis;
+        const yAxisFieldNames = currentChartVisualSetting.columnSetting.yAxis;
+        if (!xAxisFieldName && yAxisFieldNames.length > 0) {
+            message.warning('x轴没有配置要显示的字段');
+        } else if (xAxisFieldName && yAxisFieldNames.length == 0) {
+            message.warning('y轴没有配置要显示的字段');
+        } else if (!xAxisFieldName && yAxisFieldNames.length == 0) {
+            message.error('坐标轴没有配置字段！');
+            return;
+        } else {
+            message.success('保存成功！');
+        }
+        const visualSettingIndex = findIndex(screenChartsVisualSettings, { chartId: currentChartVisualSetting.chartId });
+        if (visualSettingIndex == -1) {
+            screenChartsVisualSettings.push(currentChartVisualSetting);
+        } else {
+            screenChartsVisualSettings.splice(visualSettingIndex, 1, currentChartVisualSetting);
+        }
+        setScreenChartsVisualSettings(screenChartsVisualSettings);
+        setCurrentQueryResultColumns([]);
+        setCurrentChartVisualSetting(null);
+        setChartItemInEdit(false);
+        const chartOptionIndex = findIndex(screenCharts, { id: currentEditChartOption.id });
+        screenCharts.splice(chartOptionIndex, 1, currentEditChartOption);
+        setScreenCharts(screenCharts);
+        console.log('保存后设置', screenCharts);
     }
 
     return (
@@ -766,7 +915,6 @@ function Screen(props) {
                             }}
                             style={{ zIndex: option.zIndex }}
                             key={option.id}
-                            // lockAspectRatio={16 / 9}
                             bounds="parent"
                             dragHandleClassName='drag-handle'
                             dragGrid={[100, 100]}
@@ -824,8 +972,8 @@ function Screen(props) {
                         <Row gutter={16} style={{ height: '100%' }}>
                             <Col span={8} style={{ height: '100%' }}>
                                 <Card title="配置数据集" hoverable={true} className="chart-item-edit-card" bodyStyle={{ maxHeight: 'calc(100% - 55px)', overflow: 'auto' }}>
-                                    {chartItemInEdit && !dataSourcesLoaded && <LoadingState />}
-                                    {chartItemInEdit && dataSourcesLoaded && (
+                                    {chartItemInEdit && !treeDataReady && <LoadingState />}
+                                    {chartItemInEdit && treeDataReady && (
                                         <Tree onSelect={onTreeNodeSelect} defaultExpandedKeys={currentChartVisualSetting.expandedKeys} defaultSelectedKeys={currentChartVisualSetting.selectedKeys} onExpand={onTreeNodeExpand}>{renderTreeNodes(treeData)}</Tree>
                                     )}
                                 </Card>
@@ -837,26 +985,35 @@ function Screen(props) {
                                         chartItemInEdit && queryResultColumnsLoaded &&
                                         <React.Fragment>
                                             <div className="dimension">
-                                                <Typography.Title level={4}>维度：</Typography.Title>
-                                                <Select
+                                                <Typography.Title level={4}>X轴：</Typography.Title>
+                                                {currentChartVisualSetting.columnSetting.xAxis ? <Select
                                                     style={{ width: '90%' }}
                                                     placeholder="选择一个字段作为维度"
-                                                    // optionFilterProp="children"
+                                                    defaultValue={currentChartVisualSetting.columnSetting.xAxis}
                                                     onChange={onDimensionChange}
                                                     optionLabelProp="label"
                                                 >
                                                     {currentQueryResultColumns.map(column => {
                                                         return <Select.Option label={column.name} value={column.name} key={column.name}>{column.name}<Badge count={column.type} /></Select.Option>
                                                     })}
-                                                </Select>
+                                                </Select> : <Select
+                                                    style={{ width: '90%' }}
+                                                    placeholder="选择一个字段作为维度"
+                                                    onChange={onDimensionChange}
+                                                    optionLabelProp="label"
+                                                >
+                                                        {currentQueryResultColumns.map(column => {
+                                                            return <Select.Option label={column.name} value={column.name} key={column.name}>{column.name}<Badge count={column.type} /></Select.Option>
+                                                        })}
+                                                    </Select>}
                                             </div>
                                             <div className="indicator">
-                                                <Typography.Title level={4}>指标：</Typography.Title>
+                                                <Typography.Title level={4}>Y轴：</Typography.Title>
                                                 <Select
                                                     mode="multiple"
                                                     style={{ width: '90%' }}
                                                     placeholder="指标可以选择多个"
-                                                    // defaultValue={['china']}
+                                                    defaultValue={currentChartVisualSetting.columnSetting.yAxis}
                                                     onChange={onIndicatorChange}
                                                     optionLabelProp="label"
                                                 >
@@ -889,10 +1046,10 @@ function Screen(props) {
                         textAlign: 'right',
                     }}
                 >
-                    <Button onClick={() => { setChartItemInEdit(false) }} style={{ marginRight: 8 }}>
+                    <Button onClick={onEditDrawerClose} style={{ marginRight: 8 }}>
                         取消
                     </Button>
-                    <Button onClick={() => { setChartItemInEdit(false) }} type="primary">
+                    <Button onClick={onEditDrawerSave} type="primary">
                         确定
                     </Button>
                 </div>
