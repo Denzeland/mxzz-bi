@@ -86,6 +86,11 @@ from redash.handlers.widgets import WidgetListResource, WidgetResource
 from redash.utils import json_dumps
 from redash.handlers.custom_api import CustomApi
 
+from redash.handlers.screens import (
+    ScreenListResource,
+    ScreenResource
+)
+
 class ApiExt(Api):
     def add_org_resource(self, resource, *urls, **kwargs):
         urls = [org_scoped_rule(url) for url in urls]
@@ -324,3 +329,10 @@ api.add_org_resource(
     CustomApi, "/api/visualizations/<visualization_id>/refresh", endpoint="visualization_refresh"
 )
 
+api.add_org_resource(
+    ScreenListResource, "/api/screens", endpoint="screens"
+)
+
+api.add_org_resource(
+    ScreenResource, "/api/screen/<screen_id>", endpoint="screen"
+)

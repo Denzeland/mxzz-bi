@@ -463,6 +463,7 @@ def should_schedule_next(
     "schedule",
     "schedule_failures",
 )
+
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer, default=1)
@@ -1461,6 +1462,36 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
             "created_at": self.created_at,
         }
 
+        return d
+
+    
+class Screen(TimestampMixin, BelongsToOrgMixin, db.Model):
+    __tablename__ = "screens"
+
+    id = Column(db.Integer, primary_key=True)
+    name = Column(db.String(255))
+    description = Column(db.String(4096), nullable=True)
+    theme  = Column(db.String(40))
+    screen_charts = Column(MutableList.as_mutable(PseudoJSON))
+    visual_settings = Column(MutableList.as_mutable(PseudoJSON))
+    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship(User, backref="screens")
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    org = db.relationship(Organization, backref="screens")
+
+
+    def to_dict(self):
+        d = { 
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "theme": self.theme,
+            "screen_charts": self.screen_charts,
+            "visual_settings": self.visual_settings,
+            "updated_at": self.updated_at,
+            "created_at": self.created_at,
+            "user": self.user.to_dict(),
+        }
         return d
 
 

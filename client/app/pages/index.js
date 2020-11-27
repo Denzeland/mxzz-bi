@@ -27,6 +27,7 @@ import usersListRoutes from "./users/UsersList";
 import leftdialogRoutes from "./cold/Left";
 import datasetRoutes from "./dataset/Dataset";
 import screenRoutes from "./screen/Screen";
+import screenListRoutes from "./screen/ScreenList";
 
 export default flatten([
   adminJobsRoutes,
@@ -56,4 +57,5 @@ export default flatten([
   leftdialogRoutes,
   datasetRoutes,
   screenRoutes,
+  screenListRoutes
 ]);

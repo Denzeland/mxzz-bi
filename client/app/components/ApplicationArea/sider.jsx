@@ -23,7 +23,7 @@ export default function DesktopSider({ collapsed }) {
 
   const showNewScreenDialog = useCallback(() => {
     console.log('新建大屏', location.path);
-    if(location.path == '/screen') {
+    if (location.path == '/screen') {
       message.error('要先退出编辑才能新建大屏！');
     } else {
       NewScreenDialog.showModal();
@@ -106,6 +106,14 @@ export default function DesktopSider({ collapsed }) {
             <Icon type="fullscreen" />
             <span>
               <a onMouseUp={showNewScreenDialog} className="side-href">可视化大屏</a>
+            </span>
+          </Menu.Item>
+        )}
+        {currentUser.hasPermission("view_query") && (
+          <Menu.Item key="screens" className="dropdown-menu-item">
+            <Icon type="fullscreen" />
+            <span>
+              <a href="screens" className="side-href">大屏列表</a>
             </span>
           </Menu.Item>
         )}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useReducer, useCallback } from "react";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table, Drawer, Button, Select, Tree, Badge, Modal, message } from 'antd';
+import { PageHeader, Row, Col, Card, Typography, List, Icon, Dropdown, Tabs, Empty, Affix, Input, Table, Drawer, Button, Select, Tree, Badge, Modal, message, Result } from 'antd';
 import { max, sum, isNumber, isString, endsWith, throttle, map, find, toNumber, range, cloneDeep, findIndex, extend, forEach, floor, assignIn, has, startsWith } from "lodash";
 import NewScreenDialog from './NewScreenDialog';
 import location from "@/services/location";
@@ -34,14 +34,15 @@ import SchemaBrowser from "@/pages/queries/components/SchemaBrowser";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import { axios } from "@/services/axios";
 import LoadingState from "@/components/items-list/components/LoadingState";
+import notification from "@/services/notification";
+import { currentUser } from "@/services/auth";
 
 const history = createBrowserHistory();
 const { TreeNode } = Tree;
 
 function Screen(props) {
     // console.log('编辑大屏查询search', location.search);
-    const search = location.search;
-    const theme = search.template;
+    const screenId = props.screenId;
     const arryReducer = (prevState, updatedProperty) => {
         if (updatedProperty.length > 0) {
             return [...updatedProperty];
@@ -63,6 +64,9 @@ function Screen(props) {
             return null;
         }
     };
+    const [theme, setTheme] = useState(props.theme ? props.theme : null);
+    const [title, setTitle] = useState(props.title ? props.title : null);
+    const [description, setdDscription] = useState(props.description ? props.description : null);
     const [activeChartIndex, setActiveChartIndex] = useState(null);
     const [screenViewMode, setScreenViewMode] = useState('edit');
     const [chartItemInEdit, setChartItemInEdit] = useState(false);
@@ -100,6 +104,7 @@ function Screen(props) {
      *  zIndex: zIndex,
      *  widgetSize: { width, height },
      *  widgetPosition: { x, y },
+     * 
      *  type: '图表类型',
      *  engine: 'echarts' or 'antd-*',
     }]
@@ -121,6 +126,7 @@ function Screen(props) {
     const [screenCharts, setScreenCharts] = useReducer(arryReducer, []);
     const [screenChartsVisualSettings, setScreenChartsVisualSettings] = useReducer(arryReducer, []);
     const [currentChartVisualSetting, setCurrentChartVisualSetting] = useReducer(objReducer, null);
+    const [screenSaved, setScreenSaved] = useState(false);
     useUnsavedChangesAlert(screenCharts.length > 0);
     const dropdownListData = [
         {
@@ -394,6 +400,58 @@ function Screen(props) {
         document.querySelector('.mxbi-content').requestFullscreen();
     }
 
+    const screenSavedCallback = () => {
+        clearCurrentSettings();
+        setScreenCharts([]);
+        setScreenChartsVisualSettings([]);
+        setTheme(null);
+        setScreenSaved(true);
+    }
+
+    const onScreenSave = () => {
+        console.log('当前用户', currentUser);
+        if (screenCharts.length > 0) {
+            const screenChartsToSave = map(screenCharts, (data) => {
+                return {
+                    id: data.id,
+                    zIndex: data.zIndex,
+                    widgetSize: data.widgetSize,
+                    widgetPosition: data.widgetPosition,
+                    type: data.type,
+                    engine: data.engine,
+                }
+            });
+            const dataToSave = {
+                user_id: currentUser.id,
+                name: title,
+                description: description,
+                theme: theme,
+                screen_charts: screenChartsToSave,
+                visual_settings: screenChartsVisualSettings
+            };
+            if (screenId) {
+                axios.post(`/api/screen/${screenId}`, dataToSave).then(data => {
+                    message.success(data.msg);
+                    console.log('最终保存的大屏数据', screenCharts);
+                    screenSavedCallback();
+                }).catch(error => {
+                    message.error('大屏保存出错，请稍后重试');
+                });
+            } else {
+                axios.post('/api/screens', dataToSave).then(data => {
+                    console.log('大屏保存成功', data);
+                    message.success('大屏保存成功！');
+                    console.log('最终保存的大屏数据', screenCharts);
+                    screenSavedCallback();
+                }).catch(error => {
+                    message.error('大屏保存出错，请稍后重试');
+                });
+            }
+        } else {
+            message.warn('不能保存空的大屏');
+        }
+    }
+
     const cancleActive = (e) => {
         e.stopPropagation();
         if (e.target.getAttribute('class') == "screen-charts-content") {
@@ -409,6 +467,12 @@ function Screen(props) {
 
     const deleteChartItem = (e, index) => {
         e.stopPropagation();
+        const chartOption = screenCharts[index];
+        const visualSettingIndex = findIndex(screenChartsVisualSettings, { chartId: chartOption.id });
+        if (visualSettingIndex !== -1) {
+            screenChartsVisualSettings.splice(visualSettingIndex, 1);
+            setScreenChartsVisualSettings(screenChartsVisualSettings);
+        }
         setActiveChartIndex(null);
         screenCharts.splice(index, 1);
         setScreenCharts(screenCharts);
@@ -416,15 +480,33 @@ function Screen(props) {
 
     const copyChartItem = (e, option) => {
         e.stopPropagation();
+        const currentId = option.id;
+        const newId = moment().unix();
         screenCharts.push(assignIn(cloneDeep(option), {
-            id: moment().unix(),
+            id: newId,
             zIndex: screenCharts.length,
         }));
+        const visualSetting = find(screenChartsVisualSettings, { chartId: currentId });
+        if (visualSetting) {
+            screenChartsVisualSettings.push(assignIn(cloneDeep(visualSetting), { chartId: newId }));
+            setScreenChartsVisualSettings(screenChartsVisualSettings);
+        }
         resetZindex(screenCharts.length - 1);
     }
 
     const freshChartItem = (e, index) => {
         e.stopPropagation();
+        // 测试更新screenCharts是否更新图表
+        // const option = cloneDeep(screenCharts[index]);
+        // option.chartOption.option.xAxis = { data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] };
+        // option.chartOption.option.series = [{
+        //     name: "Sale",
+        //     type: "bar",
+        //     data: [5, 20, 36, 10, 10, 20, 4]
+        // }];
+        // screenCharts.splice(index, 1, option);
+        // setScreenCharts(screenCharts);
+        // console.log('图表更新', index, screenCharts);
     }
 
     useEffect(() => {
@@ -465,6 +547,21 @@ function Screen(props) {
         }
 
     }, [screenCharts]);
+
+    useEffect(() => {
+        if (screenId) {
+            axios.get(`/api/screen/${screenId}`).then(data => {
+                console.log('加载大屏', data);
+                setTitle(data.name);
+                setdDscription(data.description);
+                setTheme(data.theme);
+                refreshScreenByVisualSettings(data.screen_charts, data.visual_settings);
+                setScreenChartsVisualSettings(data.visual_settings);
+            }).catch(error => {
+                console.log('加载大屏出错', error);
+            });
+        }
+    }, [screenId]);
 
     useEffect(() => {
         return () => {
@@ -545,16 +642,17 @@ function Screen(props) {
     }
 
     // 根据当前的查询数据和设置来获取直角坐标系的数据
-    const getRectAxisDataBySetting = (queryResultData, currentChartVisualSetting) => {
+    const getRectAxisDataBySetting = (queryResultData, currentChartVisualSetting, screenCharts) => {
         const xAxisFieldName = currentChartVisualSetting.columnSetting.xAxis;
         const yAxisFieldNames = currentChartVisualSetting.columnSetting.yAxis;
         const xAxisData = map(queryResultData, (data) => {
             return data[xAxisFieldName];
         });
+        const seriesType = screenCharts? find(screenCharts, {id: currentChartVisualSetting.chartId}).type : currentEditChartOption.chartOption.type; 
         const series = map(yAxisFieldNames, (name) => {
             return {
                 name: name,
-                type: currentEditChartOption.chartOption.type,
+                type: seriesType,
                 data: map(queryResultData, (data) => {
                     return data[name];
                 })
@@ -644,6 +742,12 @@ function Screen(props) {
             setCurrentQueryResultColumns(data.getColumns());
             setCurrentQueryResultData(data.getData());
             setQueryResultColumnsLoaded(true);
+        }).catch((error) => {
+            console.log('字段配置出错', queryResult);
+            notification.error('数据获取出错', '数据集字段和记录数据获取出错，请稍后重试');
+            setCurrentQueryResultColumns([]);
+            setCurrentQueryResultData([]);
+            setQueryResultColumnsLoaded(true);
         });
     }
 
@@ -670,7 +774,6 @@ function Screen(props) {
                 },
                 dataFiltering: null
             });
-            // console.log('节点选中设置', selectedKeys, currentChartVisualSetting);
         }
     };
 
@@ -686,7 +789,7 @@ function Screen(props) {
             return <TreeNode key={item.key} {...item} dataRef={item} />;
         });
 
-    const refreshScreenByVisualSettings = () => {
+    const refreshScreenByVisualSettings = (screenCharts, screenChartsVisualSettings) => {
         if (screenCharts.length > 0) {
             forEach(screenCharts, (screenChart) => {
                 const defaultOption = find(defaultChartsOptions, { type: screenChart.type });
@@ -709,14 +812,15 @@ function Screen(props) {
                     }
                     return queryResult.toPromise().then(data => {
                         const visualData = data.getData();
-                        const [xAxisData, series] = getRectAxisDataBySetting(visualData, visualSetting);
+                        const [xAxisData, series] = getRectAxisDataBySetting(visualData, visualSetting, screenCharts);
                         const screenChart = find(screenCharts, { id: visualSetting.chartId });
-                        screenChart.chartOption.xAxis = { data: xAxisData };
-                        screenChart.chartOption.series = series;
+                        screenChart.chartOption.option.xAxis = { data: xAxisData };
+                        screenChart.chartOption.option.series = series;
                     });
                 });
                 Promise.all(promiseArr).then(() => {
                     setScreenCharts(screenCharts);
+                    console.log('设置数据', screenCharts);
                 });
             } else {
                 setScreenCharts(screenCharts);
@@ -725,9 +829,7 @@ function Screen(props) {
     };
 
     useEffect(() => {
-        setDataSourcesAndQueries().then(() => {
-            refreshScreenByVisualSettings();
-        });
+        setDataSourcesAndQueries();
     }, []);
 
 
@@ -829,7 +931,8 @@ function Screen(props) {
 
     const clearCurrentSettings = () => {
         setCurrentQueryResultColumns([]);
-        // setCurrentEditChartOption(null);
+        setCurrentQueryResultData([]);
+        setCurrentEditChartOption(null);
         setCurrentChartVisualSetting(null);
         setChartItemInEdit(false);
     }
@@ -847,19 +950,7 @@ function Screen(props) {
         });
     }
 
-    const onEditDrawerSave = () => {
-        const xAxisFieldName = currentChartVisualSetting.columnSetting.xAxis;
-        const yAxisFieldNames = currentChartVisualSetting.columnSetting.yAxis;
-        if (!xAxisFieldName && yAxisFieldNames.length > 0) {
-            message.warning('x轴没有配置要显示的字段');
-        } else if (xAxisFieldName && yAxisFieldNames.length == 0) {
-            message.warning('y轴没有配置要显示的字段');
-        } else if (!xAxisFieldName && yAxisFieldNames.length == 0) {
-            message.error('坐标轴没有配置字段！');
-            return;
-        } else {
-            message.success('保存成功！');
-        }
+    const saveCurrentSetting = () => {
         const visualSettingIndex = findIndex(screenChartsVisualSettings, { chartId: currentChartVisualSetting.chartId });
         if (visualSettingIndex == -1) {
             screenChartsVisualSettings.push(currentChartVisualSetting);
@@ -867,24 +958,46 @@ function Screen(props) {
             screenChartsVisualSettings.splice(visualSettingIndex, 1, currentChartVisualSetting);
         }
         setScreenChartsVisualSettings(screenChartsVisualSettings);
-        setCurrentQueryResultColumns([]);
-        setCurrentChartVisualSetting(null);
-        setChartItemInEdit(false);
         const chartOptionIndex = findIndex(screenCharts, { id: currentEditChartOption.id });
         screenCharts.splice(chartOptionIndex, 1, currentEditChartOption);
         setScreenCharts(screenCharts);
-        console.log('保存后设置', screenCharts);
     }
 
-    return (
+    const onEditDrawerSave = () => {
+        const xAxisFieldName = currentChartVisualSetting.columnSetting.xAxis;
+        const yAxisFieldNames = currentChartVisualSetting.columnSetting.yAxis;
+        if (!xAxisFieldName && yAxisFieldNames.length > 0) {
+            saveCurrentSetting();
+            message.warning('x轴没有配置要显示的字段');
+        } else if (xAxisFieldName && yAxisFieldNames.length == 0) {
+            saveCurrentSetting();
+            message.warning('y轴没有配置要显示的字段');
+        } else if (!xAxisFieldName && yAxisFieldNames.length == 0) {
+            message.error('坐标轴没有配置字段！');
+            return;
+        } else {
+            saveCurrentSetting();
+            message.success('更新成功！');
+        }
+        clearCurrentSettings();
+    }
+
+    return (screenSaved ? <Result
+        title="新的可视化大屏保存成功"
+        extra={
+            <Button type="primary" key="console" href="/screens">
+                查看所有大屏
+                </Button>
+        }
+    /> :
         <React.Fragment>
             <Affix offsetTop={80} style={{ height: 'auto' }} className="edit-header">
                 <PageHeader
                     // ghost={false}
                     className={cx("screen-page-header", { [`${theme}`]: true })}
                     onBack={() => { history.goBack(); }}
-                    title={<Typography.Title level={3}>{search.title}</Typography.Title>}
-                    subTitle={search.description}
+                    title={<Typography.Title level={3}>{title}</Typography.Title>}
+                    subTitle={description}
                     extra={
                         <React.Fragment>
                             <ul className="screen-edit-btn-wrap">
@@ -895,7 +1008,7 @@ function Screen(props) {
                                     <Icon type="fullscreen" />
                                     <span>预览</span>
                                 </li>
-                                <li onClick={onPreview}>
+                                <li onClick={onScreenSave}>
                                     <Icon type="save" />
                                     <span>保存</span>
                                 </li>
@@ -913,6 +1026,8 @@ function Screen(props) {
                                 width: option.widgetSize.width,
                                 height: option.widgetSize.height,
                             }}
+                            size={{ width: option.widgetSize.width,  height: option.widgetSize.height }}
+                            position={{x: option.widgetPosition.x, y: option.widgetPosition.y}}
                             style={{ zIndex: option.zIndex }}
                             key={option.id}
                             bounds="parent"
@@ -987,8 +1102,8 @@ function Screen(props) {
                                             <div className="dimension">
                                                 <Typography.Title level={4}>X轴：</Typography.Title>
                                                 {currentChartVisualSetting.columnSetting.xAxis ? <Select
-                                                    style={{ width: '90%' }}
-                                                    placeholder="选择一个字段作为维度"
+                                                    style={{ width: '100%' }}
+                                                    placeholder="选择一个字段"
                                                     defaultValue={currentChartVisualSetting.columnSetting.xAxis}
                                                     onChange={onDimensionChange}
                                                     optionLabelProp="label"
@@ -997,8 +1112,8 @@ function Screen(props) {
                                                         return <Select.Option label={column.name} value={column.name} key={column.name}>{column.name}<Badge count={column.type} /></Select.Option>
                                                     })}
                                                 </Select> : <Select
-                                                    style={{ width: '90%' }}
-                                                    placeholder="选择一个字段作为维度"
+                                                    style={{ width: '100%' }}
+                                                    placeholder="选择一个字段"
                                                     onChange={onDimensionChange}
                                                     optionLabelProp="label"
                                                 >
@@ -1012,7 +1127,7 @@ function Screen(props) {
                                                 <Select
                                                     mode="multiple"
                                                     style={{ width: '90%' }}
-                                                    placeholder="指标可以选择多个"
+                                                    placeholder="可以选择多个"
                                                     defaultValue={currentChartVisualSetting.columnSetting.yAxis}
                                                     onChange={onIndicatorChange}
                                                     optionLabelProp="label"
@@ -1058,9 +1173,17 @@ function Screen(props) {
     )
 }
 
-export default routeWithUserSession({
-    path: "/screen",
-    title: '编辑大屏',
-    render: pageProps => <Screen {...pageProps} />,
-    bodyClass: cx("screen")
-});
+export default [
+    routeWithUserSession({
+        path: "/screen/new/:theme/:title/:description",
+        title: '编辑大屏',
+        render: pageProps => <Screen {...pageProps} />,
+        bodyClass: cx("screen")
+    }),
+    routeWithUserSession({
+        path: "/screen/:screenId([0-9]+)",
+        title: '编辑大屏',
+        render: pageProps => <Screen {...pageProps} />,
+        bodyClass: cx("screen")
+    }),
+]

@@ -122,7 +122,7 @@ function NewScreenDialog({ dialog }) {
             description,
             template
         });
-        navigateTo(`/screen?title=${title}&description=${description}&template=${template}`);
+        navigateTo(`/screen/new/${template}/${title}/${description}`);
     }
 
     const dismiss = () => {
