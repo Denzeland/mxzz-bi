@@ -72,6 +72,7 @@ function Screen(props) {
     const [chartItemInEdit, setChartItemInEdit] = useState(false);
     const [currentEditChartOption, setCurrentEditChartOption] = useReducer(replaceObjReducer, null);
     const currentEditChartRef = React.useRef(null);
+    const [screenLoading, setScreenLoading] = useState(false);
 
     const [allDataSources, setAllDataSources] = useState([]);
     const [allQueries, setAllQueries] = useReducer(arryReducer, []);
@@ -550,16 +551,21 @@ function Screen(props) {
 
     useEffect(() => {
         if (screenId) {
-            axios.get(`/api/screen/${screenId}`).then(data => {
-                console.log('加载大屏', data);
-                setTitle(data.name);
-                setdDscription(data.description);
-                setTheme(data.theme);
-                refreshScreenByVisualSettings(data.screen_charts, data.visual_settings);
-                setScreenChartsVisualSettings(data.visual_settings);
-            }).catch(error => {
-                console.log('加载大屏出错', error);
-            });
+            setScreenLoading(true);
+            setDataSourcesAndQueries().then((queryToTree) => {
+                axios.get(`/api/screen/${screenId}`).then(data => {
+                    console.log('加载大屏', data);
+                    setTitle(data.name);
+                    setdDscription(data.description);
+                    setTheme(data.theme);
+                    refreshScreenByVisualSettings(data.screen_charts, data.visual_settings, queryToTree);
+                    setScreenChartsVisualSettings(data.visual_settings);
+                }).catch(error => {
+                    console.log('加载大屏出错', error);
+                });
+            })
+        } else {
+            setDataSourcesAndQueries();
         }
     }, [screenId]);
 
@@ -595,6 +601,7 @@ function Screen(props) {
         e.stopPropagation();
         const editChartOption = cloneDeep(option);
         const visualSetting = find(screenChartsVisualSettings, { chartId: option.id });
+        setCurrentEditChartOption(editChartOption);
         prepareTreeNodeRender().then(() => {
             if (visualSetting) {
                 const selectedKey = visualSetting.selectedKeys[0];
@@ -622,7 +629,6 @@ function Screen(props) {
                     updateCurrentChart: false
                 });
             }
-            setCurrentEditChartOption(editChartOption);
             setChartItemInEdit(true);
         });
     }
@@ -789,7 +795,7 @@ function Screen(props) {
             return <TreeNode key={item.key} {...item} dataRef={item} />;
         });
 
-    const refreshScreenByVisualSettings = (screenCharts, screenChartsVisualSettings) => {
+    const refreshScreenByVisualSettings = (screenCharts, screenChartsVisualSettings, queryToTree) => {
         if (screenCharts.length > 0) {
             forEach(screenCharts, (screenChart) => {
                 const defaultOption = find(defaultChartsOptions, { type: screenChart.type });
@@ -807,7 +813,9 @@ function Screen(props) {
                         const sqlText = `select * from ${schameName};`;
                         queryResult = query.getQueryResultByText(0, sqlText);
                     } else {
-                        const queryTreeNodeData = find(allQueries, { key: selectedKey });
+                        console.log('现有查询allQueries', allQueries);
+                        const queriesToFind = queryToTree ? queryToTree : allQueries;
+                        const queryTreeNodeData = find(queriesToFind, { key: selectedKey });
                         queryResult = queryTreeNodeData.query.getQueryResult(0);
                     }
                     return queryResult.toPromise().then(data => {
@@ -820,19 +828,15 @@ function Screen(props) {
                 });
                 Promise.all(promiseArr).then(() => {
                     setScreenCharts(screenCharts);
+                    setScreenLoading(false);
                     console.log('设置数据', screenCharts);
                 });
             } else {
                 setScreenCharts(screenCharts);
+                setScreenLoading(false);
             }
         }
     };
-
-    useEffect(() => {
-        setDataSourcesAndQueries();
-    }, []);
-
-
 
     const setDataSourcesAndQueries = () => {
         return Promise.all([DataSource.query(), Query.query()]).then(([dataSource, query]) => {
@@ -846,7 +850,9 @@ function Screen(props) {
                         isLeaf: true,
                     }
                 });
+                console.log('加载所有查询', queryToTree);
                 setAllQueries(queryToTree);
+                return queryToTree;
             }
         });
     };
@@ -1017,7 +1023,7 @@ function Screen(props) {
                 ></PageHeader>
             </Affix>
             <div className="screen-charts-content" style={screenSize} onClick={cancleActive}>
-                {screenCharts.length > 0 && screenCharts.map((option, index) => {
+                {screenLoading? <LoadingState message={"大屏加载中..."} className="screen-loading"/> : screenCharts.length > 0 && screenCharts.map((option, index) => {
                     return (
                         <Rnd
                             default={{
@@ -1061,8 +1067,8 @@ function Screen(props) {
                                             <Icon type="copy" onClick={(e) => { copyChartItem(e, option) }} />
                                             <Icon type="sync" onClick={(e) => { freshChartItem(e, index) }} />
                                             <Icon type="edit" onClick={(e) => { editChartItem(e, option) }} />
-                                        </div>
-                                        <Icon type="drag" className='drag-handle' />
+                                            <Icon type="drag" className='drag-handle' />
+                                        </div>    
                                     </React.Fragment>
                                 }
                             </div>
